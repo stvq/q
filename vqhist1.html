@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЕГЭ История: Тренажер (Рюрик — Монголы)</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-color: #e0e0e6;
+            --accent-color: #7928ca;
+            --accent-hover: #9b51e0;
+            --correct-color: #a3e635; /* Пастельный салатово-зеленый */
+            --correct-bg: rgba(163, 230, 53, 0.15);
+            --wrong-color: #f87171; /* Пастельный красный */
+            --wrong-bg: rgba(248, 113, 113, 0.15);
+            --border-color: #2a2a30;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #fff;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: #242428;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .nav-btn {
+            background-color: #242428;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #202024;
+            color: #fff;
+        }
+
+        .col-num {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #202024;
+        }
+
+        /* ИЗМЕНЕНО: теперь элементы выстраиваются в строку по центру */
+        .interactive-zone {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Чтобы на смартфонах элементы не сжимались, а переносились */
+        }
+
+        input[type="text"] {
+            background-color: #202024;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 6px;
+            letter-spacing: 4px;
+            text-align: left;
+            width: 150px;
+            outline: none;
+            box-sizing: border-box;
+            height: 48px; /* Одинаковая высота для инпута и кнопок */
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-hover);
+        }
+
+        /* Перенесено ниже инпута и кнопок, чтобы уведомление появлялось отдельной строкой */
+        .result-box {
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .correct-ans {
+            color: var(--correct-color);
+            background-color: var(--correct-bg);
+            border: 1px solid var(--correct-color);
+        }
+
+        .wrong-ans {
+            color: var(--wrong-color);
+            background-color: var(--wrong-bg);
+            border: 1px solid var(--wrong-color);
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 0 30px;
+            font-weight: bold;
+            height: 48px; /* Одинаковая высота для инпута и кнопок */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+/* Обновленная интерактивная зона с поддержкой адаптивности */
+.interactive-zone {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: nowrap; /* Гарантирует, что инпут и кнопка останутся в один ряд */
+}
+
+/* Адаптивность для мобильных устройств */
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    /* Уменьшаем шрифты и отступы в таблице, чтобы она не вылезала за экраны смартфонов */
+    table {
+        font-size: 13px;
+        margin: 15px 0;
+    }
+
+    th, td {
+        padding: 8px 6px;
+    }
+
+    .col-num {
+        width: 30px;
+    }
+
+    /* Делаем кнопки меню на главном экране в одну колонку на маленьких телефонах */
+    .menu {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* Оптимизация инпута и кнопок под узкие экраны */
+    input[type="text"] {
+        width: 100px; /* Немного сужаем поле ввода */
+        font-size: 16px;
+        padding: 12px 10px;
+        letter-spacing: 2px;
+    }
+
+    .action-btn {
+        padding: 0 20px;
+        font-size: 14px;
+        flex-grow: 1; /* Кнопка займет все оставшееся в ряду место */
+    }
+}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="main-menu">
+        <h1>ЕГЭ История России</h1>
+        <p style="text-align: center; color: #888;">Тренажер по периоду: Древнерусское Государство до Монгольского нашествия</p>
+        <div class="menu">
+            <button onclick="startTest('dates')">Даты</button>
+            <button onclick="startTest('people')">Личности</button>
+            <button onclick="startTest('facts')">События и факты</button>
+            <button onclick="startTest('geo')">География</button>
+        </div>
+    </div>
+
+    <div id="test-screen" class="hidden">
+        <button class="nav-btn" onclick="toMainMenu()">← В меню</button>
+        <h2 id="test-title">Тестирование</h2>
+        <p style="text-align: center; color: #aaa;">Сопоставьте элементы левой колонки (А-Г) с элементами правой колонки (1-4). Введите цифры по порядку без пробелов.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">Элементы</th>
+                    <th colspan="2">Для сопоставления</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+
+        <div class="interactive-zone">
+            <input type="text" id="user-answer" placeholder=". . . ." maxlength="4" autocomplete="off">
+            <button id="submit-btn" class="action-btn" onclick="checkAnswer()">Проверить</button>
+            <button id="next-btn" class="action-btn hidden" onclick="generateQuestion()">Далее</button>
+            <div id="result" class="result-box hidden"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const db = {
+        dates: [
+            { left: "призвание варягов на Русь (начало правления Рюрика)", right: "862" },
+            { left: "смерть Рюрика (конец правления Рюрика)", right: "879" },
+            { left: "начало правления Олега Вещего", right: "879" },
+            { left: "объединение Новгорода и Киева под властью князя Олега", right: "882" },
+            { left: "успешный поход князя Олега на Константинополь (Царьград)", right: "907" },
+            { left: "заключение первого письменного мирного договора Руси с Византией", right: "911" },
+            { left: "смерть князя Олега от укуса змеи (конец правления Олега)", right: "912" },
+            { left: "начало правления князя Игоря", right: "912" },
+            { left: "неудачный поход князя Игоря на Константинополь (греческий огонь)", right: "941" },
+            { left: "второй поход князя Игоря на Византию, заключение нового договора", right: "944" },
+            { left: "восстание древлян, убийство князя Игоря (конец правления Игоря)", right: "945" },
+            { left: "начало правления (регентства) княгини Ольги", right: "945" },
+            { left: "налоговая реформа княгини Ольги (введение уроков и погостов)", right: "945" },
+            { left: "крещение княгини Ольги в Константинополе", right: "957" },
+            { left: "начало самостоятельного правления князя Святослава Игоревича", right: "964" },
+            { left: "разгром Хазарского каганата князем Святославом", right: "965" },
+            { left: "оборона Киева от печенегов княгиней Ольгой", right: "968" },
+            { left: "битва при Доростоле, подписание мира с Византией", right: "971" },
+            { left: "гибель князя Святослава на днепровских порогах (конец правления Святослава)", right: "972" },
+            { left: "начало первой междоусобной войны между сыновьями Святослава", right: "972" },
+            { left: "начало правления Владимира I Святославича (Красно Солнышко)", right: "978" },
+            { left: "языческая реформа князя Владимира (создание пантеона богов)", right: "980" },
+            { left: "Крещение Руси", right: "988" },
+            { left: "смерть князя Владимира (конец правления Владимира I)", right: "1015" },
+            { left: "начало второй междоусобной войны (убийство Бориса и Глеба)", right: "1015" },
+            { left: "начало составления свода законов «Русская Правда»", right: "1016" },
+            { left: "начало правления князя Ярослава Мудрого в Киеве", right: "1019" },
+            { left: "разгром печенегов под Киевом князем Ярославом Мудрым", right: "1036" },
+            { left: "смерть Ярослава Мудрого (конец правления Ярослава Мудрого)", right: "1054" },
+            { left: "битва на реке Альте и восстание в Киеве", right: "1068" },
+            { left: "Любечский съезд князей («Каждый да держит отчину свою»)", right: "1097" },
+            { left: "крестовый поход русских князей против половцев (битва на реке Салнице)", right: "1111" },
+            { left: "восстание в Киеве после смерти Святополка Изяславича", right: "1113" },
+            { left: "начало правления Владимира Мономаха в Киеве", right: "1113 (начало)" },
+            { left: "смерть Владимира Мономаха (конец правления Владимира Мономаха)", right: "1125" },
+            { left: "начало правления Мстислава Великого в Киеве", right: "1125" },
+            { left: "смерть Мстислава Великого (условное начало раздробленности)", right: "1132" },
+            { left: "восстание в Новгороде, изгнание князя Всеволода (установление республики)", right: "1136" },
+            { left: "первое упоминание Москвы в летописи (Юрий Долгорукий)", right: "1147" },
+            { left: "начало правления Андрея Боголюбского", right: "1155" },
+            { left: "взятие и разграбление Киева войсками Андрея Боголюбского", right: "1169" },
+            { left: "убийство Андрея Боголюбского заговорщиками в Боголюбове", right: "1174" },
+            { left: "начало правления Всеволода Большое Гнездо во Владимире", right: "1176" },
+            { left: "поход новгород-северского князя Игоря Святославича на половцев", right: "1185" },
+            { left: "смерть Всеволода Большое Гнездо", right: "1212" },
+            { left: "основание Нижнего Новгорода князем Юрием Всеволодовичем", right: "1221" },
+            { left: "битва на реке Калке (первое столкновение с монголами)", right: "1223" },
+            { left: "начало нашествия хана Батыя на Северо-Восточную Русь", right: "1237" }
+        ],
+        people: [
+            { left: "призвание варягов на княжение славянскими и финно-угорскими племенами", right: "Рюрик" },
+            { left: "основание княжеской династии, правившей Русью до конца XVI века", right: "Рюрик" },
+            { left: "объединение Новгорода и Киева под единой княжеской властью", right: "Олег Вещий" },
+            { left: "прибитие щита на врата Царьграда в знак победы", right: "Олег Вещий" },
+            { left: "заключение выгодного торгового договора с Византией без пошлин", right: "Олег Вещий" },
+            { left: "подавление восстания древлян в начале своего правления", right: "Игорь Старый" },
+            { left: "столкновение с византийским флотом, применившим «греческий огонь»", right: "Игорь Старый" },
+            { left: "гибель во время повторного сбора дани (полюдья) в Искоростене", right: "Игорь Старый" },
+            { left: "месть древлянам за убийство своего мужа", right: "Княгиня Ольга" },
+            { left: "установление фиксированного размера дани (уроков) и мест сбора (погостов)", right: "Княгиня Ольга" },
+            { left: "принятие христианства под именем Елена в Константинополе", right: "Княгиня Ольга" },
+            { left: "уничтожение Хазарского каганата и захват его столицы Итиль", right: "Святослав Игоревич" },
+            { left: "ведение войн на Балканах против Византийской империи", right: "Святослав Игоревич" },
+            { left: "перенос своей резиденции в Переяславец на Дунае", right: "Святослав Игоревич" },
+            { left: "проведение языческой реформы с целью централизации государства", right: "Владимир I Святой" },
+            { left: "осада и взятие византийского Корсуня (Херсонеса) в Крыму", right: "Владимир I Святой" },
+            { left: "организация массового крещения киевлян в водах Днепра", right: "Владимир I Святой" },
+            { left: "захват киевского престола после смерти отца Владимира I", right: "Святополк Окаянный" },
+            { left: "организация убийства своих братьев Бориса и Глеба", right: "Святополк Окаянный" },
+            { left: "разгром печенегов, навсегда прекративший их набеги на Русь", right: "Ярослав Мудрый" },
+            { left: "издание первой части письменного законодательства — «Правды Ярослава»", right: "Ярослав Мудрый" },
+            { left: "строительство Софийского собора в Киеве", right: "Ярослав Мудрый" },
+            { left: "избрание первым митрополитом славянского происхождения на киевскую кафедру", right: "Иларион" },
+            { left: "написание религиозно-философского трактата «Слово о законе и благодати»", right: "Иларион" },
+            { left: "инициация созыва Любечского съезда князей для прекращения усобиц", right: "Владимир Мономах" },
+            { left: "создание «Устава», ограничившего проценты ростовщиков", right: "Владимир Мономах" },
+            { left: "написание литературного памятника «Поучение детям»", right: "Владимир Мономах" },
+            { left: "составление летописного свода «Повесть временных лет»", right: "Нестор" },
+            { left: "сохранение единства Древнерусского государства до своей смерти в 1132 году", right: "Мстислав Великий" },
+            { left: "приглашение черниговского князя Святослава в Москву на «обед силен»", right: "Юрий Долгорукий" },
+            { left: "активное вмешательство в южные дела и захват киевского престола", right: "Юрий Долгорукий" },
+            { left: "перенос столицы Северо-Восточной Руси из Суздаля во Владимир", right: "Андрей Боголюбский" },
+            { left: "похищение иконы Владимирской Божьей Матери из Вышгорода", right: "Андрей Боголюбский" },
+            { left: "строительство церкви Покрова на Нерли и Золотых ворот во Владимире", right: "Андрей Боголюбский" },
+            { left: "достижение наивысшего могущества Владимиро-Суздальского княжества", right: "Всеволод Большое Гнездо" },
+            { left: "получение прозвища из-за наличия большого количества сыновей", right: "Всеволод Большое Гнездо" },
+            { left: "неудачный поход против половецких ханов Гзака и Кончака", right: "Игорь Святославич" },
+            { left: "объединение Галицкого и Волынского княжеств в единое государство", right: "Роман Mстиславич" },
+            { left: "ведение длительной борьбы с боярской оппозицией за галицкий престол", right: "Даниил Галицкий" }
+        ],
+        facts: [
+            { left: "Становление Древнерусского государства", right: "призвание варяжского князя Рюрика на княжение в 862 году" },
+            { left: "Становление Древнерусского государства", right: "поход Олега на Киев в 882 году и убийство Аскольда и Dir" },
+            { left: "Формирование системы налогообложения", right: "сбор дани киевскими князьями с подвластных племён путём полюдья" },
+            { left: "Формирование системы налогообложения", right: "введение княгиней Ольгой уроков и погостов после гибели князя Игоря" },
+            { left: "Борьба Руси с кочевниками", right: "разгром Хазарского каганата войсками князя Святослава Игоревича" },
+            { left: "Борьба Руси с кочевниками", right: "разгром печенегов под стенами Киева войсками Ярослава Мудрого в 1036 году" },
+            { left: "Борьба Руси с кочевниками", right: "организация Владимиром Мономахом общерусских походов в половецкую степь" },
+            { left: "Христианизация Руси", right: "крещение князя Владимира Святославича в Корсуни" },
+            { left: "Христианизация Руси", right: "свержение языческого идола Перуна в Киеве и сброс его в Днепр" },
+            { left: "Развитие древнерусского права", right: "издание Ярославом Мудрым свода законов «Русская Правда»" },
+            { left: "Развитие древнерусского права", right: "ограничение кровной мести кругом ближайших родственников по закону Ярослава" },
+            { left: "Развитие древнерусского права", right: "принятие сыновьями Ярослава Мудрого нового свода, отменившего кровную месть" },
+            { left: "Борьба за киевский престол (междоусобицы)", right: "гибель князей Бориса и Глеба от рук сторонников Святополка Окаянного" },
+            { left: "Борьба за киевский престол (междоусобицы)", right: "битва на реке Альте между Ярославом Мудрым и Святополком" },
+            { left: "Политическая (феодальная) раздробленность", right: "созыв князей на съезд в Любече в 1097 году" },
+            { left: "Политическая (феодальная) раздробленность", right: "восстание в Новгороде в 1136 году и изгнание князя Всеволода" },
+            { left: "Политическая (феодальная) раздробленность", right: "поход войск Андрея Боголюбского на Киев и его разграбление в 1169 году" },
+            { left: "Формирование Новгородской республики", right: "изгнание князя Всеволода Mстиславича в 1136 году" },
+            { left: "Формирование Новгородской республики", right: "приглашение князя на новгородский престол по решению вече" }
+        ],
+        geo: [
+            { left: "объединение Руси князем Олегом — 880-е", right: "Киев" },
+            { left: "убийство киевского князя Игоря во время сбора полюдья — 940-е", right: "Искоростень" },
+            { left: "сожжение города княгиней Ольгой в качестве мести древлянам — 940-е", right: "Искоростень" },
+            { left: "заключение первого письменного договора между Русью и Византией — 910-е", right: "Царьград (Константинополь)" },
+            { left: "взятие и разорение столицы Хазарского каганата войсками Святослава — 960-е", right: "Итиль" },
+            { left: "осада византийскими войсками крепости с князем Святославом — 970-е", right: "Доростол" },
+            { left: "осада и взятие города войсками князя Владимира I — 980-е", right: "Корсунь (Херсонес)" },
+            { left: "массовое крещение жителей города в водах Днепра — 980-е", right: "Киев" },
+            { left: "проведение съезда русских князей («каждый да держит отчину свою») — 1090-е", right: "Любеч" },
+            { left: "разгром половецких войск в ходе «крестового похода» — 1110-е", right: "Река Салница" },
+            { left: "масштабное городское восстание против бояр и ростовщиков — 1110-е", right: "Киев" },
+            { left: "изгнание князя Всеволода и окончательное установление республики — 1130-е", right: "Новгород" },
+            { left: "первое упоминание поселения в летописи (встреча князей) — 1140-е", right: "Москва" },
+            { left: "перенос столицы Северо-Восточной Руси князем Андреем Боголюбским — 1150-е", right: "Владимир" },
+            { left: "заговор бояр Кучковичей и убийство князя Андрея Юрьевича — 1170-е", right: "Боголюбово" },
+            { left: "штурм и разграбление города войсками под руководством Андрея Боголюбского — 1160-е", right: "Киев" },
+            { left: "первое военное столкновение русских и половцев с монголами — 1220-е", right: "Река Калка" },
+            { left: "основание города князем Юрием Всеволодовичем на Оке — 1220-е", right: "Нижний Новгород" }
+        ]
+    };
+
+    let currentMode = '';
+    let currentCorrectAnswer = '';
+    const letters = ['А', 'Б', 'В', 'Г'];
+
+    function startTest(mode) {
+        currentMode = mode;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('test-screen').classList.remove('hidden');
+        
+        let titles = {
+            dates: "Раздел 1. События и даты",
+            people: "Раздел 2. Деяния и личности",
+            facts: "Раздел 3. Процессы и факты",
+            geo: "Раздел 4. Описания и географические объекты"
+        };
+        document.getElementById('test-title').innerText = titles[mode];
+        generateQuestion();
+    }
+
+    function toMainMenu() {
+        document.getElementById('test-screen').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function generateQuestion() {
+        document.getElementById('user-answer').value = '';
+        document.getElementById('user-answer').disabled = false;
+        document.getElementById('user-answer').style.borderColor = 'var(--border-color)';
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('submit-btn').classList.remove('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+
+        let pool = [...db[currentMode]];
+        if (pool.length < 4) return;
+
+        let selected = [];
+        while(selected.length < 4) {
+            let randIndex = Math.floor(Math.random() * pool.length);
+            let item = pool[randIndex];
+            if(!selected.some(s => s.left.trim() === item.left.trim())) {
+                selected.push(item);
+                pool.splice(randIndex, 1);
+            }
+        }
+
+        let rightColumn = selected.map((item, index) => ({ text: item.right, originalIndex: index }));
+        shuffle(rightColumn);
+
+        let answers = [];
+        for (let i = 0; i < 4; i++) {
+            let correctRightIndex = rightColumn.findIndex(rc => rc.originalIndex === i);
+            answers.push(correctRightIndex + 1);
+        }
+        currentCorrectAnswer = answers.join('');
+
+        let html = '';
+        for (let i = 0; i < 4; i++) {
+            html += `
+                <tr>
+                    <td class="col-num">${letters[i]}</td>
+                    <td>${selected[i].left}</td>
+                    <td class="col-num">${i + 1}</td>
+                    <td>${rightColumn[i].text}</td>
+                </tr>
+            `;
+        }
+        document.getElementById('table-body').innerHTML = html;
+        document.getElementById('user-answer').focus();
+    }
+
+    function checkAnswer() {
+        let userAns = document.getElementById('user-answer').value.trim();
+        let resultBox = document.getElementById('result');
+        let inputField = document.getElementById('user-answer');
+
+        if (userAns.length !== 4 || isNaN(userAns)) {
+            alert('Пожалуйста, введите 4 цифры соответствия без пробелов (например: 1234)');
+            return;
+        }
+
+        resultBox.classList.remove('hidden');
+        inputField.disabled = true;
+
+        if (userAns === currentCorrectAnswer) {
+            resultBox.className = "result-box correct-ans";
+            resultBox.innerText = "Правильно! Великолепно.";
+            inputField.style.borderColor = "var(--correct-color)";
+        } else {
+            resultBox.className = "result-box wrong-ans";
+            resultBox.innerText = `Неверно. Правильный ответ: ${currentCorrectAnswer}`;
+            inputField.style.borderColor = "var(--wrong-color)";
+        }
+
+        document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    document.getElementById('user-answer').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            if (!document.getElementById('submit-btn').classList.contains('hidden')) {
+                checkAnswer();
+            } else {
+                generateQuestion();
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
