@@ -7,10 +7,10 @@
     <style>
         :root {
             --bg-color: #121214;
-            --card-bg: #1a1a1e;
+            --card-bg: rgba(0, 0, 0, 0.8);
             --text-color: #e0e0e6;
-            --accent-color: #7928ca;
-            --accent-hover: #9b51e0;
+            --accent-color: #000;
+            --accent-hover: #fff;
             --correct-color: #a3e635; /* Пастельный салатово-зеленый */
             --correct-bg: rgba(163, 230, 53, 0.15);
             --wrong-color: #f87171; /* Пастельный красный */
@@ -21,6 +21,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Nicholas_Roerich%2C_Guests_from_Overseas.jpg/960px-Nicholas_Roerich%2C_Guests_from_Overseas.jpg') no-repeat center center / cover;
             color: var(--text-color);
             margin: 0;
             padding: 20px;
@@ -53,7 +56,7 @@
         }
 
         button {
-            background-color: #242428;
+            background-color: rgba(0, 0, 0, 0.8);
             color: var(--text-color);
             border: 1px solid var(--border-color);
             padding: 15px 20px;
@@ -74,7 +77,7 @@
         }
 
         .nav-btn {
-            background-color: #242428;
+            background-color: rgba(0, 0, 0, 0.8);
             margin-bottom: 20px;
             padding: 8px 15px;
             font-size: 14px;
@@ -84,10 +87,11 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+background-color: #202024;
         }
 
         th, td {
-            border: 1px solid var(--border-color);
+            border: 1px solid #000;
             padding: 12px;
             text-align: left;
             vertical-align: top;
@@ -117,7 +121,7 @@
         }
 
         input[type="text"] {
-            background-color: #202024;
+            background-color: rgba(0, 0, 0, 0.9);
             border: 1px solid var(--border-color);
             color: #fff;
             padding: 12px 20px;
@@ -159,7 +163,7 @@
         }
 
         .action-btn {
-            background-color: var(--accent-color);
+            background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
             padding: 0 30px;
             font-weight: bold;
@@ -170,7 +174,9 @@
         }
 
         .action-btn:hover {
-            background-color: var(--accent-hover);
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-hover);
         }
 /* Обновленная интерактивная зона с поддержкой адаптивности */
 .interactive-zone {
@@ -242,7 +248,7 @@
 
 <div class="container">
     <div id="main-menu">
-        <h1>ЕГЭ История России</h1>
+        <h1>ИСТОРИЯ</h1>
         <p style="text-align: center; color: #888;">Тренажер по периоду: Древнерусское Государство до Монгольского нашествия</p>
         <div class="menu">
             <button onclick="startTest('dates')">Даты</button>
@@ -313,7 +319,7 @@
             { left: "Любечский съезд князей («Каждый да держит отчину свою»)", right: "1097" },
             { left: "крестовый поход русских князей против половцев (битва на реке Салнице)", right: "1111" },
             { left: "восстание в Киеве после смерти Святополка Изяславича", right: "1113" },
-            { left: "начало правления Владимира Мономаха в Киеве", right: "1113 (начало)" },
+            { left: "начало правления Владимира Мономаха в Киеве", right: "1113" },
             { left: "смерть Владимира Мономаха (конец правления Владимира Мономаха)", right: "1125" },
             { left: "начало правления Мстислава Великого в Киеве", right: "1125" },
             { left: "смерть Мстислава Великого (условное начало раздробленности)", right: "1132" },
