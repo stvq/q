@@ -7,10 +7,10 @@
     <style>
         :root {
             --bg-color: #121214;
-            --card-bg: rgba(0, 0, 0, 0.8);
+            --card-bg: #1a1a1e;
             --text-color: #e0e0e6;
-            --accent-color: #000;
-            --accent-hover: #fff;
+            --accent-color: rgba(0,0,0,0.3);
+            --accent-hover: rgba(0,0,0,0.3);
             --correct-color: #a3e635; /* Пастельный салатово-зеленый */
             --correct-bg: rgba(163, 230, 53, 0.15);
             --wrong-color: #f87171; /* Пастельный красный */
@@ -22,8 +22,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             background: 
-                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Nicholas_Roerich%2C_Guests_from_Overseas.jpg/960px-Nicholas_Roerich%2C_Guests_from_Overseas.jpg') no-repeat center center / cover;
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+    url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Bilibin_justice.jpg/960px-Bilibin_justice.jpg') no-repeat center center / cover;
             color: var(--text-color);
             margin: 0;
             padding: 20px;
@@ -56,7 +56,7 @@
         }
 
         button {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: #242428;
             color: var(--text-color);
             border: 1px solid var(--border-color);
             padding: 15px 20px;
@@ -77,7 +77,7 @@
         }
 
         .nav-btn {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: #242428;
             margin-bottom: 20px;
             padding: 8px 15px;
             font-size: 14px;
@@ -87,11 +87,10 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-background-color: #202024;
         }
 
         th, td {
-            border: 1px solid #000;
+            border: 1px solid var(--border-color);
             padding: 12px;
             text-align: left;
             vertical-align: top;
@@ -121,7 +120,7 @@ background-color: #202024;
         }
 
         input[type="text"] {
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: #202024;
             border: 1px solid var(--border-color);
             color: #fff;
             padding: 12px 20px;
@@ -163,7 +162,7 @@ background-color: #202024;
         }
 
         .action-btn {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: var(--accent-color);
             color: #fff;
             padding: 0 30px;
             font-weight: bold;
@@ -174,9 +173,7 @@ background-color: #202024;
         }
 
         .action-btn:hover {
-            background-color: var(--accent-color);
-            color: #fff;
-            border-color: var(--accent-hover);
+            background-color: var(--accent-hover);
         }
 /* Обновленная интерактивная зона с поддержкой адаптивности */
 .interactive-zone {
@@ -242,6 +239,25 @@ background-color: #202024;
         flex-grow: 1; /* Кнопка займет все оставшееся в ряду место */
     }
 }
+/* Стили для счетчика правильных ответов */
+        .score-counter {
+            float: right;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #202024;
+            border: 1px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+
+
+/* Эффект наведения для кликабельных элементов справа */
+        .clickable-right:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -260,6 +276,7 @@ background-color: #202024;
 
     <div id="test-screen" class="hidden">
         <button class="nav-btn" onclick="toMainMenu()">← В меню</button>
+            <span id="accuracy-counter" class="score-counter" style="color: #f87171;">0%</span>
         <h2 id="test-title">Тестирование</h2>
         <p style="text-align: center; color: #aaa;">Сопоставьте элементы левой колонки (А-Г) с элементами правой колонки (1-4). Введите цифры по порядку без пробелов.</p>
         
@@ -364,7 +381,7 @@ background-color: #202024;
             { left: "создание «Устава», ограничившего проценты ростовщиков", right: "Владимир Мономах" },
             { left: "написание литературного памятника «Поучение детям»", right: "Владимир Мономах" },
             { left: "составление летописного свода «Повесть временных лет»", right: "Нестор" },
-            { left: "сохранение единства Древнерусского государства до своей смерти в 1132 году", right: "Мстислав Великий" },
+            { left: "сохранение единства Древнерусского государства до своей смерти в 1132 году", right: "Mстислав Великий" },
             { left: "приглашение черниговского князя Святослава в Москву на «обед силен»", right: "Юрий Долгорукий" },
             { left: "активное вмешательство в южные дела и захват киевского престола", right: "Юрий Долгорукий" },
             { left: "перенос столицы Северо-Восточной Руси из Суздаля во Владимир", right: "Андрей Боголюбский" },
@@ -378,7 +395,7 @@ background-color: #202024;
         ],
         facts: [
             { left: "Становление Древнерусского государства", right: "призвание варяжского князя Рюрика на княжение в 862 году" },
-            { left: "Становление Древнерусского государства", right: "поход Олега на Киев в 882 году и убийство Аскольда и Dir" },
+            { left: "Становление Древнерусского государства", right: "поход Олега на Киев в 882 году и убийство Аскольда и Дира" },
             { left: "Формирование системы налогообложения", right: "сбор дани киевскими князьями с подвластных племён путём полюдья" },
             { left: "Формирование системы налогообложения", right: "введение княгиней Ольгой уроков и погостов после гибели князя Игоря" },
             { left: "Борьба Руси с кочевниками", right: "разгром Хазарского каганата войсками князя Святослава Игоревича" },
@@ -421,6 +438,8 @@ background-color: #202024;
 
     let currentMode = '';
     let currentCorrectAnswer = '';
+    let totalDigits = 0;
+    let correctDigits = 0;
     const letters = ['А', 'Б', 'В', 'Г'];
 
     function startTest(mode) {
@@ -435,6 +454,13 @@ background-color: #202024;
             geo: "Раздел 4. Описания и географические объекты"
         };
         document.getElementById('test-title').innerText = titles[mode];
+        
+        // Сбрасываем счетчики при начале нового теста (по желанию)
+        totalDigits = 0;
+        correctDigits = 0;
+        document.getElementById('accuracy-counter').innerText = '0%';
+        document.getElementById('accuracy-counter').style.color = '#f87171';
+        
         generateQuestion();
     }
 
@@ -468,13 +494,16 @@ background-color: #202024;
             }
         }
 
+        // Создаем правую колонку со случайным порядком
         let rightColumn = selected.map((item, index) => ({ text: item.right, originalIndex: index }));
         shuffle(rightColumn);
 
+        // ИСПРАВЛЕНО: Восстанавливаем генерацию строки правильного ответа
+        // Ищем, на каком месте (1-4) оказался оригинальный вариант для каждого пункта А, Б, В, Г
         let answers = [];
         for (let i = 0; i < 4; i++) {
-            let correctRightIndex = rightColumn.findIndex(rc => rc.originalIndex === i);
-            answers.push(correctRightIndex + 1);
+            let correctPos = rightColumn.findIndex(item => item.originalIndex === i);
+            answers.push(correctPos + 1); // Позиция от 1 до 4
         }
         currentCorrectAnswer = answers.join('');
 
@@ -485,12 +514,11 @@ background-color: #202024;
                     <td class="col-num">${letters[i]}</td>
                     <td>${selected[i].left}</td>
                     <td class="col-num">${i + 1}</td>
-                    <td>${rightColumn[i].text}</td>
+                    <td class="clickable-right" data-num="${i + 1}" onclick="appendNumber(${i + 1})" style="cursor: pointer;">${rightColumn[i].text}</td>
                 </tr>
             `;
         }
         document.getElementById('table-body').innerHTML = html;
-        document.getElementById('user-answer').focus();
     }
 
     function checkAnswer() {
@@ -505,6 +533,34 @@ background-color: #202024;
 
         resultBox.classList.remove('hidden');
         inputField.disabled = true;
+
+        // Посимвольная проверка (поциферно)
+        for (let i = 0; i < 4; i++) {
+            totalDigits++;
+            if (userAns[i] === currentCorrectAnswer[i]) {
+                correctDigits++;
+            }
+        }
+
+        // Расчет процента и обновление счетчика
+        let percentage = Math.round((correctDigits / totalDigits) * 100);
+        let counterEl = document.getElementById('accuracy-counter');
+        counterEl.innerText = `${percentage}%`;
+
+        // Определение цвета в зависимости от успешности
+        if (percentage < 50) {
+            counterEl.style.color = '#f87171'; // Пастельный красный
+        } else if (percentage < 75) {
+            counterEl.style.color = '#fb923c'; // Оранжевый
+        } else if (percentage < 80) {
+            counterEl.style.color = '#facc15'; // Желтый
+        } else if (percentage < 90) {
+            counterEl.style.color = '#4ade80'; // Зеленый
+        } else if (percentage < 100) {
+            counterEl.style.color = '#0aa370'; // Насыщенный темно-зеленый с синевой
+        } else {
+            counterEl.style.color = '#38bdf8'; // Голубой (при ровно 100%)
+        }
 
         if (userAns === currentCorrectAnswer) {
             resultBox.className = "result-box correct-ans";
@@ -529,6 +585,18 @@ background-color: #202024;
             }
         }
     });
+
+    function appendNumber(num) {
+        let inputField = document.getElementById('user-answer');
+        
+        // Если поле заблокировано (уже проверили ответ), ничего не делаем
+        if (inputField.disabled) return;
+        
+        // Если уже введено 4 цифры, не добавляем новые
+        if (inputField.value.length < 4) {
+            inputField.value += num;
+        }
+    }
 </script>
 
 </body>
