@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЕГЭ История: Тренажер (XVIII)</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-color: #e0e0e6;
+            --accent-color: rgba(0,0,0,0.3);
+            --accent-hover: rgba(0,0,0,0.3);
+            --correct-color: #a3e635; /* Пастельный салатово-зеленый */
+            --correct-bg: rgba(163, 230, 53, 0.15);
+            --wrong-color: #f87171; /* Пастельный красный */
+            --wrong-bg: rgba(248, 113, 113, 0.15);
+            --border-color: #2a2a30;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            background: 
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+    url('https://img-fotki.yandex.ru/get/1022004/86441892.f6d/0_14b42d_e3b072ce_orig.jpg') no-repeat center center / cover;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #fff;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: #242428;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .nav-btn {
+            background-color: #242428;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #202024;
+            color: #fff;
+        }
+
+        .col-num {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #202024;
+        }
+
+        /* ИЗМЕНЕНО: теперь элементы выстраиваются в строку по центру */
+        .interactive-zone {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Чтобы на смартфонах элементы не сжимались, а переносились */
+        }
+
+        input[type="text"] {
+            background-color: #202024;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 6px;
+            letter-spacing: 4px;
+            text-align: left;
+            width: 175px;
+            outline: none;
+            box-sizing: border-box;
+            height: 48px; /* Одинаковая высота для инпута и кнопок */
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-hover);
+        }
+
+        /* Перенесено ниже инпута и кнопок, чтобы уведомление появлялось отдельной строкой */
+        .result-box {
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .correct-ans {
+            color: var(--correct-color);
+            background-color: var(--correct-bg);
+            border: 1px solid var(--correct-color);
+        }
+
+        .wrong-ans {
+            color: var(--wrong-color);
+            background-color: var(--wrong-bg);
+            border: 1px solid var(--wrong-color);
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 0 30px;
+            font-weight: bold;
+            height: 48px; /* Одинаковая высота для инпута и кнопок */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+/* Обновленная интерактивная зона с поддержкой адаптивности */
+.interactive-zone {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: nowrap; /* Гарантирует, что инпут и кнопка останутся в один ряд */
+}
+
+/* Адаптивность для мобильных устройств */
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    /* Уменьшаем шрифты и отступы в таблице, чтобы она не вылезала за экраны смартфонов */
+    table {
+        font-size: 13px;
+        margin: 15px 0;
+    }
+
+    th, td {
+        padding: 8px 6px;
+    }
+
+    .col-num {
+        width: 30px;
+    }
+
+    /* Делаем кнопки меню на главном экране в одну колонку на маленьких телефонах */
+    .menu {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* Оптимизация инпута и кнопок под узкие экраны */
+    input[type="text"] {
+        width: 130px; /* Немного сужаем поле ввода */
+        font-size: 16px;
+        padding: 12px 10px;
+        letter-spacing: 2px;
+    }
+
+    .action-btn {
+        padding: 0 20px;
+        font-size: 14px;
+        flex-grow: 1; /* Кнопка займет все оставшееся в ряду место */
+    }
+}
+/* Стили для счетчика правильных ответов */
+        .score-counter {
+            float: right;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #202024;
+            border: 1px solid var(--border-color);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+
+
+/* Эффект наведения для кликабельных элементов справа */
+        .clickable-right:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="main-menu">
+        <h1>ИСТОРИЯ</h1>
+        <p style="text-align: center; color: #888;">Тренажер по периоду: XVIII вв. + повторение пройденных тем</p>
+        <div class="menu">
+            <button onclick="startTest('dates')">Даты</button>
+            <button onclick="startTest('people')">Личности</button>
+            <button onclick="startTest('facts')">События и факты</button>
+            <button onclick="startTest('geo')">География</button>
+        </div>
+    </div>
+
+    <div id="test-screen" class="hidden">
+        <button class="nav-btn" onclick="toMainMenu()">← В меню</button>
+            <span id="accuracy-counter" class="score-counter" style="color: #f87171;">0%</span>
+        <h2 id="test-title">Тестирование</h2>
+        <p style="text-align: center; color: #aaa;">Сопоставьте элементы левой колонки (А-Ж) с элементами правой колонки (1-7). Введите цифры по порядку без пробелов.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">Элементы</th>
+                    <th colspan="2">Для сопоставления</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+
+        <div class="interactive-zone">
+            <input type="text" id="user-answer" placeholder=". . . . . ." maxlength="8" autocomplete="off">
+            <button id="submit-btn" class="action-btn" onclick="checkAnswer()">Проверить</button>
+            <button id="next-btn" class="action-btn hidden" onclick="generateQuestion()">Далее</button>
+            <div id="result" class="result-box hidden"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Оптимизированная база данных для ЕГЭ по истории (IX–XVIII века)
+// Удалены избыточные события, не входящие в кодификатор и реальные задания КИМ ЕГЭ
+// База данных для ЕГЭ по истории (IX–XVIII века)
+// В категориях people, facts и geo левая и правая стороны поменялись местами согласно запросу
+const db = {
+    dates: [
+        // IX–XVI века
+        { left: "Призвание варягов на Русь (Рюрик, Синеус, Трувор)", right: "862" },
+        { left: "Объединение Новгорода и Киева князем Олегом, создание Древнерусского государства", right: "882" },
+        { left: "Успешные походы князя Олега на Константинополь, первые письменные договоры", right: "907" },
+        { left: "Восстание древлян, убийство князя Игоря; введение княгиней Ольгой уроков и погостов", right: "945" },
+        { left: "Крещение Руси князем Владимиром I Святославичем", right: "988" },
+        { left: "Начало составления свода законов «Русская Правда» Ярославом Мудрым", right: "1016" },
+        { left: "Любечский съезд князей («Каждый да держит отчину свою»)", right: "1097" },
+        { left: "Первое летописное упоминание о Москве", right: "1147" },
+        { left: "Битва на реке Калке (первое столкновение русских войск с монголами)", right: "1223" },
+        { left: "Невская битва (разгром шведов князем Александром Ярославичем)", right: "1240" },
+        { left: "Куликовская битва (разгром ордынского войска Мамая Дмитрием Донским)", right: "1380" },
+        { left: "Присоединение Новгородской земли к Великому княжеству Московскому Иваном III", right: "1478" },
+        { left: "Стояние на реке Угре, окончательное падение ордынского владычества на Руси", right: "1480" },
+        { left: "Венчание Ивана IV Васильевича Грозного на царство (принятие титула царя)", right: "1547" },
+        { left: "Взятие Казани русскими войсками, присоединение Казанского ханства", right: "1552" },
+        
+        // XVII век
+        { left: "Освобождение Москвы от польских интервентов Вторым народным ополчением", right: "1612" },
+        { left: "Избран Земским собором на царство Михаил Федорович (начало династии Романовых)", right: "1613" },
+        { left: "Принятие Соборного уложения царя Алексея Михайловича (окончательное закрепощение)", right: "1649" },
+        { left: "Начало церковной реформы патриарха Никона", right: "1653" },
+        { left: "Переяславская рада, решение о вхождении Левобережной Украины в состав России", right: "1654" },
+        { left: "Отмена местничества", right: "1682" },
+        
+        // XVIII век
+        { left: "Заключение «Вечного мира» с Речью Посполитой", right: "1686" },
+        { left: "Заключение Нерчинского договора с Китаем", right: "1689" },
+        { left: "«Великое посольство» Петра I в Европу", right: "1697" },
+        { left: "Поражение под Нарвой; упразднение патриаршества; ликвидация Боярской думы", right: "1700" },
+        { left: "Основание Санкт-Петербурга; начало издания первой печатной газеты «Ведомости»", right: "1703" },
+        { left: "Введение регулярной рекрутской повинности", right: "1705" },
+        { left: "Введение губернского деления (учреждение первых 8 губерний)", right: "1708" },
+        { left: "Битва у деревни Лесной (28 сентября)", right: "1708" },
+        { left: "Полтавская битва (27 июня)", right: "1709" },
+        { left: "Учреждение Правительствующего Сената; Прутский поход Петра I", right: "1711" },
+        { left: "Издание Указа о единонаследии", right: "1714" },
+        { left: "Гангутское морское сражение (27 июля)", right: "1714" },
+        { left: "Учреждение коллегий вместо системы приказов", right: "1718" },
+        { left: "Гренгамское морское сражение", right: "1720" },
+        { left: "Ништадтский мир; провозглашение России империей; учреждение Святейшего Синода", right: "1721" },
+        { left: "Издание Табели о рангах; Издание Устава о престолонаследии", right: "1722" },
+        { left: "Попытка ограничения самодержавия «Кондициями» верховников", right: "1730" },
+        { left: "Учреждение Кабинета министров", right: "1731" },
+        { left: "Ограничение службы дворян 25 годами", right: "1736" },
+        { left: "Указ об отмене внутренних таможенных пошлин", right: "1753" },
+        { left: "Основание Московского университета (по инициативе И. Шувалова и М. Ломоносова)", right: "1755" },
+        { left: "Сражение при Гросс-Егерсдорфе; основание Академии художеств", right: "1757" },
+        { left: "Цорндорфское сражение в ходе Семилетней войны", right: "1758" },
+        { left: "Кунерсдорфское сражение в ходе Семилетней войны", right: "1759" },
+        { left: "Взятие Берлина русскими войсками; право помещиков ссылать крестьян в Сибирь", right: "1760" },
+        { left: "Издание Манифеста о вольности дворянской; ликвидация Тайной канцелярии", right: "1762" },
+        { left: "Секуляризация церковных земель; ликвидация гетманства на Левобережной Украине", right: "1764" },
+        { left: "Учреждение Вольного экономического общества (ВЭО)", right: "1765" },
+        { left: "Введение бумажных денег (ассигнаций)", right: "1768" },
+        { left: "Сражения у рек Ларга и Кагул; Чесменское морское сражение", right: "1770" },
+        { left: "«Чумной бунт» в Москве", right: "1771" },
+        { left: "Первый раздел Речи Посполитой между Россию, Пруссией и Австрией", right: "1772" },
+        { left: "Проведение Губернской реформы; ликвидация Запорожской Сечи", right: "1775" },
+        { left: "Вхождение Крыма в состав Российской империи; Георгиевский трактат", right: "1783" },
+        { left: "Издание «Жалованной грамоты дворянству» и «Жалованной грамоты городам»", right: "1785" },
+        { left: "Сражения при Фокшанах и Рымнике", right: "1789" },
+        { left: "Взятие крепости Измаил войсками А. В. Суворова", right: "1790" },
+        { left: "Морское сражение у мыса Тендра", right: "1790" },
+        { left: "Сражение у мыса Калиакрия (флот Ф. Ф. Ушакова)", right: "1791" },
+        { left: "Второй раздел Речи Посполитой", right: "1793" },
+        { left: "Восстание в Польше под руководством Тадеуша Костюшко и его подавление", right: "1794" },
+        { left: "Третий раздел Речи Посполитой (ликвидация польской государственности)", right: "1795" },
+        { left: "Издание Акта о престолонаследии; Манифест о трехдневной барщине", right: "1797" },
+        { left: "Итальянский и Швейцарский походы А. В. Суворова; взятие Корфу Ушаковым", right: "1799" },
+        { left: "Дворцовый переворот, убийство Павла I в Михайловском замке", right: "1801" }
+    ],
+    people: [
+        { left: "Великое посольство, Северная война, Санкт-Петербург, Прутский и Каспийские походы, первый император", right: "Петр I Великий" },
+{ left: "Взятие Нотебурга и Ниеншанца, Риги, Полтавская битва", right: "Б. П. Шереметев" },
+        { left: "Разорвала Кондиции верховников, правила в эпоху «бироновщины», отменила указ о единонаследии", right: "Анна Иоанновна" },
+        { left: "Пришла к власти в ходе переворота, отменила внутренние пошлины, основала МГУ, вела Семилетнюю войну", right: "Елизавета Петровна" },
+        { left: "Издал Манифест о вольности дворянской, ликвидировал Тайную канцелярию, заключил мир с Пруссией", right: "Петр III" },
+        { left: "Просвещенный абсолютизм, Уложенная комиссия, Жалованные грамоты, разделы Польши, русско-турецкие войны", right: "Екатерина II Великая" },
+        { left: "Изменил закон о престолонаследии, Манифест о 3-дневной барщине, ограничил дворянские привилегии", right: "Павел I" },
+        { left: "Сподвижник Петра I, командовал авангардом в Полтавской битве, сослан в Березов при Петре II", right: "А. Д. Меншиков" },
+        { left: "Генерал-фельдмаршал, первая победа в Северной войне при Эрестфере, подавил Астраханское восстание", right: "Б. П. Шереметев" },
+        { left: "Генерал-адмирал, сподвижник Петра I, командовал русским флотом в Гангутском сражении", right: "Ф. М. Апраксин" },
+        { left: "Генерал-фельдмаршал, одержал победу над шведским флотом в сражении у острова Гренгам", right: "М. М. Голицын" },
+        { left: "Возглавлял русскую армию в русско-турецкой войне 1735-1739 гг., впервые взял Перекоп и Очаков", right: "Б. К. Миних" },
+        { left: "Генерал-фельдмаршал, командовал армией и одержал победу в битве при Гросс-Егерсдорфе", right: "С. Ф. Апраксин" },
+        { left: "Генерал-аншеф Семилетней войны, командовал русскими войсками в кровопролитной битве при Цорндорфе", right: "В. В. Фермор" },
+        { left: "Разгромил Фридриха II в Кунерсдорфском сражении, главнокомандующий, при котором заняли Берлин", right: "П. С. Салтыков" },
+        { left: "Выдающийся полководец, взял Кольберг, одержал триумфальные победы при Ларге и Кагуле", right: "П. А. Румянцев" },
+        { left: "Генералиссимус, победы при Рымнике, Фокшанах, Кинбурне, штурм Измаила, Итальянский и Швейцарский походы", right: "А. В. Суворов" },
+        { left: "Государственный деятель, присоединил Крым, создал Черноморский флот, руководил взятием Очакова (1788)", right: "Г. А. Потемкин" },
+        { left: "Адмирал, непосредственный руководитель разгрома турецкого флота в Чесменском сражении", right: "Г. А. Спиридов" },
+        { left: "Великий флотоводец, победы у Фидониси, Тендры, Калиакрии, взял штурмом крепость Корфу", right: "Ф. Ф. Ушаков" },
+        { left: "Донской казак, поднял крупнейшее восстание, выдавая себя за спасшегося императора Петра III", right: "Емельян Пугачев" },
+        { left: "Великий русский ученый, просветитель, инициатор создания Московского университета", right: "М. В. Ломоносов" },
+        { left: "Писатель, автор «Путешествия из Петербурга в Москву», сослан Екатериной II в Сибирь", right: "А. Н. Радищев" }
+    ],
+    facts: [
+        { left: "Петровский закон, разделивший службу на 14 рангов и открывший путь к дворянству за выслугу", right: "Табель о рангах" },
+        { left: "Слияние вотчин и поместий; запрет дробить дворянские земли при наследовании", right: "Указ о единонаследии" },
+        { left: "1762 год, освобождение дворянства от обязательной государственной и военной службы", right: "Манифест о вольности" },
+        { left: "Реформа 1764 года, перевод монастырских и церковных земель в ведение государства", right: "Секуляризация земель" },
+        { left: "Золотой век дворянства: закрепление монополии на владение землей, крестьянами и свобода от налогов", right: "Жалованная грамота дворянству" },
+        { left: "Попытка ограничить власть Анны Иоанновны в пользу Верховного тайного совета", right: "Кондиции верховников" },
+        { left: "Рекомендация Павла I ограничить принудительный труд крестьян на помещика 3 днями в неделю", right: "Манифест о трехдневной барщине" },
+        { left: "Реформа Елизаветы Петровны 1754 года, заложившая основу единого всероссийского рынка", right: "Отмена внутренних пошлин" },
+        { left: "Созыв Екатериной II представителей сословий для составления нового свода законов", right: "Уложенная комиссия" },
+        { left: "Разделение России на 50 губерний по численности населения после восстания Пугачева", right: "Губернская реформа 1775" }
+    ],
+    geo: [
+        { left: "Первая крупная победа регулярного русского парусного и гребного флота над шведами (1714)", right: "Мыс Гангут" },
+        { left: "Вторая важнейшая морская победа русского флота над шведами, ускорившая Ништадтский мир", right: "Остров Гренгам" },
+        { left: "Разгром корпуса Левенгаупта Петром I, названный им «матерью Полтавской баталии»", right: "Деревня Лесная" },
+        { left: "Первое крупное сражение русской армии в Семилетней войне (победа над Пруссией)", right: "Гросс-Егерсдорф" },
+        { left: "Разгром прусской армии Фридриха II объединенными силами русских и австрийцев в 1759 году", right: "Кунерсдорф" },
+        { left: "Полное уничтожение турецкого флота русской эскадрой Спиридова и Орлова в Эгейском море", right: "Чесменская бухта" },
+        { left: "Блестящая победа сухопутных войск П. А. Румянцева над превосходящими силами турок (1770)", right: "Река Кагул" },
+        { left: "Неприступная турецкая цитадель на Дунае, взятая штурмом войсками А. Суворова в 1790 году", right: "Крепость Измаил" },
+        { left: "Разгром турецкого флота адмиралом Ф. Ф. Ушаковым, завершивший войну 1787–1791 гг.", right: "Мыс Калиакрия" },
+        { left: "Ключевая турецкая твердыня, взятая после долгой осады войсками Г. Потемкина в 1788 году", right: "Крепость Очаков" }
+    ]
+};
+
+    let currentMode = '';
+    let currentCorrectAnswer = '';
+    let totalDigits = 0;
+    let correctDigits = 0;
+    
+    // Массив букв расширен до 8 элементов (А-И)
+    const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'И'];
+
+    function startTest(mode) {
+        currentMode = mode;
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('test-screen').classList.remove('hidden');
+        
+        let titles = {
+            dates: "Раздел 1. События и даты",
+            people: "Раздел 2. Деяния и личности",
+            facts: "Раздел 3. Процессы и факты",
+            geo: "Раздел 4. Описания и географические объекты"
+        };
+        document.getElementById('test-title').innerText = titles[mode];
+        
+        totalDigits = 0;
+        correctDigits = 0;
+        document.getElementById('accuracy-counter').innerText = '0%';
+        document.getElementById('accuracy-counter').style.color = '#f87171';
+        
+        // Инструкция адаптирована под 8 элементов (А-И) и (1-8)
+        document.querySelector('#test-screen p').innerText = "Сопоставьте элементы левой колонки (А-И) с элементами правой колонки (1-8). Введите цифры по порядку без пробелов.";
+        document.getElementById('user-answer').maxLength = 8; // Ограничение в 8 символов
+        document.getElementById('user-answer').placeholder = ". . . . . . . ."; // Восемь точек
+        
+        generateQuestion();
+    }
+
+    function toMainMenu() {
+        document.getElementById('test-screen').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function generateQuestion() {
+        document.getElementById('user-answer').value = '';
+        document.getElementById('user-answer').disabled = false;
+        document.getElementById('user-answer').style.borderColor = 'var(--border-color)';
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('submit-btn').classList.remove('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+
+        let pool = [...db[currentMode]];
+        if (pool.length < 8) return; // Проверка, что элементов в базе хватает на 8 строк
+
+        let selected = [];
+        // Набираем 8 уникальных элементов
+        while(selected.length < 8) {
+            let randIndex = Math.floor(Math.random() * pool.length);
+            let item = pool[randIndex];
+            if(!selected.some(s => s.right.trim() === item.right.trim())) {
+                selected.push(item);
+                pool.splice(randIndex, 1);
+            }
+        }
+
+        let rightColumn = selected.map((item, index) => ({ text: item.right, originalIndex: index }));
+        shuffle(rightColumn);
+
+        let answers = [];
+        // Формируем правильный ответ из 8 цифр
+        for (let i = 0; i < 8; i++) {
+            let correctPos = rightColumn.findIndex(item => item.originalIndex === i);
+            answers.push(correctPos + 1);
+        }
+        currentCorrectAnswer = answers.join('');
+
+        let html = '';
+        // Генерируем 8 строк таблицы
+        for (let i = 0; i < 8; i++) {
+            let displayText = selected[i].left;
+            
+            // ПОДДОЧЕНО: Теперь разделение по ";" работает для ВСЕХ режимов (dates, facts, geo, people)
+            let factsArray = displayText.split(';').map(f => f.trim()).filter(f => f.length > 0);
+            if (factsArray.length > 0) {
+                let randomFactIndex = Math.floor(Math.random() * factsArray.length);
+                displayText = factsArray[randomFactIndex];
+                // Делаем первую букву заглавной, если после деления она оказалась строчной
+                displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1);
+            }
+
+            html += `
+                <tr>
+                    <td class="col-num">${letters[i]}</td>
+                    <td>${displayText}</td>
+                    <td class="col-num">${i + 1}</td>
+                    <td class="clickable-right" data-num="${i + 1}" onclick="appendNumber(${i + 1})" style="cursor: pointer;">${rightColumn[i].text}</td>
+                </tr>
+            `;
+        }
+        document.getElementById('table-body').innerHTML = html;
+    }
+
+    function checkAnswer() {
+        let userAns = document.getElementById('user-answer').value.trim();
+        let resultBox = document.getElementById('result');
+        let inputField = document.getElementById('user-answer');
+
+        // Проверяем, что введено ровно 8 цифр
+        if (userAns.length !== 8 || isNaN(userAns)) {
+            alert('Пожалуйста, введите 8 цифр соответствия без пробелов (например: 12345678)');
+            return;
+        }
+
+        resultBox.classList.remove('hidden');
+        inputField.disabled = true;
+
+        // Счетчик процентов адаптирован под 8 цифр за один раунд
+        for (let i = 0; i < 8; i++) {
+            totalDigits++;
+            if (userAns[i] === currentCorrectAnswer[i]) {
+                correctDigits++;
+            }
+        }
+
+        let percentage = Math.round((correctDigits / totalDigits) * 100);
+        let counterEl = document.getElementById('accuracy-counter');
+        counterEl.innerText = `${percentage}%`;
+
+        if (percentage < 50) { counterEl.style.color = '#f87171'; } 
+        else if (percentage < 75) { counterEl.style.color = '#fb923c'; } 
+        else if (percentage < 80) { counterEl.style.color = '#facc15'; } 
+        else if (percentage < 90) { counterEl.style.color = '#4ade80'; } 
+        else if (percentage < 100) { counterEl.style.color = '#0aa370'; } 
+        else { counterEl.style.color = '#38bdf8'; }
+
+        if (userAns === currentCorrectAnswer) {
+            resultBox.className = "result-box correct-ans";
+            resultBox.innerText = "Правильно! Великолепно.";
+            inputField.style.borderColor = "var(--correct-color)";
+        } else {
+            resultBox.className = "result-box wrong-ans";
+            resultBox.innerText = `Неверно. Правильный ответ: ${currentCorrectAnswer}`;
+            inputField.style.borderColor = "var(--wrong-color)";
+        }
+
+        document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    // Функция добавления цифр при клике на правую колонку
+    function appendNumber(num) {
+        let inputField = document.getElementById('user-answer');
+        if (inputField.disabled) return;
+        
+        // Лимит ввода увеличен до 8 символов
+        if (inputField.value.length < 8) {
+            inputField.value += num;
+        }
+    }
+</script>
+
+</body>
+</html>
