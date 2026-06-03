@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЕГЭ История: Тренажер</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-color: #e0e0e6;
+            --border-color: #2a2a30;
+            --color-default: #242428; 
+
+            /* Единый светло-медный цвет */
+            --color-copper: #cd8f44; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('https://cont.ws/uploads/pic/2024/6/qBZDRyuLiIc.jpg') no-repeat center center / cover;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .timeline-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+            background-color: #151518;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Жесткий один ряд без переносов и скролла для всех экранов */
+        .timeline-grid {
+            display: flex;
+            gap: 6px;
+            justify-content: space-between;
+            flex-wrap: nowrap; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Квадратик века с адаптивным сжатием */
+        .century-box {
+            flex: 1 1 auto; /* Равномерно распределяются по ширине ряда */
+            max-width: 45px;
+            aspect-ratio: 1 / 1; /* Сохраняет квадратную форму при сжатии */
+            background-color: var(--color-default);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        /* Выбранный век */
+        .century-box.selected {
+            color: #121214 !important;
+            box-shadow: 0 0 12px rgba(205, 143, 68, 0.4);
+            border-color: #fff !important;
+            transform: scale(1.05);
+        }
+
+        /* Текст с выбранным веком */
+        .status-text {
+            text-align: left;
+            font-size: 15px;
+            color: #aaa;
+            line-height: 1.5;
+            margin: 5px 0;
+            min-height: 66px; /* Запас высоты под развернутые тексты описания веков */
+        }
+
+        .status-text span {
+            color: var(--text-color);
+            font-weight: normal;
+        }
+
+        /* Кнопка запуска */
+        .rocket-btn {
+            width: 100%;
+            height: 50px;
+            background-color: #242428;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .rocket-btn:hover {
+            background-color: #2a2a30;
+        }
+
+        .rocket-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Сжатие шрифтов на мобильных устройствах, чтобы всё влезло в экран */
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .timeline-wrapper {
+                padding: 15px 8px;
+            }
+            .century-box {
+                font-size: 11px;
+                border-radius: 4px;
+            }
+            .status-text {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="main-menu">
+        <h1>ИСТОРИЯ</h1>
+        <p style="text-align: center; color: #888;">Выберите век на шкале времени</p>
+        
+        <div class="timeline-wrapper">
+            <div class="timeline-grid" id="timeline"></div>
+            
+            <div class="status-text" id="status-display">Век не выбран</div>
+            
+            <button class="rocket-btn" id="launch-btn">Поехали! 🚀</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ссылки для веков
+    const links = {
+        9:  "https://stvq.github.io/q/vqhist1.html", 
+        10: "https://stvq.github.io/q/vqhist1.html",
+        11: "https://stvq.github.io/q/vqhist1.html",
+        12: "https://stvq.github.io/q/vqhist1.html",
+        13: "https://stvq.github.io/q/vqhist2.html",
+        14: "https://stvq.github.io/q/vqhist2.html", 
+        15: "https://stvq.github.io/q/vqhist2.html",
+        16: "https://stvq.github.io/q/vqhist3.html", 
+        17: "https://stvq.github.io/q/vqhist3.html",
+        18: "https://stvq.github.io/q/vqhist4.html", 
+        19: "https://stvq.github.io/q/vqhist5.html", 
+        20: "https://stvq.github.io/q/vqhist6.html"  
+    };
+
+    // Тексты для каждого века
+    const centuryTexts = {
+        9:  "В 862 году на новгородские земли призывается варяжский князь Рюрик, что кладет начало первой правящей династии. Уже в 882 году его преемник, князь Олег, объединяет Новгород и Киев, создавая единое Древнерусское государство.",
+        10: "Княгиня Ольга упорядочивает сбор дани и проводит первые налоговые реформы, укрепляя внутреннюю стабильность Руси. В 988 году ее внук, князь Владимир, крестит Русь, что приобщает страну к византийской культуре и вводит ее в круг ведущих европейских держав.",
+        11: "При Ярославе Мудром государство достигает пика своего могущества, застраивается величественными храмами и обретает первый письменный свод законов «Русская Правда». В конце века из-за сложной системы престолонаследия на Любечском съезде князья провозглашают принцип раздельного владения землями, заложив основы будущей раздробленности.",
+        12: "Единое государство окончательно распадается на самостоятельные княжества, среди которых лидирующие позиции занимают Владимиро-Суздальское, Галицко-Волынское земли и Новгородская республика. Киев постепенно теряет статус главного political центра, уступая экономическое и военное влияние новым динамично развивающимся регионам.",
+        13: "Русь подвергается разрушительному монгольскому нашествию Батыя и на долгие два века попадает в вассальную зависимость от Золотой Орды. Одновременно с этим на северо-западных рубежах князь Александр Невский успешно отражает экспансию шведских и немецких рыцарей.",
+        14: "Небольшое Московское княжество благодаря дальновидной политике своих правителей превращается в главный центр собирания русских земель и управления ими. В 1380 году на Куликовом поле войско под руководством Дмитрия Донского наносит первое масштабное поражение ордынцам, доказав неизбежность грядущего освобождения.",
+        15: "Иван III окончательно свергает ордынское владычество в 1480 году после знаменитого Стояния на реке Угре. При нем Москва объединяет вокруг себя большую часть русских земель, принимает герб с двуглавым орлом и закладывает основы нового общерусского Судебника.",
+        16: "Иван Грозный первым в истории венчается на царство и проводит масштабные реформы управления, существенно расширив границы государства за счет Казани, Астрахани и Сибири. Однако вторая половина его правления омрачается жестоким террором опричнины и затяжной Ливонской войной, которые ввергают страну в глубокий системный кризис.",
+        17: "В начале столетия страна переживает Смутное время с самозванцами, польско-шведской интервенцией и полным параличом власти, который преодолевается лишь благодаря народному ополчению Минина и Пожарского. Воцарение династии Романовых в 1613 году стабилизирует государство, хотя весь оставшийся век проходит под знаком церковного раскола и непрерывных народных восстаний.",
+        18: "Петр Великий радикально модернизирует армию и государственный аппарат, основывает Санкт-Петербург и превращает Россию в мощную европейскую империю с выходом к Балтийскому морю. После череды дворцовых переворотов век завершается блистательным правлением Екатерины II, которая расширяет территории на юг и запад, закрепив за страной статус мировой сверхдержавы.",
+        19: "Разгромив Наполеона в 1812 году, империя достигает пика своего военного влияния в Европе и переживает золотой век литературы и науки. Александр II отменяет крепостное право в 1861 году и запускает модернизацию страны, но незавершенность реформ провоцирует бурный рост радикального революционного подполья.",
+        20: "Революции 1917 года уничтожают империю, на месте которой создается СССР — индустриальная сверхдержава, победившая в Великой Отечественной войне и открывшая человечеству путь в космос. В 1991 году из-за внутренних противоречий, экономического дефицита и политического кризиса советская система рушится, давая начало современной Российской Федерации."
+    };
+
+    const timeline = document.getElementById('timeline');
+    const launchBtn = document.getElementById('launch-btn');
+    const statusDisplay = document.getElementById('status-display');
+    let selectedCentury = null;
+
+    // Генерируем квадратики с 9 по 20 век
+    for (let c = 9; c <= 20; c++) {
+        const box = document.createElement('div');
+        box.classList.add('century-box');
+        box.innerText = c;
+        box.dataset.century = c;
+        timeline.appendChild(box);
+    }
+
+    const boxes = document.querySelectorAll('.century-box');
+
+    // Подсветка элементов до выбранного/наведенного включительно
+    function highlightUpTo(targetCentury, isHover = false) {
+        boxes.forEach(box => {
+            const currentC = parseInt(box.dataset.century);
+            if (currentC <= targetCentury) {
+                box.style.backgroundColor = 'var(--color-copper)';
+                box.style.color = '#121214';
+                if (!isHover && currentC === targetCentury) {
+                    box.classList.add('selected');
+                } else if (!isHover) {
+                    // Убираем рамку .selected со всех предыдущих квадратиков ряда
+                    box.classList.remove('selected');
+                }
+            } else {
+                box.style.backgroundColor = 'var(--color-default)';
+                box.style.color = '#888';
+                box.classList.remove('selected');
+            }
+        });
+    }
+
+    // Функция возврата к сохраненному состоянию
+    function resetHighlight() {
+        if (selectedCentury) {
+            highlightUpTo(selectedCentury, false);
+            statusDisplay.innerHTML = `<span>${centuryTexts[selectedCentury]}</span>`;
+        } else {
+            boxes.forEach(box => {
+                box.style.backgroundColor = 'var(--color-default)';
+                box.style.color = '#888';
+                box.classList.remove('selected');
+            });
+            statusDisplay.innerText = 'Век не выбран';
+        }
+    }
+
+    // Обработчики событий мыши и кликов
+    boxes.forEach(box => {
+        const c = parseInt(box.dataset.century);
+
+        box.addEventListener('mouseenter', () => {
+            highlightUpTo(c, true);
+            statusDisplay.innerHTML = `${centuryTexts[c]}`;
+        });
+        
+        box.addEventListener('mouseleave', resetHighlight);
+        
+        box.addEventListener('click', () => {
+            selectedCentury = c;
+            resetHighlight();
+        });
+    });
+
+    // Изменение логики кнопки «Поехали!» — теперь открывает ссылку
+    launchBtn.addEventListener('click', () => {
+        if (selectedCentury && links[selectedCentury]) {
+            window.location.href = links[selectedCentury];
+        } else {
+            alert('Сначала выберите век, кликнув по квадратику!');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -242,7 +242,7 @@
         </table>
 
         <div class="interactive-zone">
-            <input type="text" id="user-answer" placeholder=". . . . . . . . . ." maxlength="10" autocomplete="off">
+            <input type="text" id="user-answer" placeholder=". . . . . . . . . ." maxlength="11" autocomplete="off">
             <button id="submit-btn" class="action-btn" onclick="checkAnswer()">Проверить</button>
             <button id="next-btn" class="action-btn hidden" onclick="generateQuestion()">Далее</button>
             <div id="result" class="result-box hidden"></div>
@@ -508,7 +508,7 @@
         document.getElementById('accuracy-counter').innerText = '0%';
         document.getElementById('accuracy-counter').style.color = '#f87171';
         document.querySelector('#test-screen p').innerHTML = "Сопоставьте элементы левой колонки (А-К) с элементами правой колонки (1-10). Введите цифры по порядку без пробелов.";
-        document.getElementById('user-answer').maxLength = 10;
+        document.getElementById('user-answer').maxLength = 11;
         document.getElementById('user-answer').placeholder = ". . . . . . . . . .";
         
         generateQuestion();
@@ -583,8 +583,8 @@
         let resultBox = document.getElementById('result');
         let inputField = document.getElementById('user-answer');
 
-        if (userAns.length !== 10 || isNaN(userAns)) {
-            alert('Пожалуйста, введите 10 цифр соответствия без пробелов (например: 1234567890)');
+        if (userAns.length !== 11 || isNaN(userAns)) {
+            alert('Пожалуйста, введите 11 цифр соответствия без пробелов (например: 1234567890)');
             return;
         }
 
