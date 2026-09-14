@@ -1,0 +1,3763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои Конспекти</title>
+  <!-- Подключаем современный шрифт Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+  /* CSS ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ */
+  :root {
+    --bg-color: #f7f7f7;
+    --sidebar-bg: #f4f4f5;
+    --card-bg: #edeff0;
+    --text-main: #18181b;
+    --text-muted: #71717a;
+    --accent-color: #09090b;
+    --border-color: #e4e4e7;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --sidebar-width: 280px;
+    --transition-speed: 0.3s;
+    
+    /* Масштаб таймлайна: 1 год = 14px */
+    --year-scale: 20px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ХАЙЛАЙТЕР (белый текст на черном фоне) */
+  mark.wb, .wb, mark.highlight, .highlight {
+    background-color: var(--text-main);
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* БОКОВАЯ ПАНЕЛЬ-ШТОРКА (SIDEBAR) */
+  .sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px 16px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-item {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+
+  .nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: var(--text-main);
+  }
+
+  .nav-item.active {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-main);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+  }
+
+  /* ОСНОВНАЯ ОБЛАСТЬ С КОНСПЕКТАМИ */
+  .main-wrapper {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    height: 100vh;
+    overflow-y: auto;
+    transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .main-wrapper.full-width {
+    margin-left: 0;
+  }
+
+  /* КНОПКА ОТКРЫТИЯ/ЗАКРЫТИЯ ШТОРКИ */
+  .toggle-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 90;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: background-color 0.2s ease, left var(--transition-speed) ease;
+  }
+
+  .toggle-btn:hover {
+    background-color: #f4f4f5;
+  }
+
+  /* ОБЩИЕ СТИЛИ ДЛЯ ПЛАВАЮЩИХ КНОПОК СПРАВА */
+  .quick-btn {
+    position: fixed;
+    right: 24px;
+    z-index: 90;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .quick-btn:hover {
+    background-color: #f4f4f5;
+  }
+
+  .quick-btn.active {
+    border-color: var(--text-main);
+    background-color: #f4f4f5;
+  }
+
+  .map-btn {
+    top: 20px;
+  }
+
+  .tree-btn {
+    top: 68px;
+  }
+
+  /* КОНТЕЙНЕР ДЛЯ КОНСПЕКТА */
+  .note-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 80px 24px 60px 24px;
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  .note-container.active {
+    display: block;
+  }
+
+ .note-container.map-mode {
+  max-width: none;
+  width: 100%;
+  min-height: auto;   /* было 100vh */
+  padding: 40px 24px;
+  margin: 0;
+}
+
+.full-media-wrapper {
+  width: 100%;
+  min-height: auto;   /* было 100vh */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-color);
+  padding: 40px;
+}
+
+  .full-media-image {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ЭЛЕМЕНТЫ КОНСПЕКТА */
+  .note-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+
+  .note-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    margin-bottom: 28px;
+  }
+
+  .note-text {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #3f3f46;
+    margin-bottom: 28px;
+  }
+
+  .rule-box {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+
+  .rule-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #000;
+  }
+
+  .rule-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .comparison-card {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius-md);
+  }
+
+  .comparison-card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .comparison-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  /* СТИЛИ ДЛЯ ТАБЛИЦЫ С ТЕСТОМ */
+  .test-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 24px;
+    background-color: #ffffff;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  .test-table th,
+  .test-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+  }
+
+  .test-table th {
+    background-color: var(--card-bg);
+    font-weight: 600;
+  }
+
+  .test-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .test-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 320px;
+  }
+
+  .digits-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-family: inherit;
+    letter-spacing: 2px;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .digits-input:focus {
+    border-color: var(--text-main);
+  }
+
+  .digits-input.correct {
+    border-color: #22c55e;
+    background-color: #f0fdf4;
+    color: #15803d;
+  }
+
+  .digits-input.warning {
+    border-color: #eab308;
+    background-color: #fefce8;
+    color: #a16207;
+  }
+
+  .digits-input.incorrect {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+    color: #b91c1c;
+  }
+
+  .btn-check {
+    background-color: var(--text-main);
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .btn-check:hover {
+    opacity: 0.9;
+  }
+
+  /* СТИЛИ ДЛЯ ХРОНОЛОГИЧЕСКОГО ТАЙМЛАЙНА */
+.note-container.tree-mode {
+  max-width: none;
+  width: 100%;
+  min-height: 100vh;   /* важно для таймлайна */
+  padding: 0;
+  margin: 0;
+}
+  .timeline-section {
+    padding: 80px 40px 40px 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .timeline-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+
+  .timeline-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 50px 0 50px 0;
+    scrollbar-width: thin;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .timeline-scroll-container:active {
+    cursor: grabbing;
+  }
+
+  .timeline-scroll-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  .timeline-scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  .timeline-track {
+    display: flex;
+    gap: 6px;
+    position: relative;
+    padding: 20px 0;
+    min-width: max-content;
+    align-items: stretch;
+    overflow: visible;
+  }
+
+  /* КАРТОЧКА КНЯЗЯ */
+  .prince-card {
+    position: relative;
+    z-index: 2;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 10px;
+    min-width: 155px;
+    height: 200px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: visible;
+    transition: z-index 0.2s ease;
+  }
+
+  .prince-card:hover {
+    z-index: 50;
+  }
+
+  .prince-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .prince-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-main);
+    overflow: hidden;
+  }
+
+  .prince-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .prince-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .prince-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.25;
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+  }
+
+  .prince-years {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+
+  .prince-duration {
+    font-size: 0.72rem;
+    color: #a1a1aa;
+    margin-top: 2px;
+  }
+
+  /* ЛИНЕЙКА ИКОНОК СОБЫТИЙ */
+  .events-timeline {
+    position: relative;
+    width: 100%;
+    height: 36px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--border-color);
+    overflow: visible;
+    z-index: 10;
+  }
+
+  .event-icon {
+    font-size: 1.05rem;
+    cursor: pointer;
+    position: absolute;
+    top: 6px;
+    transform: translateX(-50%);
+    padding: 3px 5px;
+    border-radius: 6px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    z-index: 20;
+  }
+
+  .event-icon:hover {
+    border-color: var(--text-main);
+    transform: translateX(-50%) scale(1.25);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    z-index: 100;
+  }
+
+  /* ВСПЛЫВАЮЩИЕ ПОДСКАЗКИ */
+  .event-icon[data-tooltip] {
+    position: absolute;
+  }
+
+  .event-icon[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 135%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-weight: 400;
+    white-space: normal;
+    width: max-content;
+    max-width: 220px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .event-icon[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .event-icon[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--accent-color) transparent transparent transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 200;
+  }
+
+  .event-icon[data-tooltip]:hover::before {
+    opacity: 1;
+  }
+
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    .sidebar.open-mobile {
+      transform: translateX(0);
+    }
+    .main-wrapper {
+      margin-left: 0 !important;
+    }
+    .comparison-grid {
+      grid-template-columns: 1fr;
+    }
+    .quick-btn {
+      right: 16px;
+    }
+    .map-btn {
+      top: 20px;
+    }
+    .tree-btn {
+      top: 68px;
+    }
+    .timeline-section {
+      padding: 80px 16px 20px 16px;
+    }
+  }
+
+
+
+/* ТАБЛИЦЫ И ТЕСТЫ */
+.test-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 24px;
+  background-color: #ffffff;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.test-table th,
+.test-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.test-table th {
+  background-color: var(--card-bg);
+  font-weight: 600;
+}
+
+.test-table tr:last-child td {
+  border-bottom: none;
+}
+
+.test-block {
+  margin-bottom: 40px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.test-block h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.test-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 480px;
+}
+
+.digits-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: monospace;
+  letter-spacing: 3px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.digits-input:focus {
+  border-color: var(--text-main);
+}
+
+.digits-input.correct {
+  border-color: #22c55e;
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.digits-input.incorrect {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.btn-check {
+  background-color: var(--text-main);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-check:hover {
+  opacity: 0.9;
+}
+
+.answer-feedback {
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: none;
+  line-height: 1.4;
+}
+
+.answer-feedback.show {
+  display: block;
+}
+
+.answer-feedback.correct-bg {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.answer-feedback.incorrect-bg {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+
+
+
+
+.quote {
+  font-family: 'Merriweather', Georgia, serif;
+  font-size: 19px;
+  font-style: italic;
+  border-left: 5px solid #888888;
+  padding-left: 15px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+
+
+
+
+h1 {
+margin-top: 95px;
+margin-bottom: 5px;
+}
+h2 {
+margin-top: 75px;
+margin-bottom: 5px;
+}
+
+
+
+
+/* ===== СХЕМА КАТЕГОРИЙ НАСЕЛЕНИЯ ===== */
+.social-scheme {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.scheme-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.scheme-column--dependent {
+  background-color: #fef2f2;
+  border: 1px dashed #fecaca;
+}
+
+.scheme-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.scheme-column--dependent .scheme-title {
+  color: #b91c1c;
+}
+
+.scheme-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.scheme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.scheme-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.scheme-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.scheme-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.scheme-desc {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .social-scheme {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+/* ===== ЗАДАНИЯ НА ПРИЧИННО-СЛЕДСТВЕННЫЕ СВЯЗИ ===== */
+.task-block {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  margin-bottom: 22px;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.task-block:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.task-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.task-number {
+  display: inline-block;
+  background-color: var(--text-main);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.task-topic {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.task-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #3f3f46;
+  margin-bottom: 16px;
+}
+
+/* Развертывающаяся шторка с ответом */
+.task-answer {
+  border-top: 1px dashed var(--border-color);
+  padding-top: 12px;
+}
+
+.task-answer summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 8px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--card-bg);
+  user-select: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.task-answer summary::-webkit-details-marker {
+  display: none;
+}
+
+.task-answer summary::before {
+  content: "▶";
+  font-size: 0.7rem;
+  transition: transform 0.25s ease;
+}
+
+.task-answer[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.task-answer summary:hover {
+  background-color: #e4e4e7;
+  border-color: #d4d4d8;
+}
+
+.task-answer[open] summary {
+  border-color: var(--text-main);
+  background-color: #ffffff;
+}
+
+.task-answer-body {
+  margin-top: 14px;
+  padding: 16px 18px;
+  background-color: var(--card-bg);
+  border-left: 4px solid var(--text-main);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  animation: answerFade 0.3s ease;
+}
+
+.task-answer-body p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #3f3f46;
+  margin-bottom: 10px;
+}
+
+.task-answer-body p:last-child {
+  margin-bottom: 0;
+}
+
+.task-answer-body strong {
+  color: var(--text-main);
+}
+
+@keyframes answerFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .task-block {
+    padding: 16px;
+  }
+  .task-text {
+    font-size: 0.95rem;
+  }
+  .task-answer summary {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+</style>
+</head>
+<body>
+
+  <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ ШТОРКИ -->
+  <button class="toggle-btn" id="toggleBtn" aria-label="Переключить меню">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- КНОПКА КАРТЫ (СПРАВА СВЕРХУ) -->
+  <button class="quick-btn map-btn" id="mapBtn" aria-label="Открыть карту" title="Открыть карту">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+      <line x1="8" y1="2" x2="8" y2="18"></line>
+      <line x1="16" y1="6" x2="16" y2="22"></line>
+    </svg>
+  </button>
+
+  <!-- КНОПКА ХРОНОЛОГИИ (ПОД КАРТОЙ - ИКОНКА ЛИНЕЙКИ) -->
+  <button class="quick-btn tree-btn" id="treeBtn" aria-label="Хронологическая линия" title="Хронологическая линия">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z"></path>
+      <path d="m14.5 12.5 2-2"></path>
+      <path d="m11.5 9.5 2-2"></path>
+      <path d="m8.5 6.5 2-2"></path>
+      <path d="m17.5 15.5 2-2"></path>
+    </svg>
+  </button>
+
+  <!-- БОКОВАЯ ПАНЕЛЬ С СЕКЦИЕЙ ПРОСМОТРА -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title"></span>
+    </div>
+    <ul class="nav-list">
+<li class="" data-target=""><strong>🧭 Навигация</strong></li>
+      <li class="nav-item" data-target="note-map">Карта Руси</li>
+      <li class="nav-item" data-target="note-tree">Хронологическая линия</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>🌾 Восточные славяне</strong></li>
+<li class="nav-item" data-target="note-slavs-1">Происхождение и хозяйство</li>
+<li class="nav-item" data-target="note-slavs-2">Устройство общества</li>
+<li class="nav-item" data-target="note-slavs-3">Заморские гости</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>👑 Первые Рюриковичи</strong></li>
+<li class="nav-item" data-target="note-ruryk">Рюрик</li>
+<li class="nav-item" data-target="note-oleg">Олег Вещий</li>
+<li class="nav-item" data-target="note-igor">Игорь Старый</li>
+<li class="nav-item" data-target="note-olga">Княгиня Ольга</li>
+<li class="nav-item" data-target="note-sviat">Святослав</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>😇 Князь Владимир</strong></li>
+      <li class="nav-item" data-target="note-1">Междоусобица Святославичей</li>
+      <li class="nav-item" data-target="note-v2">Внешняя политика</li>
+      <li class="nav-item" data-target="note-v3">Внутренняя политика</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>🗝️ Ярослав Мудрый</strong></li>
+      <li class="nav-item" data-target="note-yar1">Борис и Глеб</li>
+      <li class="nav-item" data-target="note-yar2">Внешняя политика</li>
+      <li class="nav-item" data-target="note-yar3">Внутренняя политика</li>
+<li class="nav-item" data-target="note-yar4">Социальная структура</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>🧩 Ярославичи</strong></li>
+      <li class="nav-item" data-target="note-yach1">Триумвират</li>
+      <li class="nav-item" data-target="note-yach2">Половецкая угроза</li>
+      <li class="nav-item" data-target="note-yach3">Владимир Мономах</li>
+<li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
+<li class="" data-target=""><strong>🎓 Практика</strong></li>
+      <li class="nav-item" data-target="note-test">Тест по датам</li>
+      <li class="nav-item" data-target="note-test-persons">Тест по личностям</li>
+<li class="nav-item" data-target="note-causality">Причины и следствия</li>
+<li class="nav-item" data-target="note-comparison">Сходства и различия</li>    
+    </ul>
+  </aside>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main class="main-wrapper" id="mainWrapper">
+
+
+
+
+
+<!-- КОНСПЕКТ 1: ПРОИСХОЖДЕНИЕ И ХОЗЯЙСТВО -->
+<article class="note-container" id="note-slavs-1">
+  <h1 class="note-title">Происхождение славян. Хозяйство восточных славян</h1>
+
+  <img class="note-image" src="https://infotables.ru/images/istoria/ist_sh_20/ist20v_27.png" alt="Хозяйство восточных славян">
+
+  <p class="note-text">
+    <mark class="wb">Восточные славяне</mark> — крупная группа родственных племён, занявшая в VI–VIII вв. территорию Восточно-Европейской равнины.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-title">Земледелие восточных славян</div>
+    <div class="rule-content">
+      <strong>Подсечно-огневое земледелие</strong> (в лесной зоне): участок леса вырубали, сжигали пни, удобряли землю золой и засевали 2–3 года до истощения. Затем переходили на новый участок. Основные культуры: пшеница, ячмень, просо.<br><br>
+      <strong>Перелог</strong> (в лесостепной и степной зонах): участок распахивали и использовали до истощения естественного плодородия, после чего "перекладывались" на новый участок по соседству.
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Традиционные верования</h4>
+      <p>
+        Восточные славяне поклонялись многим божествам – язычество.<br>
+        Храмов восточные славяне не строили, обряды совершали на <strong>капищах</strong>, где устанавливались деревянные или каменные <strong>идолы</strong>.
+
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Промыслы</h4>
+      <p>
+        Восточные славяне занимались охотой и бортничеством, а также кузнечным, гончарным и ткацким делом.<br>
+         <strong>Бортничество</strong> — сбор мёда диких пчёл из дупел деревьев.
+      </p>
+    </div>
+  </div>
+</article>
+
+<!-- КОНСПЕКТ 2: УСТРОЙСТВО ОБЩЕСТВА -->
+<article class="note-container" id="note-slavs-2">
+  <h1 class="note-title">Устройство общества восточных славян</h1>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Князь и дружина</h4>
+      <p>
+              <strong>Князь</strong> — вождь племени восточных славян, возглавлявший дружину.<br>
+      <strong>Дружина</strong> — отряд воинов, объединившийся вокруг князя. Старшая дружина — бояре, младшая — гридни, отроки и др.<br>
+      <strong>Дань</strong> — натуральный налог с покорённых племён в пользу князя.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Вервь и вече</h4>
+      <p>
+        <strong>Вервь</strong> — у восточных славян соседская территориальная община.<br>
+<strong>Вече</strong> — народное собрание у восточных славян, решавшее важнейшие вопросы: война и мир, приглашение или изгнание князя, выборы должностных лиц.<br>
+      </p>
+    </div>
+  </div>
+
+  <p class="note-text">
+    Социальная структура постепенно усложнялась: выделялась знать (князья, бояре, дружинники), свободные общинники («люди»), зависимые категории населения. Сохранялись и вечевые традиции, особенно в Новгороде.
+  </p>
+</article>
+
+<!-- КОНСПЕКТ 3: СОСЕДИ И ТОРГОВЫЕ ПУТИ -->
+<article class="note-container" id="note-slavs-3">
+  <h1 class="note-title">Соседи восточных славян. Торговые пути</h1>
+
+  <img class="note-image" src="https://upload.wikimedia.org/wikipedia/commons/1/17/Nicholas_Roerich%2C_Guests_from_Overseas.jpg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original" alt="Торговые пути восточных славян">
+
+  <p class="note-text">
+    <strong>Варяги (норманны)</strong> — выходцы из Скандинавии. Славяне называли их «варягами» (от «варингер» — вооружённые люди). С ними торговали, воевали и приглашали в качестве князей. Варяжские дружины составляли основу военной элиты.<br><br>
+      <strong>Хазары</strong> — кочевой народ тюркского происхождения, создавший Хазарский каганат. В VIII в. подчинили ряд славянских племён (полян, северян, вятичей, радимичей) и заставили платить дань.<br><br>
+      <strong>Финно-угры</strong> (чудь, весь, меря, мурома, мордва) — лесные племена севера и северо-востока. Жили небольшими посёлками, занимались рыболовством и звероловством. Славянская колонизация их земель носила мирный характер, сопровождалась смешением культур и языков.<br><br>
+      <strong>Византия</strong> — крупнейшее христианское государство Средиземноморья. Была главным торговым партнёром и источником культурного влияния. Славяне совершали набеги на византийские владения, но одновременно заключали торговые договоры и перенимали элементы культуры.
+  </p>
+
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Путь «из варяг в греки»</h4>
+      <p>
+        Связывал Балтику с Византией. Основная река — Днепр. Ключевые города: <strong>Новгород</strong> — <strong>Киев</strong> — Константинополь. Был основой экономического и политического развития Руси.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Волжский путь</h4>
+      <p>
+        Связывал Северную Европу с Каспием. Основная река — Волга. Ключевые центры: Новгород, <strong>Булгар</strong> (Волжская Булгария), <strong>Итиль</strong> (Хазарский каганат).
+      </p>
+    </div>
+  </div>
+
+  <p class="note-text">
+    Торговые пути обеспечивали поступление серебра (арабские дирхемы) и предметов роскоши на славянские земли. Контроль над путями стал одной из причин возвышения Киева и Новгорода, а также формирования государственности.
+  </p>
+</article>
+
+
+
+
+
+<!-- КОНСПЕКТ: ПРИЗВАНИЕ ВАРЯГОВ -->
+<article class="note-container" id="note-ruryk">
+  <h1 class="note-title">Предпосылки образования государства. Призвание варягов</h1>
+
+  <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTrdMCRBogS-vGkWNr4yAYR1CqHF3Vf9O89OSirwayDg&s=10" alt="Призвание варягов">
+
+  <p class="note-text">
+    <mark class="wb">862 год</mark> — летописная дата призвания варягов во главе с Рюриком. Это событие стало точкой отсчёта истории российской государственности, хотя его историческая достоверность остаётся предметом дискуссий.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-title">Предпосылки формирования государства у восточных славян</div>
+    <div class="rule-content">
+      <strong>Экономические:</strong> развитие земледелия, ремёсел и торговли; рост городов и укрепление торговых путей ("из варяг в греки", Волжский путь).<br>
+      <strong>Социальные:</strong> разложение родового строя, выделение знати (князей, бояр, дружинников), появление имущественного неравенства и зависимых категорий населения.<br>
+      <strong>Политические:</strong> объединение племён вокруг крупных центров и необходимость урегулирования внутренних конфликтов.<br>
+      <strong>Внешнеполитические:</strong> стремление контролировать торговые пути и необходимость защиты от внешних врагов (хазар).
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card" style="background: #dbffe8;">
+      <h4>Норманнская теория</h4>
+      <p>
+        Государство на Руси создано варягами — Рюрик и его дружина принесли славянам государственность, организовали управление и объединили земли. Славяне не были способны к самостоятельному созданию государства.<br><br>
+Авторы: <strong>Г.З. Байер  Г.Ф.Миллер  А.Л.Шлёцер</strong><br>
+      </p>
+    </div>
+    <div class="comparison-card" style="background: #ffeddb;">
+      <h4>Антинорманнская теория</h4>
+      <p> 
+        Варяги лишь ускорили уже шедший процесс формирования государства. У восточных славян существовали предпосылки (княжеская власть, дружина, вече, торговые пути) для создания собственного государства.<br><br>
+Автор теории: <strong>М. В. Ломоносов</strong><br>
+      </p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">Призвание Рюрика (862 г.)</div>
+    <div class="rule-content">
+      Согласно «Повести временных лет», после изгнания варягов между славянскими и финно-угорскими племенами (ильменские словене, кривичи, чудь, весь, меря) начались усобицы. Для прекращения конфликтов было решено пригласить князя "из-за моря":<br><br>
+      <div class="quote">Земля наша велика и обильна, а наряда в ней нет.<br> Приходите княжить и владеть нами.</div><br>
+      На приглашение откликнулся <strong>Рюрик</strong> из племени <strong>русь</strong> (по одной из версий — скандинавского происхождения). Он сел княжить в <strong>Новгороде</strong> (Ладоге).<br>
+      Его братья: <strong>Синеус</strong> — в Белоозере, <strong>Трувор</strong> — в Изборске. После их смерти Рюрик объединил земли под своей властью.
+    </div>
+  </div>
+
+  <p class="note-text">
+    Призвание Рюрика положило начало династии <strong>Рюриковичей</strong>, правившей на Руси более 700 лет.
+  </p>
+</article>
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ОЛЕГ ВЕЩИЙ -->
+<article class="note-container" id="note-oleg">
+  <h1 class="note-title">Правление Олега Вещего (879–912 гг.)</h1>
+
+  <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShPl8slB6R-ZcYchmIiO-X6AH-rt3nFwlGFZiq2r2QtwzAEswpmzyqzrA&s=10" alt="Олег Вещий">
+
+  <p class="note-text">
+    <mark class="wb">Олег Вещий</mark> был родственником Рюрика и правил как регент при малолетнем <strong>Игоре Рюриковиче</strong>.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внутренняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Объединение Новгорода и Киева (882 г.)</h4>
+      <p>
+        В 882 году Олег с дружиной (варягами, словенами, кривичами, чудью, весью и мерей) двинулся на юг. Он подошёл к Киеву, где правили <strong>Аскольд и Дир</strong>.<br><br>
+        Олег хитростью выманил их из города и убил, после чего объявил Киев «матерью городов русских» и перенёс туда столицу. Так возникло единое <strong>Древнерусское государство</strong> с центром в Киеве.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Полюдье</h4>
+      <p>
+        <strong>Полюдье</strong> — форма сбора дани, при которой князь с дружиной сам объезжал подвластные земли, собирая дань с населения.<br><br>
+        Олег подчинил племена <strong>древлян</strong>, <strong>северян</strong> и <strong>радимичей</strong>, обязав их платить дань. Полюдье не имело фиксированных норм, что позже привело к трагическим последствиям при князе Игоре.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внешняя политика</h2>
+
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Поход на Константинополь (907 г.)</h4>
+        <p>В 907 году Олег совершил крупный поход на <strong>Константинополь</strong> (Царьград). Византийцы, испугавшись, закрыли городские ворота и укрылись за стенами.<br>
+      Олег приказал поставить корабли на колёса и, подняв паруса, двинулся к стенам города. Византия капитулировала и согласилась выплатить огромную дань.<br>
+      В знак победы Олег прибил свой щит на врата Царьграда.</p>
+    </div>
+    <div class="comparison-card">
+      <h4>Договор с Византией (911 г.)</h4>
+      <p>
+        Первый письменный договор Руси с Византией. Условия:<br>
+        - Русские купцы получают право беспошлинной торговли в Константинополе.<br>
+        - Им предоставляется содержание и ремонт кораблей.<br>
+        - Русские обязуются не воевать против Византии и помогать ей при необходимости.
+      </p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">«Отмстить неразумным хазарам...»</div>
+    <div class="rule-content">
+      Олег вёл борьбу с <strong>Хазарским каганатом</strong>, стремясь освободить славянские племена от хазарской дани. Ему удалось подчинить северян и радимичей, ранее плативших дань хазарам.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Легенда о смерти Олега</h2>
+
+  <p class="note-text">
+      Согласно «Повести временных лет», волхвы предсказали Олегу, что он примет смерть от своего коня. Князь приказал увести коня и не подходить к нему, но приказал кормить и ухаживать за ним. Через несколько лет, узнав, что конь умер, Олег захотел увидеть его кости. Придя на место, он наступил на череп коня, из которого выползла змея и ужалила князя в ногу. Олег заболел и умер.<br>
+  </p>
+    </div>
+  </div>
+
+</article>
+
+
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ИГОРЬ СТАРЫЙ -->
+<article class="note-container" id="note-igor">
+  <h1 class="note-title">Правление Игоря Старого (912–945 гг.)</h1>
+
+  <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLZvJFVj2CS3R6UDcrvghabV3FgFQA6S4yVcWrCFeobw&s=10" alt="Князь Игорь">
+
+  <p class="note-text">
+    <mark class="wb">Игорь Рюрикович</mark> — сын Рюрика, правил после смерти Олега Вещего. Продолжил политику объединения восточнославянских племён и укрепления Древнерусского государства.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внутренняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Подчинение племён</h4>
+      <p>
+        Игорь силой подчинил <strong>древлян</strong> и <strong>уличей</strong>, которые пытались отделиться после смерти Олега. Восстановил сбор дани с подвластных племён (полян, северян, радимичей, кривичей).
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Полюдье</h4>
+      <p>
+        Сохранил <strong>полюдье</strong> — объезд князя с дружиной для сбора дани. Нормы дани не были фиксированы, что вызывало недовольство населения. Это стало причиной трагической гибели князя.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внешняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Походы на Византию (941, 944 гг.)</h4>
+      <p>
+        <strong>🔥 941 г.</strong> — первый поход на Константинополь. Русский флот был сожжён <strong>греческим огнём</strong>, поход закончился неудачей.<br><br>
+        <strong>💰 944 г.</strong> — второй поход. Византия предпочла откупиться данью. Был заключён новый торговый договор, менее выгодный, чем договор Олега 911 г.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Появление печенегов</h4>
+      <p>
+        <strong>915 г.</strong> — первое появление <strong>печенегов</strong> у границ Руси. Игорь заключил с ними мир.<br><br>
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Гибель князя Игоря (945 г.)</h2>
+
+  <div class="rule-box" style="border-left-color: #ef4444;">
+    <div class="rule-title">Восстание древлян</div>
+    <div class="rule-content">
+      Осенью 945 года Игорь отправился в <strong>полюдье</strong> к древлянам. Собрав дань, он отпустил большую часть дружины, но затем решил вернуться за дополнительной данью. Древляне во главе с князем <strong>Малом</strong> восстали.<br><br>
+      Игорь был убит, а его дружина уничтожена. Древляне отправили послов к <strong>Ольге</strong> с предложением выйти замуж за их князя Мала. Ольга жестоко отомстила древлянам.
+    </div>
+  </div>
+</article>
+
+
+
+
+
+<!-- КОНСПЕКТ: КНЯГИНЯ ОЛЬГА -->
+<article class="note-container" id="note-olga">
+  <h1 class="note-title">Правление княгини Ольги (945–960 гг.)</h1>
+
+  <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0ZBa3E2lmULJht1wvynGydKW_zLolf4TNHej4m3GyWg&s=10" alt="Княгиня Ольга">
+
+  <p class="note-text">
+    <mark class="wb">Княгиня Ольга</mark> — жена князя Игоря Старого, правившая после его гибели при малолетнем сыне <strong>Святославе</strong>. Первая женщина-правительница Древнерусского государства и первая христианка на киевском престоле.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внутренняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Налоговая реформа (947 г.)</h4>
+      <p>
+        <strong>Уроки</strong> — фиксированный размер дани.<br>
+        <strong>Погосты</strong> — места сбора дани.<br><br>
+        Реформа заменила бессистемное полюдье упорядоченной централизованной системой сбора дани.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Месть древлянам</h4>
+      <p>
+        После убийства Игоря древляне отправили послов к Ольге с предложением выйти замуж за их князя <strong>Мала</strong>. Ольга жестоко отомстила: одних послов закопала живьём, других сожгла в бане, дружинники Ольги перебили древлян на тризне по Игорю. Последней местью стало сожжение осаждённого <strong>Искоростеня</strong>.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внешняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Отношения с Византией</h4>
+      <p>
+        <strong>957 г.</strong> — Ольга совершила дипломатический визит в <strong>Константинополь</strong>.<br><br>
+      </p>
+      <h4>Крещение Ольги</h4>
+      <p>
+        <strong>Ольга</strong> приняла крещение в Константинополе с именем Елена<br>
+      Вернувшись в Киев, Ольга пыталась склонить к христианству сына <strong>Святослава</strong>, но он остался язычником, опасаясь осуждения дружины.
+      </p>
+</div>
+    <div class="comparison-card" style="background-size: cover; background-image: url('https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/%D0%A1%D0%B2%D1%8F%D1%82%D0%B0%D1%8F_%D0%B2%D0%B5%D0%BB%D0%B8%D0%BA%D0%B0%D1%8F_%D0%BA%D0%BD%D1%8F%D0%B3%D0%B8%D0%BD%D1%8F_%D0%9E%D0%BB%D1%8C%D0%B3%D0%B0.jpg/250px-%D0%A1%D0%B2%D1%8F%D1%82%D0%B0%D1%8F_%D0%B2%D0%B5%D0%BB%D0%B8%D0%BA%D0%B0%D1%8F_%D0%BA%D0%BD%D1%8F%D0%B3%D0%B8%D0%BD%D1%8F_%D0%9E%D0%BB%D1%8C%D0%B3%D0%B0.jpg?utm_source=ru.wikipedia.org&utm_campaign=parser&utm_content=thumbnail')">
+    </div>
+  </div>
+
+  <p class="note-text">
+    Ольга правила до совершеннолетия Святослава, после чего отошла от дел. Умерла в <strong>969 году</strong> в Киеве. Её политика заложила основу для укрепления государства и будущего Крещения Руси при её внуке Владимире.
+  </p>
+</article>
+
+
+
+
+<!-- КОНСПЕКТ: СВЯТОСЛАВ ИГОРЕВИЧ. ВНЕШНЯЯ ПОЛИТИКА -->
+<article class="note-container" id="note-sviat">
+  <h1 class="note-title">Князь Святослав Игоревич. Внешняя политика (960–972 гг.)</h1>
+
+  <p class="note-text">
+    <mark class="wb">Святослав Игоревич</mark> — сын князя Игоря и княгини Ольги, полководец, большую часть правления провёл в военных походах. Его внешняя политика была направлена на укрепление торговых путей и устранение внешних угроз (Хазария, Волжская Булгария, Византия, печенеги).
+  </p>
+
+  <!-- МЕСТО ДЛЯ КАРТЫ ПОХОДОВ -->
+  <div class="rule-box" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+    <div style="width: 100%; aspect-ratio: 1.2 / 1; background-color: var(--card-bg); background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcfh5va06SDK30guDz6d4DWKkaHBudhcoAMT0Tmw3feQ&s=10'); background-size: cover;">
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Походы на Булгарию и Хазарию (965–969 гг.)</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>🎯 Разгром Хазарского каганата (965 г.)</h4>
+      <p>
+        Святослав разбил хазарское войско, взял столицу каганата <strong>Итиль</strong> и крепость <strong>Саркел</strong> (позже — Белая Вежа).<br>
+        <strong>Итог:</strong> Хазарский каганат перестал существовать как серьёзная политическая сила. Русь получила контроль над Волжским торговым путём.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>⚔️ Поход на Волжскую Булгарию (965 г.)</h4>
+      <p>
+        Святослав совершил поход на <strong>Волжскую Булгарию</strong>, разорил её земли и заключил мирный договор.<br>
+        <strong>Итог:</strong> Укрепление позиций Руси yа Волжском пути.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Дунайская Болгария и Византия (968–971 гг.)</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">Первый Дунайский поход (968 г.)</div>
+    <div class="rule-content">
+      По просьбе византийского императора <strong>Никифора Фоки</strong> Святослав выступил против <strong>Дунайской Болгарии</strong>, разбил болгарского царя <strong>Петра</strong> и захватил города по Дунаю, включая <strong>Переяславец</strong>, куда планировал перенести столицу.
+    </div>
+  </div>
+
+  <div class="rule-box" style="border-left-color: #eab308;">
+    <div class="rule-title">Осада Киева печенегами (968 г.)</div>
+    <div class="rule-content">
+      Пока Святослав воевал на Дунае, <strong>печенеги</strong> осадили Киев. Княгиня Ольга с внуками оказалась в осаде. Святослав вернулся, разбил печенегов и отогнал их от столицы.<br>
+      После смерти матери (969 г.) Святослав вновь отправился на Дунай.
+    </div>
+  </div>
+
+  <div class="rule-box" style="border-left-color: #ef4444;">
+    <div class="rule-title">Второй Дунайский поход и война с Византией (969–971 гг.)</div>
+    <div class="rule-content">
+      Святослав захватил почти всю <strong>Дунайскую Болгарию</strong>, но Византия, обеспокоенная его усилением, начала войну.<br><br>
+      <strong>970–971 гг.</strong> — война с Византией. Крупные сражения:<br>
+      🗡️ <strong>Битва при Аркадиополе (970 г.)</strong> — Святослав разбил византийского полководца Варду Склира.<br>
+      💀 <strong>Оборона Доростола (971 г.)</strong> — после трёхмесячной осады Святослав заключил мир с императором <strong>Иоанном Цимисхием</strong>.<br><br>
+      <strong>Условия мира:</strong> Святослав уходит из Болгарии, получает дань, Русь и Византия восстанавливают торговые отношения.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Смерть Святослава (972 г.)</h2>
+
+  <p class="note-text">
+      Весной 972 года Святослав возвращался в Киев с остатками дружины по Днепру. У <strong>днепровских порогов</strong> его поджидал печенежский хан <strong>Куря</strong>. В бою Святослав погиб. Из его черепа сделали чашу для пиров — по обычаю кочевников, чтобы перенять силу и мудрость великого воина.<br><br>
+    </p>
+</article>
+
+
+
+
+
+
+
+
+
+    <!-- КОНСПЕКТ 1 -->
+    <article class="note-container" id="note-1">
+      <h1 class="note-title">Междоусобица Святославичей</h1>
+<img class="note-image" src="https://i.postimg.cc/vZYVmZML/vir.png" alt="Владимир и Рогнеда">
+      <p class="note-text">
+        В 972 г. Святослав погиб на днепровских порогах в бою с печенегами. Ещё при жизни он установил наместниками своих сыновей. Киевский престол достался Ярополку.<br> <mark class='wb'>977-980 гг.</mark> междоусобная война Святославичей.
+      </p>
+
+      <div class="rule-box">
+        <div class="rule-content">
+          <strong>Владимир</strong> — сын ключницы Малуши («робичич»). Святослав не считал его равным старшим братьям и отдал ему Новгород по остаточному принципу.<br><br>
+          <strong>Ярополк</strong> княжил в Киеве, <strong>Олег</strong> в землях древлян.
+        </div>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <h4>Причины</h4>
+          <p>
+            - Борьба за Киев.<br>
+            - Месть за убийство Олегом на охоте Люта Свенельдича.
+          </p>
+        </div>
+        <div class="comparison-card">
+          <h4>Итоги</h4>
+          <p>
+            - Гибель Олега и Ярополка.<br>
+            - Вокняжение Владимира Святославича.<br>
+          </p>
+        </div>
+      </div>
+
+      <p class="note-text">
+        Бежавший в Скандинавию Владимир нанял варягов, отбил Новгород с Полоцком и пошел на Киев. Ярополка, скрывавшегося в укреплённом городе Родне, заманили на переговоры и убили.
+      </p>
+    </article>
+
+    
+
+
+
+
+<!-- КОНСПЕКТ: ВНУТРЕННЯЯ ПОЛИТИКА ВЛАДИМИРА -->
+<article class="note-container" id="note-v3">
+  <h1 class="note-title">Внутренняя политика Владимира Святославича (980–1015)</h1>
+
+  <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1URNaB8865GesI1VqYA2SuDF-QWf9zUELT3Sc-3TwgReAv7p3H176hkDo&s=10" alt="Владимир Святославич">
+
+  <p class="note-text">
+    <mark class="wb">Владимир Святославич</mark> пришёл к власти после междоусобной войны с братом Ярополком. Его внутренняя политика была направлена на укрепление единства государства, централизацию власти и защиту границ.
+  </p>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Административная реформа</h4>
+      <p>
+        Владимир заменил племенных князей своими сыновьями-наместниками в важнейших городах (Новгород, Полоцк, Туров и др.). Это ослабило сепаратизм местной знати и способствовало централизации государства.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Оборона южных границ</h4>
+      <p>
+        Для защиты южных границ от печенегов Владимир возвел оборонительные рубежы, включавшие сеть крепостей у речных бродов и земляные Змиевы валы.
+      </p>
+    </div>
+  </div>
+  <h1 class="note-title">☦️ Крещение Руси. Религиозная политика</h1>
+
+  <p class="note-text">
+    <mark class="wb">988 год</mark> — официальное Крещение Руси.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Причины принятия христианства</h2>
+  <div class="rule-box">
+    <div class="rule-title">Языческая реформа 980 г. не удалась</div>
+    <div class="rule-content">
+      Владимир создал пантеон из пяти богов во главе с Перуном, но каждое племя продолжало молиться своим богам. Единобожие требовалось для консолидации всего населения и стирания межплеменных различий.
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Внутриполитические</h4>
+      <p>
+        Язычество мешало укреплению государственности; нужна была религия с одним Богом, чтобы сплотить народ и усилить власть князя.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Социальные</h4>
+      <p>
+        Обосновать через божественное происхождение право князя и дружины (знати) управлять обществом, собирать дань и судить людей, сглаживая социальное недовольство.
+      </p>
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Внешнеполитические</h4>
+      <p>
+        Язычество вело к изоляции Руси — её считали варварской страной. Христианство открывало путь к равноправным отношениям с Византией и другими державами.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Личные</h4>
+      <p>
+        «Испытание вер» — послы Владимира, побывав в Константинополе, были поражены красотой византийского богослужения: «Мы не знали, на небе мы или на земле». Также христианкой была княгиня Ольга, что оказало влияние на выбор именно этой веры.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Последствия принятия христианства</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Для культуры</h4>
+      <p>
+        - Появилась кириллическая письменность, началось распространение грамотности и книжного дела.<br>
+        - Каменное строительство: <strong>Десятинная церковь</strong>.<br>
+        - Развитие иконописи и фресковой живописи.<br>
+        - Перенято византийское летоисчисление, христианские праздники переплелись с языческими обычаями.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Для социальной сферы</h4>
+      <p>
+        - Церковь стала сплачивающей силой, объединяющей народ.<br>
+        - Появились христианские нравственные нормы: не убий, не укради, человеколюбие, уважение к семье. Смягчение нравов. Исчезает многожёнство.<br>
+        - Церковь освящала господство и подчинение, проповедуя незыблемость феодального порядка.<br>
+      </p>
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Для внешней политики</h4>
+      <p>
+        - Рост международного авторитета: Русь перестали считать варварской страной, она вошла в круг христианских государств.<br>
+        - Династические браки: Владимир был женат на сестре византийского императора Анне.<br>
+        - Русская церковь стала частью Константинопольской патриархии, что сблизило Русь с Византией.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Для государства</h4>
+      <p>
+        - Христианство провозгласило божественное происхождение власти. Это закрепило право князя на единоличное правление, суд и сбор дани.<br>
+        - Единая религия стерла религиозные барьеры, сплотив разрозненные племена вокруг Киева<br>
+      </p>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ВНЕШНЯЯ ПОЛИТИКА ВЛАДИМИРА -->
+<article class="note-container" id="note-v2">
+  <h1 class="note-title">Внешняя политика Владимира Святославича (980–1015)</h1>
+
+  <p class="note-text">
+    Владимир Святославич воевал на западе и востоке, строил оборонительные рубежи на юге и использовал династические браки и договоры для укрепления международного положения Руси.
+  </p>
+
+
+  <!-- МЕСТО ДЛЯ КАРТЫ ПОХОДОВ -->
+  <div class="rule-box" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+    <div style="width: 100%; aspect-ratio: 1.2 / 1; background-color: var(--card-bg); background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL9yOLxjXR0uNeZSklq9k1kFBEQZEv9Bl5OAoSqIClvmOEQzW6MiG8GuON&s=10'); background-size: cover;">
+    </div>
+  </div>
+
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Западное и восточное направления</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>⚔️ Война с Польшей (981 г.)</h4>
+      <p>
+        Владимир отвоевал <strong>Червенские города</strong> (Червень, Перемышль и др.), ранее захваченные Польшей. Расширил границы Руси на западе.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>⚔️ Поход на Волжскую Булгарию (985 г.)</h4>
+      <p>
+        В союзе с торками разбил волжских булгар и заключил <strong>выгодный мир</strong>.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Отношения с Византией</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>⚔️ Поход на Корсунь (988–989 гг.)</h4>
+      <p>
+        В Византии разгорелся мятеж Варды Фоки. Владимир обязался помочь византийскому императору Василию II, в обмен на брак с царевной Анной. Однако Василий II отказался присыласть сестру на Русь. Тогда Владимир осадил и взял византийский город <strong>Херсонес (Корсунь)</strong> в Крыму, где и принял крещение.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Брак с Анной</h4>
+      <p>
+        Действия Владимира в Херсонесе принудили императора выполнить обещание о браке с принцессой Анной. Женитьба на сестре византийских императоров укрепила международный престиж Руси.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Южное направление: борьба с печенегами</h2>
+
+  <div class="rule-box" style="border-left-color: #ef4444;">
+    <div class="rule-content">
+      Печенеги постоянно угрожали южным границам. Владимир построил несколько оборонительных рубежей с системой крепостей по рекам.
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+<!-- КОНСПЕКТ: БОРИС И ГЛЕБ -->
+<article class="note-container" id="note-yar1">
+  <h1 class="note-title">Междоусобица Владимировичей</h1>
+
+<img class="note-image" src="https://i.postimg.cc/X7ZSFwLb/Snimok-ekrana-ot-2026-09-13-19-29-35.png" alt="Борис и Глеб">
+
+  <p class="note-text">
+    В 1015 г. Владимир Святославич умер, не успев уладить порядок наследования. Ещё при жизни он посадил сыновей наместниками по землям, но киевский престол остался спорным.<br> <mark class='wb'>1015-1026 гг.</mark> междоусобная война Владимировичей.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-content">
+      <strong>Святополк</strong> — сын Ярополка, усыновлённый Владимиром («окаянный»). Киевский престол захватил после смерти отца.<br><br>
+      <strong>Борис</strong> княжил в Ростове, <strong>Глеб</strong> в Муроме, <strong>Ярослав</strong> в Новгороде, <strong>Мстислав</strong> в Тмутаракани.
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Причины</h4>
+      <p>
+        - Борьба за Киев.<br>
+        - Неясность порядка наследования после Владимира.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Итоги</h4>
+      <p>
+        - Гибель Бориса, Глеба и Святополка.<br>
+        - Вокняжение Ярослава Мудрого в Киеве.<br>
+      </p>
+    </div>
+  </div>
+
+  <p class="note-text">
+    Святополк убил Бориса и Глеба (первые русские святые), затем был разбит Ярославом у Любеча в 1016 г. и бежал. При поддержке печенегов вернулся, но в 1019 г. на реке Альте потерпел окончательное поражение и погиб. Мстислав Тмутараканский в 1024 г. разбил Ярослава у Листвена и до 1026 г. правил восточными землями, после чего братья разделили Русь по Днепру.
+  </p>
+</article>
+
+
+
+<!-- КОНСПЕКТ: ВНЕШНЯЯ ПОЛИТИКА ЯРОСЛАВА МУДРОГО -->
+<article class="note-container" id="note-yar2">
+  <h1 class="note-title">Внешняя политика Ярослава Мудрого (1019–1054)</h1>
+
+  <p class="note-text">
+    Ярослав Мудрый вернул западные земли, окончательно разбил печенегов и использовал династические браки для укрепления международного положения Руси.
+  </p>
+
+
+  <!-- МЕСТО ДЛЯ КАРТЫ ПОХОДОВ -->
+  <div class="rule-box" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+    <div style="width: 100%; aspect-ratio: 1.2 / 1; background-color: var(--card-bg); background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL9WWC-G2hzjjt7xeRR584Cbczaj0Ll_YyNTbj7Heh0OqcgERz2CRyq-o&s=10'); background-size: cover;">
+    </div>
+  </div>
+
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Западное и северо-западное направления</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>⚔️ Война с Польшей (1030–1031 гг.)</h4>
+      <p>
+        Ярослав вернул <strong>Червенские города</strong>, захваченные Польшей в 1018 г. Расширил границы Руси на западе.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>⚔️ Походы на чудь и литву</h4>
+      <p>
+        Совершил походы в Прибалтику, основал <strong>Юрьев</strong> (1030 г.) и обезопасил северо-западные рубежи.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Отношения с Византией</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>⚔️ Война с Византией 1043 г.</h4>
+      <p>
+        Причиной похода стало убийство русских купцов в Константинополе. Поход под командованием сына Владимира закончился неудачей из-за применения греческого огня. Но не разрушил отношения Руси с Византией.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>💕 Династические браки</h4>
+      <p>
+        Война завершилась почетным миром 1043 года. В знак союза сын Ярослава Всеволод женился на дочери византийского императора (от этого брака позже родится Владимир Мономах)
+      </p>
+    </div>
+  </div>
+      <p class="note-text">
+        Дочери Ярослава вышли замуж за королей Франции, Норвегии и Венгрии, что укрепило связи Руси с Европой. Сыновья были женаты на представительницах Византии, Польши и Германии. Ярослав вошёл в историю как «тесть Европы».
+      </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Разгром печенегов</h2>
+
+  <div class="rule-box" style="border-left-color: #ef4444;">
+    <div class="rule-content">
+      Воспользовавшись отсутствием Ярослава Мудрого, в <strong>1036 году</strong> печенеги осадили Киев, однако вернувшийся князь во главе объединенного войска разбил кочевников под стенами города. Катастрофическое поражение заставило остатки печенегов навсегда покинуть границы Руси. В честь этой победы на месте сражения был заложен <strong>Софийский собор</strong>.
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ВНУТРЕННЯЯ ПОЛИТИКА ЯРОСЛАВА МУДРОГО -->
+<article class="note-container" id="note-yar3">
+  <h1 class="note-title">Внутренняя политика Ярослава Мудрого (1019–1054)</h1>
+
+  <img class="note-image" src="https://clib.yar.ru/wp-content/uploads/2015/12/0_72a69_818251bc_XL.jpg" alt="Ярослав Мудрый">
+
+  <p class="note-text">
+    <mark class="wb">Ярослав Мудрый</mark> вошёл в историю как правитель, при котором Древнерусское государство достигло расцвета: укрепилась княжеская власть, оформилось законодательство, развивались культура и церковь.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Укрепление государственной власти</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Наместники</h4>
+      <p>
+        Ярослав подавил выступления местной знати, укрепил систему наместничества. Он посадил своих сыновей в крупнейших землях: <strong>Изяслав</strong> — в Киеве, <strong>Святослав</strong> — в Чернигове, <strong>Всеволод</strong> — в Переяславле. Это способствовало централизации власти.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Лествичная система</h4>
+      <p>
+        Установил принцип наследования престола к старшему в роду. Это укрепило династию Рюриковичей, но позже стало причиной усобиц.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Законодательство. «Русская Правда»</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Правда Ярослава (1016г.)</h4>
+      <p>
+        Первая часть «Русской Правды» — свод законов, заменивший кровную месть системой <strong>штрафов — вир)</strong>.<br>
+      - За убийство свободного человека — вира (40 гривен).<br>
+      - Кровная месть ограничена кругом ближайших родственников.<br>
+      - Защита жизни, имущества и чести свободных людей.<br>
+      - Разграничение ответственности по социальному положению.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Значение</h4>
+      <p>
+        «Русская Правда» — первый письменный свод законов Руси. Он закрепил социальное неравенство, защищал жизнь и собственность знати, а также регулировал суд и наказания.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Церковь и культура</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>☦️ Церковная политика</h4>
+      <p>
+        <strong>1051 г.</strong> — Ярослав назначил митрополитом <strong>Илариона</strong> без согласования с Константинополем. Это первый русский митрополит, что укрепило самостоятельность русской церкви.<br><br>
+        Основан <strong>Киево-Печерский монастырь</strong> — крупнейший центр летописания и культуры.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>🎨 Культурное строительство</h4>
+      <p>
+        <strong>1037 г.</strong> — заложен <strong>Софийский собор</strong> в Киеве и <strong>Золотые ворота</strong>. При Ярославе велось активное каменное строительство, развивались летописание, переводы книг и иконопись.<br><br>
+        При Софийском соборе создана первая библиотека и скрипторий.
+      </p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">Основание городов</div>
+    <div class="rule-content">
+      Для защиты рубежей Руси и контроля торговых путей Ярослав Мудрый активно строил города-крепости. Он основал Ярославль на Волге, Юрьев (Тарту) в Прибалтике, а также Юрьев-Русский (Белая Церковь), Новгород-Северский для охраны южных, западных и черниговских границ.
+    </div>
+  </div>
+</article>
+
+
+
+
+
+<!-- КОНСПЕКТ: КАТЕГОРИИ НАСЕЛЕНИЯ ДРЕВНЕЙ РУСИ -->
+<article class="note-container" id="note-yar4">
+  <h1 class="note-title">Категории населения Древней Руси</h1>
+
+  <p class="note-text">
+    «Русская Правда» — главный источник сведений о социальном устройстве Древней Руси. Она делила всё население на свободных и зависимых людей. Положение человека определялось не только богатством, но и его отношением к князю и общине.
+  </p>
+
+  <!-- СХЕМА: СВОБОДНЫЕ И ЗАВИСИМЫЕ -->
+  <div class="social-scheme">
+    <div class="scheme-column">
+      <div class="scheme-title">🕊️ Свободное население</div>
+
+      <div class="scheme-card">
+        <div class="scheme-icon">👑</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Князья</div>
+          <div class="scheme-desc">Верховные правители. Рюриковичи, власть передавалась по лествичному праву.</div>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-icon">⚔️</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Дружина</div>
+          <div class="scheme-desc">Старшая — <strong>бояре</strong> (советники, воеводы), младшая — <strong>гридни, отроки</strong> (воины, слуги князя).</div>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-icon">⛪</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Духовенство</div>
+          <div class="scheme-desc">Митрополит, епископы, священники, монахи. Освобождены от дани и суда князя (кроме особых дел).</div>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-icon">🧑‍🌾</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Люди (смерды)</div>
+          <div class="scheme-desc">Поземельно зависимые земледельцы, платили дань и несли повинности. Основная масса населения.</div>
+        </div>
+      </div>
+
+      <div class="scheme-card">
+        <div class="scheme-icon">🏘️</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Городские жители</div>
+          <div class="scheme-desc">Купцы, ремесленники, посадские люди. Объединялись в общины, имели вече.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scheme-column scheme-column--dependent">
+      <div class="scheme-title">⛓️ Зависимое население</div>
+
+      <div class="scheme-card scheme-card--dep">
+        <div class="scheme-icon">🪙</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Закупы</div>
+          <div class="scheme-desc"><strong>Купа</strong> — долг. Человек, взявший ссуду и обязанный её отработать. Имел право уйти, вернув долг; за побег превращался в холопа.</div>
+        </div>
+      </div>
+
+      <div class="scheme-card scheme-card--dep">
+        <div class="scheme-icon">📜</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Рядовичи</div>
+          <div class="scheme-desc"><strong>Ряд</strong> — договор. Человек, заключивший договор о службе и работе у господина на определённых условиях.</div>
+        </div>
+      </div>
+
+      <div class="scheme-card scheme-card--dep">
+        <div class="scheme-icon">🔗</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Холопы (челядь)</div>
+          <div class="scheme-desc">Полностью бесправные. Источники холопства: плен, продажа, брак с холопом, самопродажа за долги, побег закупа. Убийство холопа — не вира, а штраф как за порчу имущества.</div>
+        </div>
+      </div>
+
+      <div class="scheme-card scheme-card--dep">
+        <div class="scheme-icon">🌾</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Прочие зависимые</div>
+          <div class="scheme-desc">Огнищане (управляющие), тиуны (управители), ключники, обельные холопы — низшие категории.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="rule-box">
+<div class="rule-title">Княжеский двор</div>
+    <div class="rule-content">
+      <strong>Тиун</strong> — княжеский или боярский управляющий, слуга, ведавший хозяйством и исполнявший судебные или административные поручения.<br>
+<strong>Огнищанин</strong> — высший слой княжеских слуг, управитель княжеского хозяйства (вотчины) и защитник его имущества.<br>
+<strong>Обельные холопы</strong> — полностью бесправные зависимые люди, находившиеся в абсолютной («вечной») собственности господина без возможности освобождения за долги.
+    </div>
+<div class="rule-title">Церковь</div>
+    <div class="rule-content">
+      <strong>Митрополит</strong> — высший духовный чин на Руси, глава всей древнерусской церкви, назначавшийся Константинопольским патриархом.<br>
+<strong>Епископ</strong> — высшее духовное лицо, возглавлявшее церковный округ (епархию) и подчинявшееся митрополиту.<br>
+<strong>Инок</strong> — православный монах, человек, принявший постриг и давший обеты отречения от мирской жизни.
+    </div>
+<div class="rule-title">Дружина</div>
+    <div class="rule-content">
+      <strong>Бояре</strong> — высшее сословие знати на Руси, состоявшее из крупных землевладельцев (вотчинников), старших княжеских дружинников и главных советников князя, которые участвовали в управлении государством.<br>
+<strong>Гридни</strong> — воины дружины князя, его личная гвардия и советники, жившие в специальных помещениях (гридницах).<br>
+<strong>Отроки</strong> — младшие дружинники, выполнявшие обязанности телохранителей, вестовых, а также младших слуг при княжеском дворе.
+    </div>
+  </div>
+
+  <p class="note-text">
+    Социальная структура Древней Руси была сложной и подвижной. Появление зависимых категорий (закупов, рядовичей, холопов) стало следствием развития землевладения, ростовщичества и усиления знати. «Русская Правда» закрепила это неравенство законодательно.
+  </p>
+</article>
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ТРИУМВИРАТ ЯРОСЛАВИЧЕЙ -->
+<article class="note-container" id="note-yach1">
+  <h1 class="note-title">Триумвират Ярославичей (1054–1078)</h1>
+
+  <p class="note-text">
+    После смерти <mark class="wb">Ярослава Мудрого (1054 г.)</mark> единое Древнерусское государство перешло под власть трёх его старших сыновей. Ярослав завещал им править совместно, «не преступая в братний предел», и слушаться старшего брата как отца. Однако уже с 1060-х годов между братьями начались конфликты, а после 1073 г. триумвират фактически распался.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-title">Триумвират — условное название совместного правления трёх Ярославичей</div>
+    <div class="rule-content">
+      <strong>Изяслав Ярославич</strong> — великий князь Киевский, старший в роду. Держал Киев и Новгород.<br>
+      <strong>Святослав Ярославич</strong> — княжил в Чернигове, владел землями на востоке.<br>
+      <strong>Всеволод Ярославич</strong> — княжил в Переяславле, ближайший союзник Изяслава. Отец Владимира Мономаха.<br><br>
+      Младшие Ярославичи — Вячеслав (ум. 1057) и Игорь (ум. 1060) — владели небольшими уделами и рано умерли, поэтому реальная власть сосредоточилась в руках триумвирата.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Хронология княжения в Киеве (1054–1093)</h2>
+
+  <!-- ЛЕГЕНДА -->
+  <div class="t1meline-leg3nd">
+    <span class="leg3nd-i2em"><span class="leg3nd-color izyaslav"></span> Изяслав Ярославич</span>
+    <span class="leg3nd-i2em"><span class="leg3nd-color vseslav"></span> Всеслав Полоцкий</span>
+    <span class="leg3nd-i2em"><span class="leg3nd-color svyatoslav"></span> Святослав Ярославич</span>
+    <span class="leg3nd-i2em"><span class="leg3nd-color vsevolod"></span> Всеволод Ярославич</span>
+  </div>
+
+  <!-- ЕДИНАЯ ХРОНОЛОГИЧЕСКАЯ ЛИНИЯ -->
+  <div class="t1meline-container">
+    <div class="t1meline-scale">
+      <span>1054</span>
+      <span>1060</span>
+      <span>1068</span>
+      <span>1073</span>
+      <span>1078</span>
+      <span>1093</span>
+    </div>
+
+    <!-- Единая дорожка с сегментами -->
+    <div class="t1meline-track">
+      <!-- Изяслав 1054–1068 -->
+      <div class="t1meline-segment izyaslav" style="left: 0%; width: 28%;">
+        <span>Изяслав<br>1054–1068</span>
+      </div>
+      <!-- Всеслав 1068–1069 -->
+      <div class="t1meline-segment vseslav" style="left: 28%; width: 4%;">
+        <span></span>
+      </div>
+      <!-- Изяслав 1069–1073 -->
+      <div class="t1meline-segment izyaslav" style="left: 32%; width: 24%;">
+        <span></span>
+      </div>
+      <!-- Святослав 1073–1076 -->
+      <div class="t1meline-segment svyatoslav" style="left: 56%; width: 10%;">
+        <span>Святослав<br>1073–1076</span>
+      </div>
+      <!-- Всеволод 1076–1077 -->
+      <div class="t1meline-segment vsevolod" style="left: 66%; width: 6%;">
+        <span></span>
+      </div>
+      <!-- Изяслав 1077–1078 -->
+      <div class="t1meline-segment izyaslav" style="left: 72%; width: 6%;">
+        <span></span>
+      </div>
+      <!-- Всеволод 1078–1093 -->
+      <div class="t1meline-segment vsevolod" style="left: 78%; width: 22%;">
+        <span>Всеволод<br>1078–1093</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">🔥 Киевское восстание 1068 года</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Причины</h4>
+      <p>
+        <strong>Поражение на реке Альте</strong> — Ярославичи потерпели поражение от половцев.<br>
+        <strong>Отказ в оружии</strong> — киевляне требовали у Изяслава оружие и коней, чтобы продолжить борьбу, но получили отказ.<br>
+        <strong>Социальное недовольство</strong> — горожане были недовольны политикой князя и его окружением.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Последствия</h4>
+      <p>
+        <strong>Изгнание Изяслава</strong> — восставшие вынудили его бежать в Польшу.<br>
+        <strong>Всеслав Полоцкий</strong> — освобождён из поруба 15 сентября 1068 г. и провозглашён князем (1068–1069).<br>
+        <strong>Возвращение Изяслава</strong> — в 1069 г. с польским войском вернул Киев, но авторитет княжеской власти был подорван.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">📜 «Правда Ярославичей» (1072 г.)</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">Вторая часть «Русской Правды»</div>
+    <div class="rule-content">
+      Создана после восстания 1068 г. для укрепления порядка и защиты княжеского хозяйства. Традиционно датируется 1072 г. (съезд в Вышгороде)<br><br>
+      <strong>Основные положения:</strong><br>
+      - Замена кровной мести системой штрафов (вир).<br>
+      - Усиленная защита княжеской собственности, земли и слуг.<br>
+      - За убийство огнищанина, тиуна — вира 80 гривен (вдвое больше, чем за свободного человека).<br>
+      - За убийство смерда, холопа, рядовича — 5 гривен.<br>
+      - Ужесточение наказаний за поджог, кражу скота, порчу княжеского имущества.<br><br>
+      «Правда Ярославичей» закрепила социальное неравенство и стала важным шагом в развитии древнерусского законодательства.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Святослав Ярославич</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Изгнание Изяслава</h4>
+      <p>
+        В результате заговора Святослав изгнал Изяслава в 1073 г. и сел в Киеве. Однако уже в 1076 г. скоропостижно скончался. Ненадолго престол принял Всеволод, после чего передал власть вернувшемуся Изяславу.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Возвращение Изяслава</h4>
+      <p>
+        В 1078 г. Изяслав вернулся в Киев, но погиб 3 октября 1078 г. в битве на <strong>Нежатиной Ниве</strong> против племянников — Олега Святославича и Бориса Вячеславича. Киевский престол вновь занял <strong>Всеволод Ярославич</strong> (1078–1093).
+      </p>
+    </div>
+  </div>
+
+  <p class="note-text">
+    Правление <strong>Всеволода Ярославича</strong> сопровождалось преодолением постоянных княжеских усобиц и половецких набегов. После смерти Всеволода в 1093 г. киевским князем стал <strong>Святополк Изяславич</strong> (сын Изяслава, 1093–1113), правление которого запомнилось затяжными войнами с половцами, расцветом ростовщичества, а также съездами князей.
+  </p>
+</article>
+
+
+
+
+
+<style>
+/* Стили для таймлайна */
+.t1meline-leg3nd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+.leg3nd-i2em {
+  display: flex;
+  align-i2ems: center;
+  gap: 6px;
+}
+.leg3nd-color {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+.leg3nd-color.izyaslav { background: #4a90d9; }
+.leg3nd-color.vseslav { background: #d9534f; }
+.leg3nd-color.svyatoslav { background: #f0ad4e; }
+.leg3nd-color.vsevolod { background: #5cb85c; }
+.leg3nd-color.svyatopolk { background: #9b59b6; }
+
+.t1meline-container {
+  position: relative;
+  margin: 30px 0 50px;
+  padding: 0 0 40px;
+}
+.t1meline-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+.t1meline-track {
+  position: relative;
+  height: 60px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.t1meline-segment {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-i2ems: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px;
+  box-sizing: border-box;
+  border-right: 1px solid rgba(255,255,255,0.4);
+  overflow: hidden;
+}
+.t1meline-segment:last-child {
+  border-right: none;
+}
+.t1meline-segment.izyaslav { background: #4a90d9; }
+.t1meline-segment.vseslav { background: #d9534f; }
+.t1meline-segment.svyatoslav { background: #f0ad4e; }
+.t1meline-segment.vsevolod { background: #5cb85c; }
+
+.t1meline-marker {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #9b59b6;
+  line-height: 1.2;
+}
+.t1meline-marker::before {
+  content: "";
+  display: block;
+  width: 2px;
+  height: 12px;
+  background: #9b59b6;
+  margin: 0 auto 4px;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 600px) {
+  .t1meline-scale { font-size: 0.7rem; }
+  .t1meline-segment { font-size: 0.6rem; }
+  .t1meline-track { height: 70px; }
+}
+</style>
+
+
+
+
+
+
+
+
+
+<!-- КОНСПЕКТ: ПОЛОВЕЦКАЯ УГРОЗА -->
+<article class="note-container" id="note-yach2">
+  <h1 class="note-title">Половецкая угроза</h1>
+
+ <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuJau8FgwqlJbxs84z5lmwRlazVJ-6DEpCmxFdob6E-bU02cu9j7hAUQ4c&s=10" alt="Ярослав Мудрый">
+
+  <p class="note-text">
+    <mark class="wb">Половцы (кипчаки)</mark> — кочевой тюркский народ, пришедший из степей Прииртышья и Восточного Казахстана. Вытеснили печенегов и торков и с <strong>середины XI века</strong> стали главным противником Руси в степи.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-title">Появление половцев у рубежей Руси</div>
+    <div class="rule-content">
+      <strong>1055 г.</strong> — первое появление половцев у границ Руси (у Переяславля).<br>
+      <strong>1061 г.</strong> — первый крупный набег на Русь.<br>
+      <strong>1068 г.</strong> — разгром Ярославичей на реке <strong>Альте</strong>. Это поражение стало причиной Киевского восстания и изгнания Изяслава.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">⚔️ Битва на Альте (1068 г.)</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Ход событий</h4>
+      <p>
+        Объединённое войско трёх Ярославичей (Изяслав, Святослав, Всеволод) выступило против половцев. На реке <strong>Альте</strong> русские потерпели сокрушительное поражение и бежали.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Последствия</h4>
+      <p>
+        Киевляне потребовали у Изяслава оружие и коней для продолжения борьбы, получили отказ и восстали. Изяслав бежал в Польшу, а на киевский престол на 7 месяцев сел <strong>Всеслав Полоцкий</strong>.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Владимир Мономах и борьба со степью</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR879bNtYTMnWGY0ROi_dbflcy6wiq0QnQFIYhW0McK_Q&s=10" alt="Владимир Мономах" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 10px;">
+      Владимир Мономах — главный организатор отпора половцам
+    </div>
+    <div class="rule-content">
+      Сын Всеволода Ярославича, князь переяславский, затем киевский (1113–1125).<br><br>
+      <strong>Роль в борьбе с половцами:</strong><br>
+      - Инициатор объединённых походов русских князей в степь.<br>
+      - Организатор съездов для прекращения усобиц перед лицом общего врага.<br>
+      - Лично участвовал в десятках походов против половцев.<br>
+      - Добился переноса войны в степь — русские сами нападали на кочевья.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">💬 Съезды князей против половцев</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Любечский съезд (1097 г.)</h4>
+      <p>
+        Инициатор — Владимир Мономах. Решение: <strong>«Каждо да держит отчину свою»</strong> — прекращение усобиц и совместная борьба с половцами.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Уветичский (Витичевский) съезд (1100 г.)</h4>
+      <p>
+        Продолжение политики Любеча. Князья договорились о совместных действиях против половцев и наказании нарушителей мира.
+      </p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-title">Долобский съезд (1103 г.)</div>
+    <div class="rule-content">
+      Съезд у Долобского озера. Владимир Мономах убедил князей начать <strong>весенний поход в степь</strong> (до этого походы совершались только летом, когда половцы были готовы).<br><br>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">⚔️ Походы русских против половцев</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Поход 1103 г.</h4>
+      <p>
+        Объединённый поход после Долобского съезда. Русские разбили половцев, захватили их вежи и скот. Первый крупный успех объединённых сил Руси.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Поход 1111 г.</h4>
+      <p>
+        Самый успешный поход Владимира Мономаха. Русское войско дошло до <strong>Дона</strong>, разгромило половцев на реке <strong>Салнице</strong>. Половецкая угроза была надолго ослаблена.
+      </p>
+    </div>
+  </div>
+
+  <p class="note-text">
+    Благодаря политике Владимира Мономаха и объединённым походам русских князей половецкая угроза во второй половине XI — начале XII века была значительно ослаблена, а Русь перешла от обороны к наступлению в степь.
+  </p>
+</article>
+
+
+
+
+<!-- КОНСПЕКТ: ВЛАДИМИР МОНОМАХ -->
+<article class="note-container" id="note-yach3">
+  <h1 class="note-title">Владимир Мономах (1113–1125)</h1>
+
+  <p class="note-text">
+    <mark class="wb">Владимир Всеволодович Мономах</mark> — сын князя Всеволода Ярославича и Марии, дочери византийского императора Константина IX Мономаха. Прозвище «Мономах» унаследовано от матери. Родился в <strong>1053 году</strong>.
+  </p>
+
+  <div class="rule-box">
+    <div class="rule-title">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR879bNtYTMnWGY0ROi_dbflcy6wiq0QnQFIYhW0McK_Q&s=10" alt="Владимир Мономах" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 10px;">
+      Владимир Мономах — выдающийся государственный деятель, полководец и писатель Древней Руси
+    </div>
+    <div class="rule-content">
+      <strong>Приход к власти:</strong><br>
+      В 1093 году, после смерти отца, Владимир мог занять киевский престол, но уступил его двоюродному брату <strong>Святополку Изяславичу</strong>, чтобы избежать войны: «Если сяду на столе отца своего, то буду воевать со Святополком, так как стол этот был его отца».<br><br>
+      Княжил в Чернигове, затем в Переяславле. В 1113 году, после смерти Святополка и восстания в Киеве, был приглашён киевлянами на престол.
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">🔥 Киевское восстание 1113 года</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Причины</h4>
+      <p>
+        - Святополк вместе со своим приближенным, тысяцким Путятой Вышатичем, завысил цены на соль, что разорило простых горожан.<br>
+        - Святополк покровительствовал ростовщикам. Проценты по долгам (резы) были грабительскими, должники массово попадали в кабалу, становясь закупами или холопами.<br>
+        - После смерти Святополка киевское боярство попыталось призвать на престол Ольговичей, которых народ ненавидел за их былые союзы с половцами. Киевляне же хотели видеть на престоле Владимира Мономаха.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Последствия</h4>
+      <p>
+        - восставшие разграбили двор тысяцкого Путяты Вышатича и владения ростовщиков.<br>
+        - напуганная боярская верхушка добилась согласия Владимира стать князем. Вокняжение Владимира Мономаха.<br>
+        - <strong>«Устав Владимира Мономаха»</strong> ограничил доходы ростовщиков, упорядочил условия долговой зависимости, облегчил положение холопов и закупов.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внутренняя политика</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>📜 Законодательство</h4>
+      <p>
+        <strong>«Устав Владимира Мономаха» (1113)</strong> — дополнение к «Русской Правде». Ограничил проценты ростовщиков, регламентировал переход в холопство.<br><br>
+        <strong>«Пространная Русская Правда»</strong> — наиболее полный свод законов, созданный при Владимире и его сыне Мстиславе. Трактовал вопросы собственности, наследования, правового положения женщин.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Укрепление государства</h4>
+      <p>
+        <strong>Строительство.</strong> возведены церковь Спаса на Берестове в Киеве, Церковь Бориса и Глеба в Вышгороде, каменная крепость в Ладоге, оборонительные укрепления города Владимира и первый наплавной мост через Днепр в Киеве.<br>
+        <strong>Авторитет власти.</strong> Мономах подчинил себе Новгород, Минск и Волынь, сосредоточив под личным контролем и контролем своих сыновей более 2/3 территории Древней Руси, что позволило на четверть века приостановить раздробленность.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Внешняя политика</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">Борьба с половцами</div>
+    <div class="rule-content">
+      Наступательная тактика — от обороны перешёл к глубоким рейдам в степь.<br>
+      <strong>Походы 1103, 1111 гг.</strong> разгром половцев на Сутени и Салнице.<br>
+      <strong>Результат:</strong> половцы оттеснены за Дон и Волгу, набеги надолго прекратились.
+    </div>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>Отношения с Византией</h4>
+      <p>
+        <strong>Война 1116–1123 гг.</strong> Мономах поддержал самозванца Лже-Диогена (якобы сына императора Романа IV), выдав за него дочь Марию. Цель: посадить своего ставленника на константинопольский престол или овладеть Нижним Дунаем.<br><br>
+        <strong>Итог:</strong> мир был скреплён браком внучки Мономаха Добродеи с Алексеем Комнином, сыном нового императора Иоанна Комнина.
+      </p>
+    </div>
+    <div class="comparison-card">
+      <h4>Династические браки</h4>
+      <p>
+        Мономах активно интегрировал Русь в европейскую политику. Сам он был женат на англосаксонской принцессе Гите, его сын Мстислав женился на шведской принцессе Кристине, а дочери вышли замуж за королей Венгрии, Норвегии и византийских царевичей.
+      </p>
+    </div>
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Мстислав Великий (1125–1132)</h2>
+
+  <div class="rule-box">
+    <div class="rule-title">Сын и преемник Владимира Мономаха</div>
+    <div class="rule-content">
+      <strong>Мстислав Владимирович Великий</strong> (1076–1132) — старший сын Мономаха и Гиты, дочери английского короля Гарольда II.<br><br>
+      <strong>Правление:</strong><br>
+      - Княжил в Новгороде (1088–1117), затем в Белгороде как соправитель отца. С 1125 года — великий князь Киевский.<br>
+      - Продолжил политику отца: удерживал единство Руси, разбил полоцких князей и выслал их в Византию (1130), присоединил Полоцк.<br>
+      - Организовал походы на половцев, чудь, Литву.<br>
+      - При нём завершено составление «Пространной Русской Правды».<br><br>
+      После смерти Мстислава в 1132 году единство Руси распалось — начался период <strong>РАЗДРОБЛЕННОСТИ</strong>.
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+<article class="note-container" id="note-causality">
+  <h1 class="note-title">Задания на причинно-следственные связи</h1>
+
+  <p class="note-text">
+    Ниже собраны задания на установление причин, следствий и взаимосвязей событий истории Древней Руси.
+    Сформулируйте ответ самостоятельно, затем раскройте блок с правильным ответом и сравните его
+    со своим. Обращайте внимание не только на факт, но и на логику связи: причина → механизм → результат.
+  </p>
+
+  <!-- ЗАДАНИЕ 1 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 1</span>
+      <span class="task-topic">Призвание варягов (862 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину призвания варягов на Русь.<br>
+      2. Одно политическое последствие этого события.<br>
+      3. Одно последствие этого события для социально-экономического развития восточнославянских земель.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Междоусобные войны и конфликты между восточнославянскими и финно-угорскими племенами (словенами, кривичами, чудью, мерей) после изгнания варягов за море, что вынудило их искать третейского судью.</p>
+        <p><strong>2. Политическое последствие:</strong> Образование династии Рюриковичей и начало формирования институтов княжеской власти в Новгородской земле.</p>
+        <p><strong>3. Социально-экономическое последствие:</strong> Установление стабильного контроля над северным участком торгового пути «из варяг в греки», что способствовало развитию торговли в регионе.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 2 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 2</span>
+      <span class="task-topic">Объединение Новгорода и Киева Олегом (882 г. — завершение этапа)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину походов князя Олега на Киев и объединения северного и южного центров Руси.<br>
+      2. Одно политическое последствие создания единого Древнерусского государства со столицей в Киеве.<br>
+      3. Одно внешнеполитическое последствие этого события.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Стремление установить полный контроль над торговым путем «из варяг в греки», объединив ключевые узлы этого пути — Новгород и Киев.</p>
+        <p><strong>2. Политическое последствие:</strong> Формирование единой государственной территории под властью киевского князя и начало подчинения окрестных племенных союзов (древлян, северян, радимичей).</p>
+        <p><strong>3. Внешнеполитическое последствие:</strong> Рост военного потенциала Древнерусского государства, что позволило Олегу организовать успешные поход на Византию в 907 и 911 гг.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 3 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 3</span>
+      <span class="task-topic">Восстание древлян и гибель князя Игоря (945 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину восстания древлян в 945 году.<br>
+      2. Одно внутриполитическое последствие этого события, связанное с реформами Ольги.<br>
+      3. Одно последствие для системы налогообложения на Руси.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Повторный сбор дани (полюдья) князем Игорем с древлян по настоянию его дружины, нарушивший традиционные нормы отношений между князем и племенем.</p>
+        <p><strong>2. Внутриполитическое последствие:</strong> Отказ от произвольной системы полюдья и переход к четко регламентированному государственному администрированию.</p>
+        <p><strong>3. Последствие для сферы налогообложения:</strong> Введение княгиней Ольгой фиксированного размера дани (<em>уроков</em>) и четко определенных мест ее сбора (<em>погостов</em>).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 4 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 4</span>
+      <span class="task-topic">Дипломатический визит княгини Ольги в Константинополь (957 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину личного крещения княгини Ольги в Византии.<br>
+      2. Одно внешнеполитическое последствие этого события.<br>
+      3. Одно последствие для культурного и духовного развития Руси.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Стремление укрепления международного авторитета Киева и повышение статуса правителя Руси в глазах византийских императоров через принятие христианства.</p>
+        <p><strong>2. Внешнеполитическое последствие:</strong> Укрепление дипломатических и торговых связей Руси с Византийской империей без признания вассальной зависимости от Византии.</p>
+        <p><strong>3. Культурное последствие:</strong> Проникновение христианской культуры, книжности и иконописи в среду киевской знати, что подготовило почву для последующего крещения всей Руси.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 5 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 5</span>
+      <span class="task-topic">Дунайские походы Святослава Игоревича (967–971 гг.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину вторжения Святослава в Болгарское царство.<br>
+      2. Одно внешнеполитическое последствие военных действий Святослава на Балканах.<br>
+      3. Одно последствие этих походов для южных границ Руси.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Предложение византийского императора Никифора Фоки выступить союзником против Болгарского царства в обмен на денежное вознаграждение, а также желание Святослава перенести столицу в Переяславец-на-Дунае.</p>
+        <p><strong>2. Внешнеполитическое последствие:</strong> Крупный военный конфликт с Византией, завершившийся договором в Доростоле (971 г.) и отказом Руси от претензий на Болгарию.</p>
+        <p><strong>3. Последствие для южных границ:</strong> Ослабление Руси в результате затяжных войн на Балканах, что облегчило печенегам возможность устроить засаду и убить Святослава на днепровских порогах (972 г.).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 6 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 6</span>
+      <span class="task-topic">Первая междоусобица на Руси (972–978 гг.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину начала междоусобной борьбы между сыновьями Святослава (Ярополком, Олегом и Владимиром).<br>
+      2. Одно политическое последствие этой междоусобицы.<br>
+      3. Одно последствие для системы управления государством.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Отсутствие четкого и закрепленного законом порядка престолонаследия, а также территориальный раздел земель Святославом между сыновьями при жизни, приведший к земельным спорам.</p>
+        <p><strong>2. Политическое последствие:</strong> Гибель Олега и Ярополка, утверждение Владимира I на киевском престоле в качестве единоличного правителя.</p>
+        <p><strong>3. Последствие для системы управления:</strong> Владимир посадил своих сыновей наместниками в ключевые города Руси, усилив централизацию власти и контроль Киева над регионами.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 7 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 7</span>
+      <span class="task-topic">Языческая реформа Владимира I (980 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину проведения реформы языческого культа Владимиром Святославичем.<br>
+      2. Одно политическое последствие этой реформы.<br>
+      3. Одно последствие, обусловившее дальнейший выбор монотеистической религии.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Необходимость идеологического объединения племен Древнерусского государства вокруг Киева и укрепления авторитета верховной власти князя.</p>
+        <p><strong>2. Политическое последствие:</strong> Сохранение племенного сепаратизма, так как подвластные племена продолжали почитать своих местных богов выше киевского Перуна.</p>
+        <p><strong>3. Последствие:</strong> Осознание князем Владимиром неэффективности язычества для консолидации общества, что ускорило переход к принятию одной из мировых религий.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 8 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 8</span>
+      <span class="task-topic">Вторая междоусобица на Руси (1015–1019 гг.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину вспыхнувшей междоусобной войны после смерти Владимира I.<br>
+      2. Одно политическое последствие борьбы между Святополком Окаянным и Ярославом Мудрым.<br>
+      3. Одно последствие этого события для духовной сферы и православия на Руси.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Захват власти в Киеве Святополком Владимировичем вопреки намерениям Владимира передать престол любимым сыновьям Борису и Глебу.</p>
+        <p><strong>2. Политическое последствие:</strong> Победа Ярослава Владимировича (Мудрого) в битве на реке Альте (1019 г.) и его утверждение на киевском престоле.</p>
+        <p><strong>3. Духовно-культурное последствие:</strong> Канонизация убитых князей Бориса и Глеба, ставших первыми русскими святыми (страстотерпцами).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 9 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 9</span>
+      <span class="task-topic">Создание первой части «Русской Правды» (Правда Ярослава, ок. 1016 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину составления первого письменного свода законов Руси.<br>
+      2. Одно социально-правовое последствие введения «Русской Правды».<br>
+      3. Одно последствие для родового быта славян.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Необходимость урегулирования конфликтов между варяжскими наемниками и жителями Новгорода, а также необходимость замены обычного права едиными государственными нормами.</p>
+        <p><strong>2. Социально-правовое последствие:</strong> Законодательное закрепление системы штрафов (<em>вир</em>) за преступления против личности в зависимости от социального статуса погибшего.</p>
+        <p><strong>3. Последствие для родового быта:</strong> Ограничение круга близких родственников, имеющих право на кровную месть, что способствовало вытеснению родовых обычаев государственным судом.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 10 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 10</span>
+      <span class="task-topic">Разгром печенегов под Киевом Ярославом Мудрым (1036 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину нападения печенегов на Киев в 1036 году.<br>
+      2. Одно внешнеполитическое последствие победы войск Ярослава Мудрого.<br>
+      3. Одно последствие этого события для сферы архитектуры и культуры.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Воспользовавшись отсутствием Ярослава Мудрого в Киеве (князь находился в Новгороде), печенеги попытались захватить главный центр Руси.</p>
+        <p><strong>2. Внешнеполитическое последствие:</strong> Полный разгром печенегов, прекративший их масштабные набеги на южные границы Руси на несколько десятилетий.</p>
+        <p><strong>3. Архитектурное последствие:</strong> Закладка и строительство Софийского собора в Киеве в честь победы над печенегами.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 11 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 11</span>
+      <span class="task-topic">Любечский съезд князей (1097 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину созыва съезда князей в Любече по инициативе Владимира Мономаха.<br>
+      2. Одно политическое последствие решений Любечского съезда.<br>
+      3. Одно внешнеполитическое последствие данного решения для борьбы со степью.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Разорительные междоусобные войны между сыновьями и внуками Ярослава Мудрого за киевский престол и отчины, ослаблявшие Русь перед половецкой угрозой.</p>
+        <p><strong>2. Политическое последствие:</strong> Закрепление принципа «каждо да держит отчину свою», юридически признавшего раздел Руси на отдельные наследственные княжества и ускорившего феодальную раздробленность.</p>
+        <p><strong>3. Внешнеполитическое последствие:</strong> Объединение военных сил русских князей, что позволило организовать успешные совместные походы в степь против половцев (1103, 1111 гг.).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 12 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 12</span>
+      <span class="task-topic">Киевское восстание (1113 г.)</span>
+    </div>
+    <p class="task-text">
+      1. Одну причину восстания горожан в Киеве после смерти князя Святополка Изяславича.<br>
+      2. Одно политическое последствие этого восстания.<br>
+      3. Одно социально-экономическое последствие, связанное с законодательной деятельностью нового князя.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>1. Причина:</strong> Злоупотребления ростовщиков и бояр (под покровительством умершего князя Святополка), разорявшие беднейшие слои населения высокими процентами по долгам.</p>
+        <p><strong>2. Политическое последствие:</strong> Призвание киевским вече на престол переяславского князя Владимира Мономаха вопреки традиционному порядку лествичного престолонаследия.</p>
+        <p><strong>3. Социально-экономическое последствие:</strong> Издание «Устава Владимира Всеволодовича» («Устава о резах»), который ограничил размер процентов по займам и облегчил положение закупов и холопов.</p>
+      </div>
+    </details>
+  </div>
+</article>
+
+
+
+
+<article class="note-container" id="note-comparison">
+  <h1 class="note-title">Задания на сходства и различия</h1>
+
+  <p class="note-text">
+    Ниже собраны задания на сравнение событий, процессов и явлений истории Древней Руси.
+    Сформулируйте тезис и подберите обоснования самостоятельно, затем раскройте блок с правильным
+    ответом и сравните его со своим. Помните: тезис — это обобщённое оценочное суждение,
+    а каждое обоснование должно содержать факты по обоим сравниваемым объектам.
+  </p>
+
+  <!-- ЗАДАНИЕ 1 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 1</span>
+      <span class="task-topic">Культура Древней Руси в первой половине X в. и во второй половине XI в.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис (обобщённое оценочное суждение), содержащий информацию о различиях
+      в культуре Древней Руси в первой половине X в. и во второй половине XI в. по какому(-им)-либо
+      признаку(-ам). Приведите два обоснования этого тезиса. Каждое обоснование должно содержать
+      два исторических факта (по одному для каждого из сравниваемых объектов).
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Во второй половине XI в. культура Древней Руси, в отличие от культуры
+        первой половины X в., характеризуется господством христианского мировосприятия, а также
+        появлением каменного зодчества и письменного законодательства.</p>
+        <p><strong>Обоснование 1.</strong> В первой половине X в. на Руси господствовала языческая
+        культура (например, захоронения в курганах по языческому обряду, отсутствие каменных храмов),
+        тогда как во второй половине XI в. основной формой архитектуры стало каменное христианское
+        храмостроительство (например, Софийский собор в Киеве, Софийский собор в Новгороде).</p>
+        <p><strong>Обоснование 2.</strong> В первой половине X в. на Руси отсутствовала развитая традиция
+        письменного права и церковной книжности, в то время как во второй половине XI в. существовал
+        письменный свод законов («Правда Ярославичей») и развивалась летописная традиция
+        (составление ранних летописных сводов).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 2 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 2</span>
+      <span class="task-topic">Внутренняя политика княгини Ольги и князя Святослава Игоревича</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях во внутренней политике
+      княгини Ольги и князя Святослава Игоревича по признаку её направленности и характера
+      государственного управления. Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Внутренняя политика княгини Ольги была направлена на
+        институционализацию системы налогообложения и административную стабильность, в то время как
+        внутренняя политика Святослава Игоревича носила вторичный характер по отношению к его
+        внешней экспансии.</p>
+        <p><strong>Обоснование 1.</strong> Ольга провела налоговую реформу, установив уроки
+        (фиксированный размер дани) и погосты (места сбора дани), тогда как Святослав не проводил
+        административных реформ налоговой системы, ограничиваясь традиционным сбором ресурсов
+        для военных походов.</p>
+        <p><strong>Обоснование 2.</strong> Ольга лично находилась в Киеве и занималась управлением
+        государством, в то время как Святослав большую часть своего правления проводил в военных
+        походах за пределами Руси и даже планировал перенести столицу в Переяславец-на-Дунае.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 3 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 3</span>
+      <span class="task-topic">Система налогообложения при князе Игоре и при княгине Ольге</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях в способе сбора дани
+      с подвластных племен при князе Игоре и при княгине Ольге. Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Система сбора дани при княгине Ольге была строго регламентированной
+        и централизованной, в отличие от системы полюдья при князе Игоре, носившей нерегулярный
+        и произвольный характер.</p>
+        <p><strong>Обоснование 1.</strong> При Игоре размер дани не был фиксирован законодательно,
+        что привело к попытке повторного сбора дани с древлян в 945 г., тогда как Ольга установила
+        четкие нормативы сбора — уроки.</p>
+        <p><strong>Обоснование 2.</strong> При Игоре князь с дружиной лично объезжал территории
+        подвластных племен (полюдье), в то время как при Ольге были созданы специальные постоянные
+        пункты сбора дани — погосты.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 4 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 4</span>
+      <span class="task-topic">Религиозная политика Владимира I до 988 г. и после 988 г.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях в религиозной политике
+      князя Владимира Святославича в начале его правления (до 988 г.) и в последующий период
+      (после 988 г.). Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Религиозная политика Владимира I до 988 г. строилась на попытке
+        реформирования и систематизации языческого пантеона, тогда как после 988 г. она была
+        направлена на полное искоренение язычества и насаждение монотеистической христианской веры.</p>
+        <p><strong>Обоснование 1.</strong> В 980 г. Владимир создал в Киеве пантеон из шести языческих
+        богов во главе с Перуном, а после 988 г. приказал повергнуть и уничтожить языческие капища
+        и идолов (например, сбросить кумир Перуна в Днепр).</p>
+        <p><strong>Обоснование 2.</strong> В ранний период правления религиозные ритуалы включали
+        языческие жертвоприношения, тогда как после 988 г. началось массовое крещение населения
+        в реках (например, крещение киевлян в Почайне) и возведение христианских церквей
+        (Десятинная церковь).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 5 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 5</span>
+      <span class="task-topic">Внешняя политика князя Святослава Игоревича и князя Владимира I</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях во внешнеполитических
+      приоритетах и методах князей Святослава Игоревича и Владимира I. Приведите два обоснования
+      этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Внешняя политика Святослава Игоревича носила преимущественно
+        агрессивно-наступательный характер и была нацелена на военные завоевания, в то время как
+        внешняя политика Владимира I сочетала защиту границ от кочевников с активным использованием
+        дипломатических и династических связей.</p>
+        <p><strong>Обоснование 1.</strong> Святослав проводил дальние военные походы с целью разгрома
+        крупных соседних государств (разгром Хазарского каганата, походы в Болгарию), тогда как
+        Владимир I сосредоточился на укреплении и обороне южных рубежей Руси от набегов печенегов
+        (строительство оборонительных линий и крепостей на реках Стугна, Десна, Сула).</p>
+        <p><strong>Обоснование 2.</strong> Святослав решал внешнеполитические задачи исключительно
+        военным путем и отверг принятие христианства, тогда как Владимир I активно использовал
+        династическую дипломатию (брак с византийской принцессой Анной) для интеграции Руси
+        в систему международных отношений.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 6 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 6</span>
+      <span class="task-topic">Социальная структура Руси в IX в. и в XI в.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях в социальной структуре
+      древнерусского общества в IX в. и в XI в. Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Социальная структура общества в XI в. отличалась от структуры IX в.
+        наличием законодательно оформленной феодальной иерархии и разнообразных категорий
+        зависимого населения.</p>
+        <p><strong>Обоснование 1.</strong> В IX в. основное население состояло из свободных общинников
+        (людей) и племенной знати без четкого юридического закрепления их статуса, тогда как в XI в.
+        по «Русской Правде» выделялись различные категории зависимого и полузависимого населения
+        (закупы, рядовичи, челядь, холопы).</p>
+        <p><strong>Обоснование 2.</strong> В IX в. штрафы за убийство не имели законодательной
+        дифференциации по социальному положению, тогда как в XI в. «Русская Правда» устанавливала
+        различный размер виры за убийство в зависимости от социального статуса жертвы
+        (например, 80 гривен за огнищанина и 40 гривен за простого людина).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 7 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 7</span>
+      <span class="task-topic">Положение киевского князя при Владимире I и в период Ярославичей (вторая половина XI в.)</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях в характере княжеской власти
+      и её стабильности в Киеве при Владимире I и в период правления триумвирата Ярославичей
+      (1054–1073 гг.). Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Власть киевского князя при Владимире I носила единоличный и
+        централизованный характер, в то время как во второй половине XI в. при Ярославичах система
+        управления трансформировалась в коллективное соправительство со склонностью к междоусобным
+        конфликтам.</p>
+        <p><strong>Обоснование 1.</strong> Владимир I единолично правил всем Древнерусским государством
+        после победы в междоусобице, тогда как после смерти Ярослава Мудрого Русь была разделена
+        между его старшими сыновьями (Изяславом, Святославом и Всеволодом), сформировавшими
+        соправительство (триумвират).</p>
+        <p><strong>Обоснование 2.</strong> При Владимире I крупные внешнеполитические и внутренние
+        решения принимались киевским князем единолично, а при триумвирате Ярославичей ключевые
+        решения и дополнения к законам («Правда Ярославичей») принимались совместно тремя братьями.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 8 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 8</span>
+      <span class="task-topic">Правовое регулирование при Ярославе Мудром и при его сыновьях (Ярославичах)</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о сходстве или различиях в правовом
+      регулировании общественных отношений по «Правде Ярослава» (ок. 1016 г.) и «Правде Ярославичей»
+      (1070-е гг.). Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> «Правда Ярославичей» отличается от «Правды Ярослава» полной отменой
+        кровной мести и усилением правовой защиты княжеского имущества и его администрации.</p>
+        <p><strong>Обоснование 1.</strong> «Правда Ярослава» допускала кровную месть за убийство
+        близких родственников, тогда как «Правда Ярославичей» полностью запретила кровную месть,
+        заменив её денежным штрафом (вирой) в пользу князя.</p>
+        <p><strong>Обоснование 2.</strong> В «Правде Ярослава» основное внимание уделялось защите
+        жизни свободных мужей и новгородцев, в то время как «Правда Ярославичей» детально фиксировала
+        высокие штрафы за посягательство на княжескую отчину, скот, а также за убийство княжеских
+        управляющих (огнищан, тиунов, отроков).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 9 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 9</span>
+      <span class="task-topic">Внешнеполитическое положение Руси в середине XI в. и в конце XI в.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях во внешнеполитической обстановке
+      на южных границах Руси в середине XI в. (при Ярославе Мудром) и в конце XI в. Приведите два
+      обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> В середине XI в. южная граница Руси находилась в относительной
+        безопасности от степных кочевников, тогда как в конце XI в. южнорусские земли подвергались
+        постоянной и сильной половецкой угрозе.</p>
+        <p><strong>Обоснование 1.</strong> В 1036 г. Ярослав Мудрый нанес решающее поражение печенегам
+        под Киевом, после чего их набеги на Русь практически прекратились, тогда как в конце XI в.
+        половцы регулярно совершали опустошительные набеги на русские княжества (например, разгром
+        русских князей на реке Альте в 1068 г. или на реке Стугне в 1093 г.).</p>
+        <p><strong>Обоснование 2.</strong> В середине XI в. кочевники не вмешивались во внутреннюю
+        политику Руси, в то время как в конце XI в. отдельные русские князья (например, Олег
+        Святославич) стали активно привлекать половецкие отряды для участия в междоусобной борьбе
+        за престолы.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 10 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 10</span>
+      <span class="task-topic">Порядок престолонаследия при Ярославе Мудром и после Любечского съезда 1097 г.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях в принципе организации
+      княжеского землевладения и наследования до и после Любечского съезда 1097 г. Приведите два
+      обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Порядок владения землями после Любечского съезда 1097 г. основывался
+        на принципе закрепления отчин за конкретными ветвями династии, в отличие от единой родовой
+        системы ротации (лествичного права), утвержденной Ярославом Мудрым.</p>
+        <p><strong>Обоснование 1.</strong> По завещанию Ярослава Мудрого старшинство и киевский престол
+        должны были переходить строго от брата к брату по старшинству (лествичная система) с
+        перемещением князей по городам, тогда как решение Любечского съезда провозгласило принцип
+        «Каждо да держит отчину свою», закрепивший земли за отдельными княжескими линиями.</p>
+        <p><strong>Обоснование 2.</strong> До 1097 г. волости считались общеродовым владением
+        Рюриковичей, а после 1097 г. заложились основы для юридического оформления обособленных
+        наследственных княжеств (Черниговского, Переяславского, Смоленского и др.).</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 11 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 11</span>
+      <span class="task-topic">Внутреннее положение Руси в период правления Святополка Изяславича и Владимира Мономаха</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о различиях во внутренней социальной
+      обстановке и экономической политике в Киеве в правление Святополка Изяславича (1093–1113 гг.)
+      и в правление Владимира Мономаха (1113–1125 гг.). Приведите два обоснования этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Правление Владимира Мономаха характеризовалось социальной
+        стабилизацией и ограничением финансово-ростовщической эксплуатации, в отличие от периода
+        правления Святополка Изяславича, вызвавшего ростовщический произвол и острый социальный
+        кризис.</p>
+        <p><strong>Обоснование 1.</strong> При Святополке Изяславиче процветали ростовщичество и
+        спекуляция солью при поддержке князя, что привело к росту социальной напряженности и
+        Киевскому восстанию 1113 г., тогда как Владимир Мономах сразу после вступления на престол
+        издал «Устав» («Устав о резах»), законодательно ограничивший процентные ставки по займам.</p>
+        <p><strong>Обоснование 2.</strong> При Святополке Изяславиче отсутствовали законодательные
+        ограничения на закабаление и кабалу бедноты, тогда как «Устав» Владимира Мономаха защитил
+        права закупов, запретив превращать их в полных холопов за долги без судебно доказанной вины.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ЗАДАНИЕ 12 -->
+  <div class="task-block">
+    <div class="task-head">
+      <span class="task-number">Задание 12</span>
+      <span class="task-topic">Состояние государственного единства Руси в начале XI в. и в первой четверти XII в.</span>
+    </div>
+    <p class="task-text">
+      Запишите один любой тезис, содержащий информацию о сходстве или различиях в степени
+      политической консолидации Древнерусского государства в правление Ярослава Мудрого
+      (после 1036 г.) и в правление Владимира Мономаха (1113–1125 гг.). Приведите два обоснования
+      этого тезиса.
+    </p>
+    <details class="task-answer">
+      <summary>Показать ответ</summary>
+      <div class="task-answer-body">
+        <p><strong>Тезис:</strong> Как в правление Ярослава Мудрого (после 1036 г.), так и в правление
+        Владимира Мономаха Древнерусское государство переживало период высокого политического
+        единства и временного прекращения масштабных княжеских междоусобиц.</p>
+        <p><strong>Обоснование 1.</strong> После смерти Мстислава Тмутараканского в 1036 г. Ярослав
+        Мудрый объединил под своей властью обе стороны Днепра и стал единоличным правителем Руси,
+        и аналогично Владимир Мономах в период своего киевского княжения удерживал под прямым
+        контролем или вассальным подчинением подавляющее большинство русских земель (включая
+        Новгород, Смоленск, Переяславль).</p>
+        <p><strong>Обоснование 2.</strong> Обуздание внутренних междоусобиц позволило обоим князьям
+        направить объединенные силы государства на решение внешнеполитических задач и масштабное
+        храмовое и фортификационное строительство (строительство Софийского собора при Ярославе
+        Мудром, успешные объединенные походы на половцев и законодательные реформы при Владимире
+        Мономахе).</p>
+      </div>
+    </details>
+  </div>
+</article>
+
+
+
+
+
+    <!-- СЕКЦИЯ С ТЕСТАМИ ПО ДАТАМ -->
+<article class="note-container" id="note-test">
+  <h1 class="note-title">Тесты по историческим датам</h1>
+  <p class="note-text">Впишите номера правильных дат по порядку (6 цифр для каждого блока):</p>
+
+  <!-- ТАБЛИЦА 1 -->
+  <div class="test-block">
+    <h3>Часть 1.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие</th><th>Перемешанные даты</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Призвание варягов на Русь</td><td><strong>1.</strong> 882 г.</td></tr>
+        <tr><td><strong>Б.</strong> Объединение Новгорода и Киева Олегом</td><td><strong>2.</strong> 957 г.</td></tr>
+        <tr><td><strong>В.</strong> Первый поход Олега на Константинополь</td><td><strong>3.</strong> 945 г.</td></tr>
+        <tr><td><strong>Г.</strong> Восстание древлян и гибель князя Игоря</td><td><strong>4.</strong> 862 г.</td></tr>
+        <tr><td><strong>Д.</strong> Налоговая реформа Ольги (уроки и погосты)</td><td><strong>5.</strong> 907 г.</td></tr>
+        <tr><td><strong>Е.</strong> Крещение княгини Ольги в Царьграде</td><td><strong>6.</strong> 947 г.</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="415362" placeholder="6 цифр..." maxlength="6">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ТАБЛИЦА 2 -->
+  <div class="test-block">
+    <h3>Часть 2.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие</th><th>Перемешанные даты</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Разгром Хазарского каганата Святославом</td><td><strong>1.</strong> 988 г.</td></tr>
+        <tr><td><strong>Б.</strong> Начало междоусобной войны Святославичей</td><td><strong>2.</strong> 980 г.</td></tr>
+        <tr><td><strong>В.</strong> Языческая реформа Владимира I</td><td><strong>3.</strong> 989 г.</td></tr>
+        <tr><td><strong>Г.</strong> Официальное Крещение Руси</td><td><strong>4.</strong> 977 г.</td></tr>
+        <tr><td><strong>Д.</strong> Заложение Десятинной церкви в Киеве</td><td><strong>5.</strong> 965 г.</td></tr>
+        <tr><td><strong>Е.</strong> Битва при Листвене</td><td><strong>6.</strong> 1024 г.</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="542136" placeholder="6 цифр..." maxlength="6">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ТАБЛИЦА 3 -->
+  <div class="test-block">
+    <h3>Часть 3.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие</th><th>Перемешанные даты</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Начало составления «Русской Правды»</td><td><strong>1.</strong> 1072 г.</td></tr>
+        <tr><td><strong>Б.</strong> Разгром печенегов под Киевом</td><td><strong>2.</strong> 1016 г.</td></tr>
+        <tr><td><strong>В.</strong> Восстание в Киеве после поражения на Альте</td><td><strong>3.</strong> 1097 г.</td></tr>
+        <tr><td><strong>Г.</strong> Составление «Правды Ярославичей»</td><td><strong>4.</strong> 1036 г.</td></tr>
+        <tr><td><strong>Д.</strong> Любечский съезд князей</td><td><strong>5.</strong> 1113 г.</td></tr>
+        <tr><td><strong>Е.</strong> «Устав» Владимира Мономаха</td><td><strong>6.</strong> 1068 г.</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="246135" placeholder="6 цифр..." maxlength="6">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ТАБЛИЦА 4 -->
+  <div class="test-block">
+    <h3>Часть 4.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие</th><th>Перемешанные даты</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Поход против половцев (битва на Салнице)</td><td><strong>1.</strong> 1147 г.</td></tr>
+        <tr><td><strong>Б.</strong> Начало удельной раздробленности (смерть Мстислава)</td><td><strong>2.</strong> 1111 г.</td></tr>
+        <tr><td><strong>В.</strong> Первое упоминание Москвы в летописи</td><td><strong>3.</strong> 1185 г.</td></tr>
+        <tr><td><strong>Г.</strong> Поход Игоря Святославича на половцев</td><td><strong>4.</strong> 1223 г.</td></tr>
+        <tr><td><strong>Д.</strong> Битва на реке Калке</td><td><strong>5.</strong> 1132 г.</td></tr>
+        <tr><td><strong>Е.</strong> Разорение Рязани Батыем</td><td><strong>6.</strong> 1237 г.</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="251346" placeholder="6 цифр..." maxlength="6">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+</article>
+
+<!-- СЕКЦИЯ С ТЕСТАМИ ПО ЛИЧНОСТЯМ -->
+<article class="note-container" id="note-test-persons">
+  <h1 class="note-title">Тесты по историческим личностям</h1>
+  <p class="note-text">Установите соответствие между событиями и историческими личностями. Впишите 4 цифры без пробелов:</p>
+
+  <!-- ТЕСТ ПО ЛИЧНОСТЯМ 1 -->
+  <div class="test-block">
+    <h3>Задание 1. Правители IX–XI вв.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие / Процесс</th><th>Историческая личность</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Объединение Новгорода и Киева под единой властью</td><td><strong>1.</strong> Владимир I Святой</td></tr>
+        <tr><td><strong>Б.</strong> Введение системы «уроков» и «погостов»</td><td><strong>2.</strong> Олег Вещий</td></tr>
+        <tr><td><strong>В.</strong> Разгром Хазарского каганата</td><td><strong>3.</strong> Княгиня Ольга</td></tr>
+        <tr><td><strong>Г.</strong> Проведение языческой реформы и крещение Руси</td><td><strong>4.</strong> Святослав Игоревич</td></tr>
+        <tr><td></td><td><strong>5.</strong> Рюрик</td></tr>
+        <tr><td></td><td><strong>6.</strong> Игорь Старый</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="2341" placeholder="4 цифры..." maxlength="4">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ТЕСТ ПО ЛИЧНОСТЯМ 2 -->
+  <div class="test-block">
+    <h3>Задание 2. Правители и деятели XI–XII вв.</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие / Процесс</th><th>Историческая личность</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Окончательный разгром печенегов под Киевом</td><td><strong>1.</strong> Мстислав Великий</td></tr>
+        <tr><td><strong>Б.</strong> Инициация проведения Любечского съезда князей</td><td><strong>2.</strong> Владимир Мономах</td></tr>
+        <tr><td><strong>В.</strong> После его смерти начинается период политической раздробленности</td><td><strong>3.</strong> Ярослав Мудрый</td></tr>
+        <tr><td><strong>Г.</strong> Убийство братьев Бориса и Глеба в междоусобице</td><td><strong>4.</strong> Святополк Окаянный</td></tr>
+        <tr><td></td><td><strong>5.</strong> Святослав Изяславич</td></tr>
+        <tr><td></td><td><strong>6.</strong> Всеволод Ярославич</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="3214" placeholder="4 цифры..." maxlength="4">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ТЕСТ ПО ЛИЧНОСТЯМ 3 -->
+  <div class="test-block">
+    <h3>Задание 3. Культура и право Древней Руси</h3>
+    <table class="test-table">
+      <thead>
+        <tr><th>Событие / Результат деятельности</th><th>Историческая личность</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>А.</strong> Написание первой отечественной богословской работы «Слово о законе и благодати»</td><td><strong>1.</strong> Илларион Киевский</td></tr>
+        <tr><td><strong>Б.</strong> Составление фундаментальной летописи «Повесть временных лет»</td><td><strong>2.</strong> Ярослав Мудрый</td></tr>
+        <tr><td><strong>В.</strong> Издание «Устава» против ростовщиков и написание «Поучения детям»</td><td><strong>3.</strong> Владимир Мономах</td></tr>
+        <tr><td><strong>Г.</strong> Составление «Правды Ярославичей» (второй части «Русской Правды»)</td><td><strong>4.</strong> Нестор Летописец</td></tr>
+        <tr><td></td><td><strong>5.</strong> Изяслав Ярославич</td></tr>
+        <tr><td></td><td><strong>6.</strong> Княгиня Ольга</td></tr>
+      </tbody>
+    </table>
+    <div class="test-controls">
+      <input type="text" class="digits-input" data-answer="1435" placeholder="4 цифры..." maxlength="4">
+      <button class="btn-check">Проверить</button>
+      <div class="answer-feedback"></div>
+    </div>
+  </div>
+</article>
+
+    <!-- КОНСПЕКТ КАРТЫ (НА ВСЮ ШИРИНУ) -->
+    <article class="note-container map-mode" id="note-map">
+      <div class="full-media-wrapper">
+        <img class="full-media-image" src="https://ic.pics.livejournal.com/windoffields/67485964/92032/92032_original.jpg" alt="Карта Киевской Руси IX-XII вв.">
+      </div>
+    </article>
+
+    <!-- ХРОНОЛОГИЧЕСКАЯ ЛИНИЯ -->
+    <article class="note-container tree-mode" id="note-tree">
+      <div class="timeline-section">
+        <div>
+          <h1 class="note-title" style="margin-bottom: 8px;">Государство Русь</h1>
+          <p class="timeline-subtitle">хронология</p>
+        </div>
+
+        <!-- Контейнер прокрутки -->
+        <div class="timeline-scroll-container" id="timelineScrollContainer">
+          <div class="timeline-track">
+
+            <!-- 1. Рюрик (17 лет) -->
+            <div class="prince-card" style="width: calc(17 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgoVZixqBWoipFgjebnVuD8b9ETcZLrt4Tx02CnGhz7Q&s=10" alt="Рюрик">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Рюрик</div>
+                    <div class="prince-years">862 – 879</div>
+                  </div>
+                </div>
+                <div class="prince-duration">17 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 0%;" data-tooltip="862 г. — Призвание варягов на Русь">💬</span>
+              </div>
+            </div>
+
+            <!-- 2. Олег Вещий (33 года) -->
+            <div class="prince-card" style="width: calc(33 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNDMijHrW6JeM3s8SpJtzgi-CY9AV5hOmnBzB8XwtfDg&s=10" alt="Олег">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Олег Вещий</div>
+                    <div class="prince-years">879 – 912</div>
+                  </div>
+                </div>
+                <div class="prince-duration">33 года правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 9%;" data-tooltip="882 г. — Объединение Новгорода и Киева в единое государство">⚔️</span>
+                <span class="event-icon" style="left: 85%;" data-tooltip="907, 911 гг. — Походы на Константинополь и торгово-дипломатические договоры">⚔️</span>
+              </div>
+            </div>
+
+            <!-- 3. Игорь Старый (33 года) -->
+            <div class="prince-card" style="width: calc(33 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJtr-ma4CGyKKKBSVtj_QfzWR2wEd8DDISfRoAwcXNFw&s" alt="Игорь">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Игорь Старый</div>
+                    <div class="prince-years">912 – 945</div>
+                  </div>
+                </div>
+                <div class="prince-duration">33 года правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 9%;" data-tooltip="915 г. — Первое появление печенегов у границ Руси">⚔️</span>
+                <span class="event-icon" style="left: 87%;" data-tooltip="941, 944 гг. — Военные походы против Византии">⚔️</span>
+                <span class="event-icon" style="left: 98%;" data-tooltip="945 г. — Восстание древлян при полюдье и гибель Игоря">🔥</span>
+              </div>
+            </div>
+
+            <!-- 4. Княгиня Ольга (15 лет) -->
+            <div class="prince-card" style="width: calc(15 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5X9gG5WR9HMj53HQKYNxvEOFKCUjordJbpOZw-5cHjA&s" alt="Ольга">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Княгиня Ольга</div>
+                    <div class="prince-years">945 – 960</div>
+                  </div>
+                </div>
+                <div class="prince-duration">15 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 13%;" data-tooltip="947 г. — Налоговая реформа: введение уроков и погостов">📜</span>
+                <span class="event-icon" style="left: 80%;" data-tooltip="957 г. — Личное крещение Ольги в Константинополе">☦️</span>
+              </div>
+            </div>
+
+            <!-- 5. Святослав (12 лет) -->
+            <div class="prince-card" style="width: calc(12 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgGSkC3E84M_WGdzvzYfr9B3r4GFkQaSfwLy39Zj5BMg&s=10" alt="Святослав">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Святослав</div>
+                    <div class="prince-years">960 – 972</div>
+                  </div>
+                </div>
+                <div class="prince-duration">12 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 31%;" data-tooltip="965 г. — Разгром Хазарского каганата и Саркела">⚔️</span>
+                <span class="event-icon" style="left: 53%;" data-tooltip="968 г. — Осада Киева печенегами">⚔️</span>
+                <span class="event-icon" style="left: 75%;" data-tooltip="968–971 гг. — Дунайские походы и война с Византией">⚔️</span>
+              </div>
+            </div>
+
+            <!-- 6. Ярополк (6 лет) -->
+            <div class="prince-card" style="width: calc(6 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbmNaJ84RX2TvYyQYhNiHfAVUiaDL5OrWBYAQEuMaHig&s" alt="Ярополк">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Ярополк</div>
+                    <div class="prince-years">972 – 978</div>
+                  </div>
+                </div>
+                <div class="prince-duration">6 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 80%;" data-tooltip="977–980 гг. — Первая междоусобная война Святославичей">⚔️</span>
+              </div>
+            </div>
+
+            <!-- 7. Владимир Святой (37 лет) -->
+            <div class="prince-card" style="width: calc(37 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuF8iw-NcOlj60Jfi9kriKmdoB66VMVsb_hYIPDKUQSA&s=10" alt="Владимир">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Владимир I Святой</div>
+                    <div class="prince-years">978 – 1015</div>
+                  </div>
+                </div>
+                <div class="prince-duration">37 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 5%;" data-tooltip="980 г. — Языческая реформа (пантеон во главе с Перуном)">📜</span>
+                <span class="event-icon" style="left: 13%;" data-tooltip="981 г. — Поход на Червенскую Русь (присоединение Перемышля и Червена)">⚔️</span>
+                <span class="event-icon" style="left: 27%;" data-tooltip="988 г. — Официальное Крещение Руси">☦️</span>
+                <span class="event-icon" style="left: 34%;" data-tooltip="989–996 гг. — Возведение Десятинной церкви (первый каменный храм)">🎨</span>
+              </div>
+            </div>
+
+            <!-- 8. Святополк Окаянный (4 года) -->
+            <div class="prince-card" style="width: calc(10 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgiuooqwPxl8eFtCEgmefQZmZrop6BipPCYAtf6Jjmfw&s=10" alt="Святополк">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Святополк</div>
+                    <div class="prince-years">1015–1019</div>
+                  </div>
+                </div>
+                <div class="prince-duration">4 года правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 50%;" data-tooltip="1015–1019 гг. — Междоусобица, убийство Бориса и Глеба">⚔️</span>
+              </div>
+            </div>
+
+            <!-- 9. Ярослав Мудрый (35 лет) -->
+            <div class="prince-card" style="width: calc(35 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM4xYd4rqqabgxw82pHh0Y78uY9zM8k6SKRjOydso9Rw&s" alt="Ярослав">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Ярослав Мудрый</div>
+                    <div class="prince-years">1019 – 1054</div>
+                  </div>
+                </div>
+                <div class="prince-duration">35 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 0%;" data-tooltip="1016–1030 гг. — Составление первой части «Русской Правды»">📜</span>
+                <span class="event-icon" style="left: 14%;" data-tooltip="1024 г. — Битва при Листвене (раздел Руси с Мстиславом Тмутараканским)">⚔️</span>
+                <span class="event-icon" style="left: 31%;" data-tooltip="1030 г. — Основание Юрьева (Тарту)">🏰</span>
+                <span class="event-icon" style="left: 48%;" data-tooltip="1036 г. — Окончательный разгром печенегов под Киевом">⚔️</span>
+                <span class="event-icon" style="left: 55%;" data-tooltip="1037 г. — Заложение Софийского собора и Золотых Ворот">🎨</span>
+                <span class="event-icon" style="left: 68%;" data-tooltip="1043–1046 гг. — Последняя русско-византийская война и мирный договор">⚔️</span>
+                <span class="event-icon" style="left: 85%;" data-tooltip="1040-е гг. — «Слово о законе и благодати» митрополита Илариона">🎨</span>
+                <span class="event-icon" style="left: 91%;" data-tooltip="1051 г. — Назначение митрополита Илариона и основание Киево-Печерского монастыря">☦️</span>
+              </div>
+            </div>
+
+            <!-- 10. Изяслав I (24 года) -->
+            <div class="prince-card" style="width: calc(24 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLF_CLfY1iNVAx2gVmA9QP4TsxyPF60-4B4tr2Yu3klQ&s=10" alt="Изяслав">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Изяслав I</div>
+                    <div class="prince-years">1054 – 1078</div>
+                  </div>
+                </div>
+                <div class="prince-duration">24 года правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 58%;" data-tooltip="1068 г. — Восстание в Киеве после поражения на р. Альте">🔥</span>
+                <span class="event-icon" style="left: 75%;" data-tooltip="1072 г. — Составление «Правды Ярославичей»">📜</span>
+              </div>
+            </div>
+
+            <!-- 11. Святослав II (3 года) -->
+            <div class="prince-card" style="width: calc(5 * var(--year-scale)); min-width: 165px;">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgyAKayQjGOL0nzJIzfplC8UDn4LA0hZ3uaGFstMygzQ&s=10" alt="Святослав">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Святослав II</div>
+                    <div class="prince-years">1073 – 1076</div>
+                  </div>
+                </div>
+                <div class="prince-duration">3 года правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 7%;" data-tooltip="1073 г. — Изборник Святослава">🎨</span>
+              </div>
+            </div>
+
+            <!-- 12. Всеволод I (15 лет) -->
+            <div class="prince-card" style="width: calc(15 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtAujR9l02pMHf5KJZ-Yg8y5JPn9SkS_BXIR3zqJcu3A&s=10" alt="Всеволод">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Всеволод I</div>
+                    <div class="prince-years">1078 – 1093</div>
+                  </div>
+                </div>
+                <div class="prince-duration">15 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 6%;" data-tooltip="1078 г. — Битва на Нежатиной Ниве">⚔️</span>
+              </div>
+            </div>
+
+            <!-- 13. Святополк II (20 лет) -->
+            <div class="prince-card" style="width: calc(20 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNU2vq5ph_aGrKqHUv021FPv1r5SJY2lSfNBqbsaa9ug&s=10" alt="Святополк">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Святополк II</div>
+                    <div class="prince-years">1093 – 1113</div>
+                  </div>
+                </div>
+                <div class="prince-duration">20 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 20%;" data-tooltip="1097 г. — Любечский съезд князей («Каждо да держит отчину свою»)">💬</span>
+                <span class="event-icon" style="left: 35%;" data-tooltip="1100 г. — Уветичский (Витичевский) съезд князей">💬</span>
+                <span class="event-icon" style="left: 50%;" data-tooltip="1103 г. — Долобский съезд князей для похода против половцев">💬</span>
+                <span class="event-icon" style="left: 80%;" data-tooltip="1111 г. — Крестовый поход против половцев (битва на Салнице)">⚔️</span>
+                <span class="event-icon" style="left: 98%;" data-tooltip="1113 г. — Восстание в Киеве">🔥</span>
+              </div>
+            </div>
+
+            <!-- 14. Владимир Мономах (12 лет) -->
+            <div class="prince-card" style="width: calc(12 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR879bNtYTMnWGY0ROi_dbflcy6wiq0QnQFIYhW0McK_Q&s=10" alt="Мономах">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Владимир Мономах</div>
+                    <div class="prince-years">1113 – 1125</div>
+                  </div>
+                </div>
+                <div class="prince-duration">12 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 0%;" data-tooltip="1113 г. — Восстание в Киеве и «Устав Владимира Мономаха»">📜</span>
+                <span class="event-icon" style="left: 25%;" data-tooltip="1113 г. — Создание «Повести временных лет» Нестором">🎨</span>
+                <span class="event-icon" style="left: 50%;" data-tooltip="1117 г. — Создание знаменитого «Поучения детям» Мономаха">🎨</span>
+              </div>
+            </div>
+
+            <!-- 15. Мстислав Великий (7 лет) -->
+            <div class="prince-card" style="width: calc(7 * var(--year-scale));">
+              <div>
+                <div class="prince-header">
+                  <div class="prince-avatar">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMzAM44WgacnrzYQQhWvDaZZMxFJhq5uqY2MnHGHq2jA&s" alt="Мстислав">
+                  </div>
+                  <div class="prince-info">
+                    <div class="prince-name">Мстислав Великий</div>
+                    <div class="prince-years">1125 – 1132</div>
+                  </div>
+                </div>
+                <div class="prince-duration">7 лет правления</div>
+              </div>
+              <div class="events-timeline">
+                <span class="event-icon" style="left: 28%;" data-tooltip="1127 г. — Поход на Полоцк и высылка полоцких князей в Византию">⚔️</span>
+                <span class="event-icon" style="left: 100%;" data-tooltip="1132 г. — Смерть Мстислава: НАЧАЛО УДЕЛЬНОЙ РАЗДРОБЛЕННОСТИ">🧩</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <!-- СКРИПТЫ -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.getElementById('mainWrapper');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const mapBtn = document.getElementById('mapBtn');
+    const treeBtn = document.getElementById('treeBtn');
+    const navItems = document.querySelectorAll('.nav-item');
+    const notes = document.querySelectorAll('.note-container');
+
+    function activateNote(targetId) {
+      navItems.forEach(item => {
+        if (item.getAttribute('data-target') === targetId) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+      notes.forEach(note => {
+        if (note.id === targetId) {
+          note.classList.add('active');
+        } else {
+          note.classList.remove('active');
+        }
+      });
+
+      mapBtn.classList.toggle('active', targetId === 'note-map');
+      treeBtn.classList.toggle('active', targetId === 'note-tree');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open-mobile');
+      } else {
+        sidebar.classList.toggle('closed');
+        mainWrapper.classList.toggle('full-width');
+      }
+    });
+
+    mapBtn.addEventListener('click', () => {
+      activateNote('note-map');
+    });
+
+    treeBtn.addEventListener('click', () => {
+      activateNote('note-tree');
+    });
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const targetId = item.getAttribute('data-target');
+        activateNote(targetId);
+
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open-mobile');
+        }
+      });
+    });
+
+    /* ЛОГИКА ПРОВЕРКИ ТЕСТОВ (ДАТЫ И ЛИЧНОСТИ) */
+document.querySelectorAll('.test-block').forEach(block => {
+  const input = block.querySelector('.digits-input');
+  const btn = block.querySelector('.btn-check');
+  const feedback = block.querySelector('.answer-feedback');
+  const correctAnswer = input.getAttribute('data-answer');
+
+  btn.addEventListener('click', () => {
+    const val = input.value.trim().replace(/\D/g, '');
+    input.classList.remove('correct', 'incorrect');
+    feedback.classList.remove('show', 'correct-bg', 'incorrect-bg');
+
+    if (val === correctAnswer) {
+      input.classList.add('correct');
+      feedback.classList.add('show', 'correct-bg');
+      feedback.innerHTML = `<strong>Верно!</strong> Правильный ответ: <b>${correctAnswer}</b>`;
+    } else {
+      input.classList.add('incorrect');
+      feedback.classList.add('show', 'incorrect-bg');
+      feedback.innerHTML = `<strong>Ошибка!</strong> Правильный ответ: <b>${correctAnswer}</b>`;
+    }
+  });
+});
+    /* ПРОКРУТКА ХРОНОЛОГИЧЕСКОЙ ЛИНИИ МЫШЬЮ (DRAG TO SCROLL) */
+    const slider = document.getElementById('timelineScrollContainer');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      isDown = false;
+    });
+
+    slider.addEventListener('mouseup', () => {
+      isDown = false;
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+      if(!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      slider.scrollLeft = scrollLeft - walk;
+    });
+  </script>
+</body>
+</html>
