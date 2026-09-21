@@ -3682,24 +3682,28 @@ const sidebar = document.getElementById('sidebar');
     const notes = document.querySelectorAll('.note-container');
 
     function activateNote(targetId) {
-      navItems.forEach(item => {
-        if (item.getAttribute('data-target') === targetId) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
-      });
-
-      notes.forEach(note => {
-        if (note.id === targetId) {
-          note.classList.add('active');
-        } else {
-          note.classList.remove('active');
-        }
-      });
-
-      if (mapBtn) mapBtn.classList.toggle('active', targetId === 'note-map');
+  navItems.forEach(item => {
+    if (item.getAttribute('data-target') === targetId) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
     }
+  });
+
+  notes.forEach(note => {
+    if (note.id === targetId) {
+      note.classList.add('active');
+    } else {
+      note.classList.remove('active');
+    }
+  });
+
+  // Сбрасываем прокрутку контейнера к началу страницы
+  mainWrapper.scrollTop = 0;
+  mainWrapper.scrollLeft = 0;
+
+  if (mapBtn) mapBtn.classList.toggle('active', targetId === 'note-map');
+}
 
     toggleBtn.addEventListener('click', () => {
       if (window.innerWidth <= 768) {
