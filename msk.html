@@ -1095,21 +1095,38 @@ margin-bottom: 5px;
     grid-template-columns: 1fr;
   }
 
-  /* Делаем карточку квадратной */
+  /* Базовый стиль карточки: адаптируется под размер текста */
   .comparison-card {
-    aspect-ratio: 1 / 1; /* Отношение ширины к высоте 1:1 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Центрируем контент по вертикали */
+    height: auto;
+    aspect-ratio: auto;
+    padding: 20px;
     box-sizing: border-box;
-    overflow: hidden; /* Скрываем излишки текста, если его слишком много */
   }
 
-  /* Если внутри карточки есть изображение, задаем ему заполнение всего блока */
+  /* 1. Если у карточки есть отдельный тег-картинка внутри */
+  .comparison-card:has(img) {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+  }
+
   .comparison-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* 2. Если фоновая картинка задана через класс (например, .has-bg) */
+  .comparison-card.has-bg {
+    aspect-ratio: 1 / 1;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* 3. Если фоновая картинка задана прямо в HTML через style="background-image: url(...)" */
+  .comparison-card[style*="background-image"] {
+    aspect-ratio: 1 / 1;
+    background-size: cover;
+    background-position: center;
   }
 }
 </style>
