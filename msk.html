@@ -1138,7 +1138,6 @@ margin-bottom: 5px;
 <li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
 <li class="" data-target=""><strong>⚠️ Великое Княжество Литовское</strong></li>
 <li class="nav-item" data-target="note-vkl1">Гедиминовичи</li>
-<li class="nav-item" data-target="note-vkl2">Москва vs ВКЛ</li>
 <li class="" data-target=""><strong> ⠀⠀⠀</strong></li>
 <li class="" data-target=""><strong>🛡️ Вторая половина XIV века</strong></li>
 <li class="nav-item" data-target="note-dd1">Дмитрий Донской</li>
@@ -1926,6 +1925,302 @@ margin-bottom: 5px;
 
 
 
+
+
+<!-- КОНСПЕКТ: ВЕЛИКОЕ КНЯЖЕСТВО ЛИТОВСКОЕ -->
+<article class="note-container" id="note-vkl1">
+  <h1 class="note-title">Великое Княжество Литовское</h1>
+
+  <!-- МЕСТО ДЛЯ КАРТЫ ПОХОДОВ -->
+  <div class="rule-box" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+    <div style="width: 100%; aspect-ratio: 1.5 / 1; background-color: var(--card-bg); background: url('https://cdn.monetnik.ru/storage/blog/i797erl826/2025-04-3001.800.jpg'); background-size: cover;">
+    </div>
+  </div>
+
+  <p class="note-text">
+    <mark class="wb">Великое Княжество Литовское (ВКЛ)</mark> — государство, возникшее в XIII веке на балтских землях и ставшее к XV веку одним из крупнейших в Европе. В его состав вошли значительные части бывшей Руси, а русские земли составляли большинство территории и населения. ВКЛ долгое время было главным соперником Москвы за право объединения русских земель. Его правящая династия — <strong>Гедиминовичи</strong>.
+  </p>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">📜 Термины</h2>
+
+  <div class="comparison-grid">
+
+    <div class="comparison-card">
+      <h4>Магнаты</h4>
+      <p>
+        Крупнейшие землевладельцы ВКЛ, обладавшие огромными богатствами и политическим влиянием. Из их числа формировалась высшая аристократия, занимавшая ключевые государственные должности. Магнаты имели собственные вооружённые отряды и часто определяли политику княжества, ограничивая власть великого князя. Наиболее влиятельными магнатскими родами были Радзивиллы, Сапеги, Пацы.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Шляхта</h4>
+      <p>
+        Привилегированное военно-служилое сословие ВКЛ. Шляхта несла военную службу в обмен на земельные пожалования и освобождалась от налогов. В отличие от магнатов, шляхта была более многочисленной и менее богатой. Шляхетские привилегии расширялись с каждым новым великим князем, что постепенно превратило шляхту в главную политическую силу государства.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Сейм</h4>
+      <p>
+        Сословно-представительный орган ВКЛ, в котором участвовали магнаты и шляхта. Сейм решал важнейшие государственные вопросы: избрание великого князя, объявление войны и заключение мира, налоги, законодательство. Со временем сейм стал главным органом, ограничивавшим власть великого князя. Постепенно сейм превратился в инструмент магнатско-шляхетской олигархии.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Уния</h4>
+      <p>
+        Союз, объединение государств. В истории ВКЛ ключевое значение имели унии с Польшей: Кревская (1385), Виленско-Радомская (1401), Городельская (1413) и Люблинская (1569). Унии постепенно вели к усилению польского влияния и в конечном счёте к образованию Речи Посполитой. Для русских земель унии означали распространение католичества и польских порядков.
+      </p>
+    </div>
+
+
+
+  </div>
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">👑 Великие князья Литовские</h2>
+
+  <style>
+  /* ===== СХЕМА КНЯЗЕЙ ВКЛ ===== */
+  .vkl-prince-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .vkl-prince-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px 16px 14px;
+    display: flex;
+    gap: 14px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    overflow: hidden;
+  }
+
+  .vkl-prince-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b0000, #b22222);
+  }
+
+  .vkl-prince-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    border-color: #b22222;
+  }
+
+  /* Карточка на всю ширину (для Миндовга) */
+  .vkl-prince-card--full {
+    grid-column: 1 / -1;
+  }
+
+  .vkl-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #e4e4e7;
+  }
+
+  .vkl-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .vkl-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .vkl-years {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #8b0000;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .vkl-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-main);
+    line-height: 1.2;
+  }
+
+  .vkl-desc {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .vkl-desc strong {
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .vkl-prince-grid {
+      grid-template-columns: 1fr;
+    }
+    .vkl-prince-card--full {
+      grid-column: auto;
+    }
+  }
+  </style>
+
+  <div class="vkl-prince-grid">
+
+    <!-- Миндовг — на всю ширину -->
+    <div class="vkl-prince-card vkl-prince-card--full">
+      <div class="vkl-avatar">
+        <img src="https://images.aif.by/007/322/03aebf6cd94f925892e03ed5e96f2598.jpg" alt="Миндовг">
+      </div>
+      <div class="vkl-info">
+        <div class="vkl-years">1236 – 1263</div>
+        <div class="vkl-name">Миндовг</div>
+        <div class="vkl-desc">
+          Основатель Великого Княжества Литовского. Объединил балтские племена под своей властью и в 1253 году принял королевский титул от Папы Римского. Присоединил первые русские земли — Полоцкое и часть Новогрудской земли. Вёл борьбу с Тевтонским орденом и галицко-волынскими князьями. Погиб в 1263 году в результате заговора знати. После его смерти ВКЛ на время распалось, но было вновь объединено Гедимином.
+        </div>
+      </div>
+    </div>
+
+    <!-- Гедимин -->
+    <div class="vkl-prince-card">
+      <div class="vkl-avatar">
+        <img src="https://planetabelarus.by/upload/medialibrary/9b4/9cxyg833jwg4ld7l303yb2lxpdkbkxg9.jpg" alt="Гедимин">
+      </div>
+      <div class="vkl-info">
+        <div class="vkl-years">1316 – 1341</div>
+        <div class="vkl-name">Гедимин</div>
+        <div class="vkl-desc">
+          Основатель династии Гедиминовичей. Присоединил Полоцкое, Витебское и Минское княжества. Вёл борьбу с Тевтонским орденом. Приглашал в Литву ремесленников и купцов из Европы. При Гедимине ВКЛ стало сильным государством, включившим значительные русские земли.
+        </div>
+      </div>
+    </div>
+
+    <!-- Ольгерд -->
+    <div class="vkl-prince-card">
+      <div class="vkl-avatar">
+        <img src="https://avatars.mds.yandex.net/i?id=2aaf1ddbc48d75235a530f9160dabf51f7a025cc-10111702-images-thumbs&n=13" alt="Ольгерд">
+      </div>
+      <div class="vkl-info">
+        <div class="vkl-years">1345 – 1377</div>
+        <div class="vkl-name">Ольгерд</div>
+        <div class="vkl-desc">
+          Сын Гедимина. Присоединил Киевское, Волынское, Подольское княжества. Трижды водил войска на Москву (1368, 1370, 1372), но не смог взять город. Разгромил татар на Синих Водах (1362). При Ольгерде ВКЛ достигло максимальных размеров.
+        </div>
+      </div>
+    </div>
+
+    <!-- Ягайло -->
+    <div class="vkl-prince-card">
+      <div class="vkl-avatar">
+        <img src="https://minsknews.by/wp-content/uploads/2024/06/d0b8d0b7d0bed0b1d180d0b0d0b6d0b5d0bdd0b8d0b5-30.webp" alt="Ягайло">
+      </div>
+      <div class="vkl-info">
+        <div class="vkl-years">1377 – 1381, 1382 – 1392</div>
+        <div class="vkl-name">Ягайло</div>
+        <div class="vkl-desc">
+          Сын Ольгерда. В 1385 году заключил Кревскую унию с Польшей, женился на королеве Ядвиге и стал польским королём Владиславом II. Обязался принять католичество и распространить его в Литве. Основатель династии Ягеллонов.
+        </div>
+      </div>
+    </div>
+
+    <!-- Витовт -->
+    <div class="vkl-prince-card">
+      <div class="vkl-avatar">
+        <img src="https://i.ytimg.com/vi/Dqq12Aap3T4/hqdefault.jpg" alt="Витовт">
+      </div>
+      <div class="vkl-info">
+        <div class="vkl-years">1392 – 1430</div>
+        <div class="vkl-name">Витовт</div>
+        <div class="vkl-desc">
+          Сын Кейстута, двоюродный брат Ягайло. При нём ВКЛ достигло наибольшего могущества. Разгромил Тевтонский орден в Грюнвальдской битве (1410). Присоединил Смоленск (1404). Воевал с Москвой, но по миру 1408 года признал границу по Угре.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">⚔️ Грюнвальдская битва <strong>1410 г.</strong></h2>
+
+  <img class="note-image"
+       src="https://www.calend.ru/img/content/i0/903.jpg"
+       alt="">
+
+  <div class="comparison-grid">
+
+    <div class="comparison-card">
+      <h4>ВКЛ vs Тевтонский орден</h4>
+      <p>
+        В 1385 году Польша и Литва заключили Кревскую унию, чтобы вместе противостоять многовековой экспансии и набегам Тевтонского ордена на их приграничные земли. Когда в 1409 году литовский князь <strong>Витовт</strong> поддержал восстание жителей Жемайтии против немецких рыцарей, великий магистр ордена официально объявил войну.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Ход сражения</h4>
+      <p>
+        В начале битвы конница великого князя Витовта атаковала левый фланг крестоносцев, однако тевтонские рыцари отбросили литовцев и увлеклись преследованием, оголив свои позиции. Воспользовавшись этим, польские полки короля Ягайло нанесли мощный удар по центру и правому флангу Ордена, окружили оставшиеся войска и полностью разгромили их.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Причины</h4>
+      <p>
+        - Орден пытался захватить Жемайтию для соединения своих земель, а Польша стремилась вернуть Добжинскую землю.<br>
+- Остановка экспансии Тевтонского ордена. Польша и Литва объединились, чтобы навсегда прекратить регулярные грабительские походы крестоносцев на свои границы.<br>
+- Рыцари перекрыли славянским государствам выход к Балтийскому морю и заблокировали торговлю на крупных реках.
+      </p>
+    </div>
+
+    <div class="comparison-card">
+      <h4>Значение</h4>
+      <p>
+        - Разгром военной мощи Тевтонского ордена навсегда остановил многовековую немецкую экспансию на восток.<br>
+- Возвращение Жемайтии и Добжинской земли укрепило территориальную целостность Литвы и Польши.<br>
+- Рост международного авторитета союзников превратил польско-литовское государство в ведущую силу Восточной Европы.<br>
+- Начало экономического упадка Ордена из-за огромной контрибуции подорвало его геополитическое влияние.
+      </p>
+    </div>
+
+  </div>
+</article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- КОНСПЕКТ: ЮРИЙ ДАНИЛОВИЧ -->
 <article class="note-container" id="note-msk4">
   <h1 class="note-title">Юрий Данилович <strong>1303–1325</strong></h1>
@@ -2122,7 +2417,7 @@ margin-bottom: 5px;
         Второй сын Ивана Калиты, брат Симеона. Прозвище «Красный» (Красивый) получил за внешность. Продолжал мирную политику: не вступал в конфликты с Ордой, поддерживал церковь. В 1356 году совершил поход на Тверь, но без крупных последствий. При нём Москва сохранила великокняжеский ярлык. Умер в 1359 году, оставив малолетнего сына Дмитрия (будущего Донского).
       </p>
     </div>
-    <div class="comparison-card" style="background: url('https://aif-s3.aif.ru/images/023/220/0aa0f23e28c9c5a289c229c7b22ad49b.jpg'); background-size: cover;">
+    <div class="comparison-card" style="background: url('https://avatars.mds.yandex.net/i?id=ca638d74159146939fcd5de0f930b26a59ce2b6f-10595928-images-thumbs&n=13'); background-size: cover;">
     </div>
   </div>
 
