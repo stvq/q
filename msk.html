@@ -1088,45 +1088,14 @@ margin-bottom: 5px;
 
 
 
+.comparison-card--image {
+  min-height: 220px;
+}
+
 @media (max-width: 768px) {
-  /* Переключаем сетку в 1 колонку */
-  .comparison-grid,
-  .social-scheme {
-    grid-template-columns: 1fr;
-  }
-
-  /* Базовый стиль карточки: адаптируется под размер текста */
-  .comparison-card {
-    height: auto;
-    aspect-ratio: auto;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  /* 1. Если у карточки есть отдельный тег-картинка внутри */
-  .comparison-card:has(img) {
+  .comparison-card--image {
     aspect-ratio: 1 / 1;
-    padding: 0;
-  }
-
-  .comparison-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* 2. Если фоновая картинка задана через класс (например, .has-bg) */
-  .comparison-card.has-bg {
-    aspect-ratio: 1 / 1;
-    background-size: cover;
-    background-position: center;
-  }
-
-  /* 3. Если фоновая картинка задана прямо в HTML через style="background-image: url(...)" */
-  .comparison-card[style*="background-image"] {
-    aspect-ratio: 1 / 1;
-    background-size: cover;
-    background-position: center;
+    min-height: 0;
   }
 }
 </style>
@@ -2373,7 +2342,7 @@ margin-bottom: 5px;
         В 1339 году Иван Калита обнёс Москву мощными дубовыми стенами. Это была крупная крепость, защищавшая город от набегов. Внутри Кремля он основал Соборную площадь, которую образовали три каменных храма: Успенский собор, церковь Иоанна Лествичника с колокольней и Архангельский собор.
       </p>
     </div>
-    <div class="comparison-card" style="background: url('https://reshalka.com/uploads/book/task/292/task/25/1-image.png'); background-size: cover;">
+    <div class="comparison-card comparison-card--image" style="background: url('https://reshalka.com/uploads/book/task/292/task/25/1-image.png'); background-size: cover;">
     </div>
     <div class="comparison-card">
       <h4>Порядок и безопасность</h4>
@@ -2447,7 +2416,7 @@ margin-bottom: 5px;
   <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Московские князья периода «тишины»</h2>
 
   <div class="comparison-grid">
-    <div class="comparison-card" style="background: url('https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692af588515ae41d30ff42ba_692af5a498ca6f68d6a44bd5/scale_1200'); background-size: cover;">
+    <div class="comparison-card comparison-card--image" style="background: url('https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_692af588515ae41d30ff42ba_692af5a498ca6f68d6a44bd5/scale_1200'); background-size: cover;">
     </div>
     <div class="comparison-card">
       <h4>Симеон Гордый <strong>1340–1353</strong></h4>
@@ -2461,7 +2430,7 @@ margin-bottom: 5px;
         Второй сын Ивана Калиты, брат Симеона. Прозвище «Красный» (Красивый) получил за внешность. Продолжал мирную политику: не вступал в конфликты с Ордой, поддерживал церковь. В 1356 году совершил поход на Тверь, но без крупных последствий. При нём Москва сохранила великокняжеский ярлык. Умер в 1359 году, оставив малолетнего сына Дмитрия (будущего Донского).
       </p>
     </div>
-    <div class="comparison-card" style="background: url('https://avatars.mds.yandex.net/i?id=ca638d74159146939fcd5de0f930b26a59ce2b6f-10595928-images-thumbs&n=13'); background-size: cover;">
+    <div class="comparison-card comparison-card--image" style="background: url('https://avatars.mds.yandex.net/i?id=ca638d74159146939fcd5de0f930b26a59ce2b6f-10595928-images-thumbs&n=13'); background-size: cover;">
     </div>
   </div>
 
