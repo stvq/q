@@ -1085,6 +1085,33 @@ margin-bottom: 5px;
   #drawCanvas.active {
     pointer-events: auto; /* Включаем клики и рисование */
   }
+
+
+
+@media (max-width: 768px) {
+  /* Переключаем сетку в 1 колонку */
+  .comparison-grid,
+  .social-scheme {
+    grid-template-columns: 1fr;
+  }
+
+  /* Делаем карточку квадратной */
+  .comparison-card {
+    aspect-ratio: 1 / 1; /* Отношение ширины к высоте 1:1 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрируем контент по вертикали */
+    box-sizing: border-box;
+    overflow: hidden; /* Скрываем излишки текста, если его слишком много */
+  }
+
+  /* Если внутри карточки есть изображение, задаем ему заполнение всего блока */
+  .comparison-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
 </style>
 </head>
 <body>
