@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню подготовки к ЕГЭ по истории</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper:      #edeae3;
+            --paper-deep: #e3dfd6;
+            --ink:        #1c1b18;
+            --ink-soft:   #4a4741;
+            --ink-faint:  #8f8b82;
+            --rule:       #cfc9be;
+            --accent:     #8c2f24;
+
+            --gap: 22px;
+            --radius: 10px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--paper);
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.012) 0px,
+                    rgba(0, 0, 0, 0.012) 1px,
+                    transparent 1px,
+                    transparent 3px
+                );
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            font-size: 17px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            padding: 120px 80px 180px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu {
+            width: 100%;
+            max-width: 760px;
+        }
+
+        /* ============ Заголовок раздела ============ */
+
+        .section {
+            margin-top: 84px;
+        }
+        .section:first-child {
+            margin-top: 0;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 26px;
+        }
+
+        .section-head h1 {
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+
+        .section-head .years {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+            color: var(--ink-faint);
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        /* ============ Сетка ============ */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--gap);
+            margin-bottom: 8px;
+        }
+
+        /* ============ Карточка ============ */
+
+        .card {
+            position: relative;
+            display: block;
+            height: 188px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            background: var(--paper-deep);
+            border: 1px solid var(--rule);
+            transition: border-color 0.25s ease, transform 0.25s ease;
+            isolation: isolate;
+        }
+
+        .card:hover {
+            border-color: var(--ink-soft);
+            transform: translateY(-2px);
+        }
+
+        .card:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .card img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: grayscale(55%) contrast(0.92) brightness(0.88);
+            transition:
+                transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+                filter 0.4s ease;
+            z-index: 0;
+            will-change: transform;
+        }
+
+        .card:hover img {
+            transform: scale(1.08);
+            filter: grayscale(15%) contrast(1) brightness(0.98);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to top,
+                rgba(15, 14, 12, 0.82) 0%,
+                rgba(15, 14, 12, 0.42) 42%,
+                rgba(15, 14, 12, 0.06) 100%
+            );
+            z-index: 1;
+        }
+
+        .card-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            padding: 16px 18px;
+            color: #f2efe8;
+            font-family: var(--font-sans);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            line-height: 1.25;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+        }
+
+        .card-text::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 12px;
+            width: 22px;
+            height: 1px;
+            background: var(--accent);
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .card:hover .card-text::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============ Заглушка без фото ============ */
+
+        .card.plain::after {
+            background: none;
+        }
+
+        .card.plain img,
+        .card.plain .placeholder {
+            display: none;
+        }
+
+        .card.plain .card-text {
+            color: var(--ink);
+            text-shadow: none;
+            font-size: 1.3rem;
+            padding: 0 18px 18px;
+        }
+
+        .card.plain .card-text::before {
+            left: 22px;
+            top: auto;
+            bottom: 26px;
+            background: var(--ink-faint);
+        }
+
+        .card.plain .marker {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 2;
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 0.8rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.06em;
+        }
+
+        .card.plain:hover .marker {
+            color: var(--accent);
+        }
+
+        .card.plain:hover {
+            background: #e9e5db;
+        }
+
+        /* ============ Появление ============ */
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: rise 0.5s ease backwards;
+        }
+        .card:nth-child(1) { animation-delay: 0.03s; }
+        .card:nth-child(2) { animation-delay: 0.07s; }
+        .card:nth-child(3) { animation-delay: 0.11s; }
+        .card:nth-child(4) { animation-delay: 0.15s; }
+        .card:nth-child(5) { animation-delay: 0.19s; }
+        .card:nth-child(6) { animation-delay: 0.23s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card, .card img, .card-text::before {
+                animation: none !important;
+                transition: none !important;
+            }
+            .card:hover img {
+                transform: none;
+            }
+        }
+
+        /* ============ Адаптив ============ */
+
+        @media (max-width: 1024px) {
+            body { padding: 100px 60px 150px; }
+        }
+
+        @media (max-width: 860px) {
+            body { padding: 80px 40px 120px; }
+            :root { --gap: 18px; }
+            .card { height: 172px; }
+            .section { margin-top: 68px; }
+            .section-head { margin-bottom: 22px; }
+        }
+
+        @media (max-width: 680px) {
+            body { padding: 60px 28px 100px; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .section-head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .section-head h1 { letter-spacing: 0.1em; }
+            .card { height: 158px; }
+            .card-text { font-size: 1.1rem; padding: 12px 14px; }
+            .card-text::before { left: 14px; top: 10px; }
+            .card.plain .card-text { padding: 0 14px 14px; font-size: 1.2rem; }
+            .card.plain .card-text::before { left: 18px; bottom: 22px; }
+            .card.plain .marker { left: 16px; top: 14px; }
+        }
+
+        @media (max-width: 440px) {
+            body { padding: 40px 18px 80px; }
+            .grid { grid-template-columns: 1fr; gap: 12px; }
+            .card { height: 150px; }
+            .section { margin-top: 52px; }
+            .section-head { margin-bottom: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+
+        <!-- ============ Раздел: Древнерусское государство ============ -->
+        <section class="section">
+            <header class="section-head">
+                <h1>Древнерусское государство</h1>
+                <span class="years">IX – XVI</span>
+            </header>
+
+            <div class="grid">
+                <a class="card" href="https://stvq.github.io/q/dr.html" target="_blank" rel="noopener">
+                    <img src="https://static.tildacdn.com/tild3566-6532-4238-a231-343634653766/_5_3.png" alt="Государство Русь" loading="lazy">
+                    <span class="card-text">Государство Русь</span>
+                </a>
+
+                <a class="card" href="https://stvq.github.io/q/rdb.html" target="_blank" rel="noopener">
+                    <img src="https://cs12.pikabu.ru/post_img/2022/02/17/1/og_og_1645055234239796062.jpg" alt="Раздробленность и Батый" loading="lazy">
+                    <span class="card-text">Раздробленность</span>
+                </a>
+
+                <a class="card" href="https://stvq.github.io/q/msk.html" target="_blank" rel="noopener">
+                    <img src="https://monastyr-kid.ru/wp-content/uploads/2023/03/poedinok-peresveta-s-chelubeem-na-kulikovom-pole-m.-avilova.jpg" alt="Московское княжество" loading="lazy">
+                    <span class="card-text">Московское княжество</span>
+                </a>
+
+                <a class="card plain" href="https://stvq.github.io/q/cult.html" target="_blank" rel="noopener">
+                    <span class="marker">I</span>
+                    <span class="card-text">Культура</span>
+                </a>
+
+                <a class="card plain" href="https://stvq.github.io/q/p1.html" target="_blank" rel="noopener">
+                    <span class="marker">II</span>
+                    <span class="card-text">Практикум 1</span>
+                </a>
+
+                <a class="card plain" href="https://stvq.github.io/q/p2.html" target="_blank" rel="noopener">
+                    <span class="marker">III</span>
+                    <span class="card-text">Практикум 2</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============ Раздел: Русское царство ============ -->
+        <section class="section">
+            <header class="section-head">
+                <h1>Русское царство</h1>
+                <span class="years">XVI – XVII</span>
+            </header>
+
+            <div class="grid">
+                <a class="card plain" href="https://stvq.github.io/q/cult.html" target="_blank" rel="noopener">
+                    <span class="marker">I</span>
+                    <span class="card-text">Культура</span>
+                </a>
+
+                <a class="card plain" href="https://stvq.github.io/q/p1.html" target="_blank" rel="noopener">
+                    <span class="marker">II</span>
+                    <span class="card-text">Практикум 1</span>
+                </a>
+
+                <a class="card plain" href="https://stvq.github.io/q/p2.html" target="_blank" rel="noopener">
+                    <span class="marker">III</span>
+                    <span class="card-text">Практикум 2</span>
+                </a>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>
