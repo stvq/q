@@ -1475,6 +1475,94 @@ mark.highlight,
   .note-title strong { margin-left: 0; }
   .note-title--vs strong { margin-left: 0; }
 }
+
+
+
+
+
+/* ============================================================
+   ТРЁХЧАСТНАЯ СОЦИАЛЬНАЯ СХЕМА
+   ============================================================ */
+.social-scheme--three {
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+}
+
+.scheme-hint {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.scheme-column--land {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.scheme-column--land .scheme-title { color: #b45309; }
+
+/* ============================================================
+   КАРТОЧКИ ТЕРМИНОВ
+   ============================================================ */
+.term-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.term-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-base);
+}
+
+.term-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+.term-card--land { background: #fffbeb; border-color: #fde68a; }
+.term-card--land:hover { border-color: #f59e0b; }
+
+.term-card--dep { background: var(--color-danger-bg); border-color: var(--color-danger-border); }
+.term-card--dep:hover { border-color: var(--color-danger); }
+
+.term-card__icon { font-size: 1.4rem; line-height: 1; }
+
+.term-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.term-card__desc {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.term-card__desc strong { color: var(--text-main); font-weight: 600; }
+
+@media (max-width: 1024px) {
+  .social-scheme--three { grid-template-columns: 1fr 1fr; }
+  .scheme-column--dep:last-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 768px) {
+  .social-scheme--three { grid-template-columns: 1fr; }
+  .term-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -1984,9 +2072,9 @@ mark.highlight,
     <!-- КОНСПЕКТ 1 -->
     <article class="note-container" id="note-1">
       <h1 class="note-title">Междоусобица Святославичей</h1>
-<img class="note-image" src="https://i.postimg.cc/vZYVmZML/vir.png" alt="Владимир и Рогнеда">
+<img class="note-image" src="https://avatars.mds.yandex.net/i?id=67c6b22fd837e364609d746c49c8033d09623770-5264636-images-thumbs&n=13" alt="Владимир и Рогнеда">
       <p class="note-text">
-        В 972 г. Святослав погиб на днепровских порогах в бою с печенегами. Ещё при жизни он установил наместниками своих сыновей. Киевский престол достался Ярополку.<br> <mark class='wb'>977-980 гг.</mark> междоусобная война Святославичей.
+        В 972 г. Святослав погиб на днепровских порогах в бою с печенегами. Ещё при жизни он установил наместниками своих сыновей. Киевский престол достался Ярополку.<br> <mark class='wb'>977-978 гг.</mark> междоусобная война Святославичей.
       </p>
 
       <div class="rule-box">
@@ -2025,7 +2113,7 @@ mark.highlight,
 
 <!-- КОНСПЕКТ: ВНУТРЕННЯЯ ПОЛИТИКА ВЛАДИМИРА -->
 <article class="note-container" id="note-v3">
-  <h1 class="note-title">Внутренняя политика Владимира Святославича <strong>980–1015</strong></h1>
+  <h1 class="note-title">Внутренняя политика Владимира Святославича <strong>978–1015</strong></h1>
 
   <img class="note-image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1URNaB8865GesI1VqYA2SuDF-QWf9zUELT3Sc-3TwgReAv7p3H176hkDo&s=10" alt="Владимир Святославич">
 
@@ -2057,7 +2145,7 @@ mark.highlight,
   <div class="rule-box">
     <div class="rule-title">Языческая реформа 980 г. не удалась</div>
     <div class="rule-content">
-      Владимир создал пантеон из пяти богов во главе с Перуном, но каждое племя продолжало молиться своим богам. Единобожие требовалось для консолидации всего населения и стирания межплеменных различий.
+      Владимир создал пантеон из пяти богов во главе с Перуном, но каждое племя продолжало молиться своим богам. Реформа многобожия провалилась. Для консолидации всего населения и стирания межплеменных различий требовалось единобожие.
     </div>
   </div>
 
@@ -2140,7 +2228,7 @@ mark.highlight,
 
 <!-- КОНСПЕКТ: ВНЕШНЯЯ ПОЛИТИКА ВЛАДИМИРА -->
 <article class="note-container" id="note-v2">
-  <h1 class="note-title">Внешняя политика Владимира Святославича <strong>980–1015</strong></h1>
+  <h1 class="note-title">Внешняя политика Владимира Святославича <strong>978–1015</strong></h1>
 
   <p class="note-text">
     Владимир Святославич воевал на западе и востоке, строил оборонительные рубежи на юге и использовал династические браки и договоры для укрепления международного положения Руси.
@@ -2246,7 +2334,7 @@ mark.highlight,
 
 <!-- КОНСПЕКТ: ВНЕШНЯЯ ПОЛИТИКА ЯРОСЛАВА МУДРОГО -->
 <article class="note-container" id="note-yar2">
-  <h1 class="note-title">Внешняя политика Ярослава Мудрого <strong>1019–1054</strong></h1>
+  <h1 class="note-title">Внешняя политика Ярослава Мудрого <strong>1016–1054</strong></h1>
 
   <p class="note-text">
     Ярослав Мудрый вернул западные земли, окончательно разбил печенегов и использовал династические браки для укрепления международного положения Руси.
@@ -2313,7 +2401,7 @@ mark.highlight,
 
 <!-- КОНСПЕКТ: ВНУТРЕННЯЯ ПОЛИТИКА ЯРОСЛАВА МУДРОГО -->
 <article class="note-container" id="note-yar3">
-  <h1 class="note-title">Внутренняя политика Ярослава Мудрого <strong>1019–1054</strong></h1>
+  <h1 class="note-title">Внутренняя политика Ярослава Мудрого <strong>1016–1054</strong></h1>
 
   <img class="note-image" src="https://clib.yar.ru/wp-content/uploads/2015/12/0_72a69_818251bc_XL.jpg" alt="Ярослав Мудрый">
 
@@ -2390,123 +2478,168 @@ mark.highlight,
 
 
 
-<!-- КОНСПЕКТ: КАТЕГОРИИ НАСЕЛЕНИЯ ДРЕВНЕЙ РУСИ -->
+<!-- КОНСПЕКТ: СОЦИАЛЬНАЯ СТРУКТУРА ДРЕВНЕЙ РУСИ -->
 <article class="note-container" id="note-yar4">
-  <h1 class="note-title">Категории населения Древней Руси</h1>
+  <h1 class="note-title">Социальная структура Древней Руси</h1>
 
   <p class="note-text">
-    «Русская Правда» — главный источник сведений о социальном устройстве Древней Руси. Она делила всё население на свободных и зависимых людей. Положение человека определялось не только богатством, но и его отношением к князю и общине.
+    Основной источник сведений об устройстве древнерусского общества — <strong>«Русская Правда»</strong>.
   </p>
 
-  <!-- СХЕМА: СВОБОДНЫЕ И ЗАВИСИМЫЕ -->
-  <div class="social-scheme">
-    <div class="scheme-column">
-      <div class="scheme-title">🕊️ Свободное население</div>
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Типы зависимости</h2>
 
+  <div class="social-scheme social-scheme--three">
+    <div class="scheme-column">
+      <div class="scheme-title">🕊️ Свободные</div>
+      <p class="scheme-hint">Лично свободны, имеют права в общине и на суде.</p>
       <div class="scheme-card">
         <div class="scheme-icon">👑</div>
         <div class="scheme-body">
-          <div class="scheme-name">Князья</div>
-          <div class="scheme-desc">Верховные правители. Рюриковичи, власть передавалась по лествичному праву.</div>
+          <div class="scheme-name">Князья, дружина, бояре</div>
         </div>
       </div>
-
       <div class="scheme-card">
-        <div class="scheme-icon">⚔️</div>
-        <div class="scheme-body">
-          <div class="scheme-name">Дружина</div>
-          <div class="scheme-desc">Старшая — <strong>бояре</strong> (советники, воеводы), младшая — <strong>гридни, отроки</strong> (воины, слуги князя).</div>
-        </div>
-      </div>
-
-      <div class="scheme-card">
-        <div class="scheme-icon">⛪</div>
+        <div class="scheme-icon">☦️</div>
         <div class="scheme-body">
           <div class="scheme-name">Духовенство</div>
-          <div class="scheme-desc">Митрополит, епископы, священники, монахи. Освобождены от дани и суда князя (кроме особых дел).</div>
         </div>
       </div>
-
-      <div class="scheme-card">
-        <div class="scheme-icon">🧑‍🌾</div>
-        <div class="scheme-body">
-          <div class="scheme-name">Люди (смерды)</div>
-          <div class="scheme-desc">Поземельно зависимые земледельцы, платили дань и несли повинности. Основная масса населения.</div>
-        </div>
-      </div>
-
       <div class="scheme-card">
         <div class="scheme-icon">🏘️</div>
         <div class="scheme-body">
-          <div class="scheme-name">Городские жители</div>
-          <div class="scheme-desc">Купцы, ремесленники, посадские люди. Объединялись в общины, имели вече.</div>
+          <div class="scheme-name">Купцы, ремесленники</div>
         </div>
       </div>
     </div>
 
-    <div class="scheme-column scheme-column--dependent">
-      <div class="scheme-title">⛓️ Зависимое население</div>
+    <div class="scheme-column scheme-column--land">
+      <div class="scheme-title">🌾 Зависимые от князя по тяглу</div>
+      <p class="scheme-hint">Лично не рабы, но платят князю дань и несут повинности.</p>
+      <div class="scheme-card">
+        <div class="scheme-icon">🧑‍🌾</div>
+        <div class="scheme-body">
+          <div class="scheme-name">Смерды</div>
+        </div>
+      </div>
+    </div>
 
+    <div class="scheme-column scheme-column--dep">
+      <div class="scheme-title">⛓️ Лично зависимые</div>
+      <p class="scheme-hint">Зависимы от господина через долг, договор или полное холопство.</p>
       <div class="scheme-card scheme-card--dep">
         <div class="scheme-icon">🪙</div>
         <div class="scheme-body">
           <div class="scheme-name">Закупы</div>
-          <div class="scheme-desc"><strong>Купа</strong> — долг. Человек, взявший ссуду и обязанный её отработать. Имел право уйти, вернув долг; за побег превращался в холопа.</div>
         </div>
       </div>
-
       <div class="scheme-card scheme-card--dep">
         <div class="scheme-icon">📜</div>
         <div class="scheme-body">
           <div class="scheme-name">Рядовичи</div>
-          <div class="scheme-desc"><strong>Ряд</strong> — договор. Человек, заключивший договор о службе и работе у господина на определённых условиях.</div>
         </div>
       </div>
-
       <div class="scheme-card scheme-card--dep">
         <div class="scheme-icon">🔗</div>
         <div class="scheme-body">
           <div class="scheme-name">Холопы (челядь)</div>
-          <div class="scheme-desc">Полностью бесправные. Источники холопства: плен, продажа, брак с холопом, самопродажа за долги, побег закупа. Убийство холопа — не вира, а штраф как за порчу имущества.</div>
-        </div>
-      </div>
-
-      <div class="scheme-card scheme-card--dep">
-        <div class="scheme-icon">🌾</div>
-        <div class="scheme-body">
-          <div class="scheme-name">Прочие зависимые</div>
-          <div class="scheme-desc">Огнищане (управляющие), тиуны (управители), ключники, обельные холопы — низшие категории.</div>
         </div>
       </div>
     </div>
   </div>
 
-<div class="rule-box">
-<div class="rule-title">Княжеский двор</div>
-    <div class="rule-content">
-      <strong>Тиун</strong> — княжеский или боярский управляющий, слуга, ведавший хозяйством и исполнявший судебные или административные поручения.<br>
-<strong>Огнищанин</strong> — высший слой княжеских слуг, управитель княжеского хозяйства (вотчины) и защитник его имущества.<br>
-<strong>Обельные холопы</strong> — полностью бесправные зависимые люди, находившиеся в абсолютной («вечной») собственности господина без возможности освобождения за долги.
-    </div>
-<div class="rule-title">Церковь</div>
-    <div class="rule-content">
-      <strong>Митрополит</strong> — высший духовный чин на Руси, глава всей древнерусской церкви, назначавшийся Константинопольским патриархом.<br>
-<strong>Епископ</strong> — высшее духовное лицо, возглавлявшее церковный округ (епархию) и подчинявшееся митрополиту.<br>
-<strong>Инок</strong> — православный монах, человек, принявший постриг и давший обеты отречения от мирской жизни.
-    </div>
-<div class="rule-title">Дружина</div>
-    <div class="rule-content">
-      <strong>Бояре</strong> — высшее сословие знати на Руси, состоявшее из крупных землевладельцев (вотчинников), старших княжеских дружинников и главных советников князя, которые участвовали в управлении государством.<br>
-<strong>Гридни</strong> — воины дружины князя, его личная гвардия и советники, жившие в специальных помещениях (гридницах).<br>
-<strong>Отроки</strong> — младшие дружинники, выполнявшие обязанности телохранителей, вестовых, а также младших слуг при княжеском дворе.
-    </div>
-  </div>
+ 
 
-  <p class="note-text">
-    Социальная структура Древней Руси была сложной и подвижной. Появление зависимых категорий (закупов, рядовичей, холопов) стало следствием развития землевладения, ростовщичества и усиления знати. «Русская Правда» закрепила это неравенство законодательно.
-  </p>
+  <h2 class="note-title" style="font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px;">Карточки терминов</h2>
+
+  <div class="term-grid">
+
+    <div class="term-card">
+      <div class="term-card__icon">👑</div>
+      <div class="term-card__name">Князья</div>
+      <div class="term-card__desc">Верховные правители Руси из династии Рюриковичей. Власть передавалась по <strong>лествичному обычаю</strong> — от старшего брата к младшему, а не от отца к сыну. Князь судил, собирал дань и возглавлял войско.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">⚔️</div>
+      <div class="term-card__name">Дружина</div>
+      <div class="term-card__desc">Постоянное войско и советники князя. Делилась на <strong>старшую</strong> (бояре) и <strong>младшую</strong> (гридни, отроки). Дружинники жили за счёт князя и получали долю дани и добычи.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🛡️</div>
+      <div class="term-card__name">Бояре</div>
+      <div class="term-card__desc">Высший слой знати: крупные землевладельцы-вотчинники и старшие дружинники. Входили в княжескую думу и участвовали в управлении государством.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🪖</div>
+      <div class="term-card__name">Гридни</div>
+      <div class="term-card__desc">Младшие дружинники, личная охрана и советники князя. Жили при дворе в специальном помещении — гриднице.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🧑‍✈️</div>
+      <div class="term-card__name">Отроки</div>
+      <div class="term-card__desc">Самые младшие дружинники и слуги князя. Выполняли поручения: охрана, вестовые, мелкие дела при дворе.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">📖</div>
+      <div class="term-card__name">Митрополит</div>
+      <div class="term-card__desc">Высший духовный чин на Руси, глава древнерусской церкви. Назначался Константинопольским патриархом. Первым русским митрополитом в 1051 г. стал Иларион, поставленный Ярославом Мудрым.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">✝️</div>
+      <div class="term-card__name">Епископ</div>
+      <div class="term-card__desc">Высшее духовное лицо, возглавлявшее церковный округ — <strong>епархию</strong>. Подчинялся митрополиту, управлял церковными делами области через подчинённый клир.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🕯️</div>
+      <div class="term-card__name">Инок</div>
+      <div class="term-card__desc">Православный монах, принявший постриг (малую схиму). Давал обеты отречения от мирской жизни и жил в монастыре. Крупнейший центр — Киево-Печерский монастырь.</div>
+    </div>
+
+    <div class="term-card term-card--land">
+      <div class="term-card__icon">🧑‍🌾</div>
+      <div class="term-card__name">Смерды</div>
+      <div class="term-card__desc">Категория княжеских тяглых людей, лично не рабов, но обязанных князю данью и повинностями. По «Правде Ярославичей» за убийство смерда — 5 гривен, тогда как за свободного «мужа» — 40.</div>
+    </div>
+
+
+    <div class="term-card term-card--dep">
+      <div class="term-card__icon">🪙</div>
+      <div class="term-card__name">Закупы</div>
+      <div class="term-card__desc">Категория лично зависимого населения, взявшая у господина <strong>купу</strong> (долг) и обязанную её отработать. За убийство закупа назначалась вира в 40 гривен как за свободного, но за побег он превращался в холопа.</div>
+    </div>
+
+    <div class="term-card term-card--dep">
+      <div class="term-card__icon">📜</div>
+      <div class="term-card__name">Рядовичи</div>
+      <div class="term-card__desc">Категория лично зависимого населения, заключившая с господином <strong>ряд</strong> (договор) о службе и работе на определённых условиях. За убийство рядовича — 5 гривен, как за смерда.</div>
+    </div>
+
+    <div class="term-card term-card--dep">
+      <div class="term-card__icon">🔗</div>
+      <div class="term-card__name">Холопы (челядь)</div>
+      <div class="term-card__desc">Категория лично зависимого населения, находящаяся в полной собственности господина. Источники холопства: плен, продажа, брак с холопом, самопродажа за долги, побег закупа. За убийство холопа — не вира, а урок (возмещение) и продажа господину.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🗝️</div>
+      <div class="term-card__name">Тиун</div>
+      <div class="term-card__desc">Княжеский или боярский управляющий, ведавший хозяйством и исполнявший судебные поручения. Лично свободен, но находится в услужении. За убийство тиуна — вира 80 гривен.</div>
+    </div>
+
+    <div class="term-card">
+      <div class="term-card__icon">🔥</div>
+      <div class="term-card__name">Огнищанин</div>
+      <div class="term-card__desc">Высший слой княжеских слуг, управитель княжеского хозяйства (вотчины). Лично свободен, но в услужении. За убийство огнищанина — двойная вира 80 гривен.</div>
+    </div>
+
+  </div>
 </article>
-
 
 
 
