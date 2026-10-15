@@ -4307,6 +4307,24 @@ mark.highlight,
     let isDrawing = false;
     let isErasing = false;
 
+    // Цвета для рисования (по умолчанию — как в файле)
+    const defaultColor = '#0d1624';
+    let currentColor = defaultColor;
+
+    // Карта цветов для клавиш 0-9
+    const colorMap = {
+      '1': defaultColor,
+      '2': '#fc033d',
+      '3': '#fc03d3',
+      '4': '#6f03fc',
+      '5': '#03befc',
+      '6': '#03fca5',
+      '7': '#03fc07',
+      '8': '#fcd703',
+      '9': '#fc7b03',
+      '0': '#ffffff'
+    };
+
     function resizeCanvas() {
       canvas.width = mainWrapper.scrollWidth;
       canvas.height = mainWrapper.scrollHeight;
@@ -4366,7 +4384,7 @@ mark.highlight,
         ctx.lineJoin = 'round';
       } else {
         ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = '#0d1624';
+        ctx.strokeStyle = currentColor;
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -4382,6 +4400,14 @@ mark.highlight,
 
     window.addEventListener('resize', () => {
       if (isDrawingEnabled) resizeCanvas();
+    });
+
+    // Обработка нажатий клавиш для смены цвета
+    window.addEventListener('keydown', (e) => {
+      if (!isDrawingEnabled) return;
+      if (e.key in colorMap) {
+        currentColor = colorMap[e.key];
+      }
     });
 
     const originalActivateNote = activateNote;
