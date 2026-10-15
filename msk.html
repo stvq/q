@@ -6344,37 +6344,37 @@ mark.highlight,
     const notes = document.querySelectorAll('.note-container');
 
     function activateNote(targetId) {
-  navItems.forEach(item => {
-    if (item.getAttribute('data-target') === targetId) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
+      navItems.forEach(item => {
+        if (item.getAttribute('data-target') === targetId) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+      notes.forEach(note => {
+        if (note.id === targetId) {
+          note.classList.add('active');
+        } else {
+          note.classList.remove('active');
+        }
+      });
+
+      mainWrapper.style.scrollBehavior = 'auto';
+      mainWrapper.scrollTop = 0;
+      mainWrapper.scrollLeft = 0;
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      requestAnimationFrame(() => {
+        mainWrapper.style.scrollBehavior = '';
+      });
+
+      if (mapBtn) mapBtn.classList.toggle('active', targetId === 'note-map');
     }
-  });
 
-  notes.forEach(note => {
-    if (note.id === targetId) {
-      note.classList.add('active');
-    } else {
-      note.classList.remove('active');
-    }
-  });
-
-  // Мгновенный сброс прокрутки (без smooth-анимации)
-  mainWrapper.style.scrollBehavior = 'auto';
-  mainWrapper.scrollTop = 0;
-  mainWrapper.scrollLeft = 0;
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-
-  // Возвращаем smooth после сброса
-  requestAnimationFrame(() => {
-    mainWrapper.style.scrollBehavior = '';
-  });
-
-  if (mapBtn) mapBtn.classList.toggle('active', targetId === 'note-map');
-}    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener('click', () => {
       if (window.innerWidth <= 768) {
         sidebar.classList.toggle('open-mobile');
       } else {
@@ -6411,11 +6411,25 @@ mark.highlight,
     let isDrawing = false;
     let isErasing = false;
 
-    // Цвета для рисования (по умолчанию — как в файле)
     const defaultColor = '#0d1624';
     let currentColor = defaultColor;
 
-    // Карта цветов для клавиш 0-9
+    const defaultLineWidth = 2;
+    let currentLineWidth = defaultLineWidth;
+
+    const defaultAlpha = 1;
+    let currentAlpha = defaultAlpha;
+
+    // Последняя точка
+    let lastX = null;
+    let lastY = null;
+
+    // Слой текущего мазка (рисуется с alpha = 1)
+    let strokeCanvas = null;
+    let strokeCtx = null;
+    // Снимок основного canvas ДО начала мазка
+    let backgroundSnapshot = null;
+
     const colorMap = {
       '1': defaultColor,
       '2': '#fc033d',
@@ -6427,6 +6441,23 @@ mark.highlight,
       '8': '#fcd703',
       '9': '#fc7b03',
       '0': '#ffffff'
+    };
+
+    const widthMap = {
+      'q': 1,
+      'w': 2,
+      'e': 4,
+      'r': 6,
+      't': 10,
+      'y': 16
+    };
+
+    const alphaMap = {
+      'a': 1,
+      's': 0.8,
+      'd': 0.6,
+      'f': 0.4,
+      'g': 0.2
     };
 
     function resizeCanvas() {
@@ -6460,20 +6491,87 @@ mark.highlight,
       };
     }
 
+    // Начать новый мазок: создаём offscreen-слой и снимок фона
+    function beginStroke() {
+      strokeCanvas = document.createElement('canvas');
+      strokeCanvas.width = canvas.width;
+      strokeCanvas.height = canvas.height;
+      strokeCtx = strokeCanvas.getContext('2d');
+
+      // Снимок текущего основного canvas
+      backgroundSnapshot = document.createElement('canvas');
+      backgroundSnapshot.width = canvas.width;
+      backgroundSnapshot.height = canvas.height;
+      backgroundSnapshot.getContext('2d').drawImage(canvas, 0, 0);
+    }
+
+    // Завершить мазок
+    function endStroke() {
+      strokeCanvas = null;
+      strokeCtx = null;
+      backgroundSnapshot = null;
+    }
+
+    // Перерисовать основной canvas: фон + слой мазка с alpha
+    function compositeStroke() {
+      // 1. Восстанавливаем фон
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundSnapshot, 0, 0);
+
+      // 2. Кладём слой мазка с заданной прозрачностью
+      ctx.globalAlpha = currentAlpha;
+      ctx.drawImage(strokeCanvas, 0, 0);
+      ctx.globalAlpha = 1;
+    }
+
+    // Добавить сегмент в текущий мазок
+    function addStrokeSegment(x0, y0, x1, y1) {
+      strokeCtx.globalCompositeOperation = 'source-over';
+      strokeCtx.strokeStyle = currentColor;
+      strokeCtx.lineWidth = currentLineWidth;
+      strokeCtx.lineCap = 'round';
+      strokeCtx.lineJoin = 'round';
+      strokeCtx.globalAlpha = 1;
+
+      strokeCtx.beginPath();
+      strokeCtx.moveTo(x0, y0);
+      strokeCtx.lineTo(x1, y1);
+      strokeCtx.stroke();
+
+      compositeStroke();
+    }
+
+    // Стирание — прямой режим destination-out (там наслоение не проблема)
+    function eraseSegment(x0, y0, x1, y1) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 50;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalAlpha = 1;
+
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
     canvas.addEventListener('mousedown', (e) => {
       if (!isDrawingEnabled) return;
       isDrawing = true;
 
       const coords = getCanvasCoordinates(e);
+      lastX = coords.x;
+      lastY = coords.y;
 
-      if (e.button === 2) {
-        isErasing = true;
-      } else if (e.button === 0) {
-        isErasing = false;
+      isErasing = (e.button === 2);
+
+      if (!isErasing) {
+        beginStroke();
       }
-
-      ctx.beginPath();
-      ctx.moveTo(coords.x, coords.y);
     });
 
     canvas.addEventListener('mousemove', (e) => {
@@ -6481,36 +6579,46 @@ mark.highlight,
 
       const coords = getCanvasCoordinates(e);
 
-      if (isErasing) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = 50;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-      } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = currentColor;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+      if (lastX === null) {
+        lastX = coords.x;
+        lastY = coords.y;
+        return;
       }
 
-      ctx.lineTo(coords.x, coords.y);
-      ctx.stroke();
+      if (isErasing) {
+        eraseSegment(lastX, lastY, coords.x, coords.y);
+      } else {
+        addStrokeSegment(lastX, lastY, coords.x, coords.y);
+      }
+
+      lastX = coords.x;
+      lastY = coords.y;
     });
 
     window.addEventListener('mouseup', () => {
+      if (isDrawing && !isErasing) {
+        endStroke();
+      }
       isDrawing = false;
+      lastX = null;
+      lastY = null;
     });
 
     window.addEventListener('resize', () => {
       if (isDrawingEnabled) resizeCanvas();
     });
 
-    // Обработка нажатий клавиш для смены цвета
     window.addEventListener('keydown', (e) => {
       if (!isDrawingEnabled) return;
-      if (e.key in colorMap) {
-        currentColor = colorMap[e.key];
+
+      const key = e.key.toLowerCase();
+
+      if (key in colorMap) {
+        currentColor = colorMap[key];
+      } else if (key in widthMap) {
+        currentLineWidth = widthMap[key];
+      } else if (key in alphaMap) {
+        currentAlpha = alphaMap[key];
       }
     });
 
