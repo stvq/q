@@ -1478,6 +1478,177 @@ mark.highlight,
   .note-title strong { margin-left: 0; }
   .note-title--vs strong { margin-left: 0; }
 }
+
+
+
+
+/* ============================================================
+   ПАНЕЛЬ НАСТРОЙКИ КИСТИ
+   ============================================================ */
+.brush-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+}
+
+.brush-overlay.active {
+  display: flex;
+  animation: brushFadeIn 0.2s var(--ease-out);
+}
+
+@keyframes brushFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.brush-panel {
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  border-radius: 20px;
+  padding: 24px 24px 20px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
+  animation: brushPop 0.25s var(--ease-out);
+}
+
+@keyframes brushPop {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.brush-panel-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #8e8e93;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.brush-section {
+  margin-bottom: 20px;
+}
+
+.brush-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #d1d1d6;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+.brush-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Палитра ---------- */
+.brush-palette {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.brush-swatch {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  position: relative;
+}
+
+.brush-swatch:hover {
+  transform: scale(1.06);
+}
+
+.brush-swatch.selected {
+  box-shadow: 0 0 0 3px #ffffff, inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  transform: scale(1.04);
+}
+
+/* ---------- Ползунки ---------- */
+.brush-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #3a3a3c;
+  outline: none;
+  cursor: pointer;
+}
+
+.brush-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s var(--ease-out);
+}
+
+.brush-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.brush-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+/* ---------- Кнопка Готово ---------- */
+.brush-done {
+  width: 100%;
+  padding: 14px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1c1c1e;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.18s var(--ease-out);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.brush-done:hover {
+  background: #f0f0f2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.brush-done:active {
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -8184,6 +8355,98 @@ mark.highlight,
     </div>
   </div>
 </article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ПАНЕЛЬ НАСТРОЙКИ КИСТИ -->
+<div class="brush-overlay" id="brushOverlay">
+  <div class="brush-panel" id="brushPanel">
+    <div class="brush-panel-title">Настройка кисти</div>
+
+    <div class="brush-section">
+      <div class="brush-label">Цвет</div>
+      <div class="brush-palette" id="brushPalette">
+        <button class="brush-swatch" data-color="#000000" style="background:#000000;"></button>
+        <button class="brush-swatch" data-color="#525252" style="background:#525252;"></button>
+        <button class="brush-swatch" data-color="#bababa" style="background:#bababa;"></button>
+        <button class="brush-swatch" data-color="#ffffff" style="background:#ffffff;"></button>
+
+        <button class="brush-swatch" data-color="#ed3e24" style="background:#ed3e24;"></button>
+        <button class="brush-swatch" data-color="#ed7124" style="background:#ed7124;"></button>
+        <button class="brush-swatch" data-color="#ed9d24" style="background:#ed9d24;"></button>
+        <button class="brush-swatch" data-color="#edcf24" style="background:#edcf24;"></button>
+
+        <button class="brush-swatch" data-color="#aaed24" style="background:#aaed24;"></button>
+        <button class="brush-swatch" data-color="#7acc3f" style="background:#7acc3f;"></button>
+        <button class="brush-swatch" data-color="#5aa64b" style="background:#5aa64b;"></button>
+        <button class="brush-swatch" data-color="#34c977" style="background:#34c977;"></button>
+
+        <button class="brush-swatch" data-color="#34c9a7" style="background:#34c9a7;"></button>
+        <button class="brush-swatch" data-color="#34c2c9" style="background:#34c2c9;"></button>
+        <button class="brush-swatch" data-color="#348ec9" style="background:#348ec9;"></button>
+        <button class="brush-swatch" data-color="#3469c9" style="background:#3469c9;"></button>
+
+        <button class="brush-swatch" data-color="#3c34c9" style="background:#3c34c9;"></button>
+        <button class="brush-swatch" data-color="#6134c9" style="background:#6134c9;"></button>
+        <button class="brush-swatch" data-color="#9534c9" style="background:#9534c9;"></button>
+        <button class="brush-swatch" data-color="#c934c2" style="background:#c934c2;"></button>
+      </div>
+    </div>
+
+    <div class="brush-section">
+      <div class="brush-label">
+        <span>Толщина</span>
+        <span class="brush-value" id="brushWidthValue">2</span>
+      </div>
+      <input type="range" class="brush-slider" id="brushWidthSlider" min="1" max="40" step="1" value="2">
+    </div>
+
+    <div class="brush-section">
+      <div class="brush-label">
+        <span>Прозрачность</span>
+        <span class="brush-value" id="brushAlphaValue">100%</span>
+      </div>
+      <input type="range" class="brush-slider" id="brushAlphaSlider" min="5" max="100" step="5" value="100">
+    </div>
+
+    <button class="brush-done" id="brushDone">Готово</button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </main>
 
   <!-- СКРИПТЫ -->
@@ -8272,16 +8535,30 @@ mark.highlight,
     const defaultAlpha = 1;
     let currentAlpha = defaultAlpha;
 
-    // Последняя точка
     let lastX = null;
     let lastY = null;
 
-    // Слой текущего мазка (рисуется с alpha = 1)
+    // Слой текущего мазка и снимок фона
     let strokeCanvas = null;
     let strokeCtx = null;
-    // Снимок основного canvas ДО начала мазка
     let backgroundSnapshot = null;
 
+    // ==========================================
+    // ЭЛЕМЕНТЫ ПАНЕЛИ КИСТИ
+    // ==========================================
+    const brushOverlay = document.getElementById('brushOverlay');
+    const brushPalette = document.getElementById('brushPalette');
+    const brushWidthSlider = document.getElementById('brushWidthSlider');
+    const brushWidthValue = document.getElementById('brushWidthValue');
+    const brushAlphaSlider = document.getElementById('brushAlphaSlider');
+    const brushAlphaValue = document.getElementById('brushAlphaValue');
+    const brushDone = document.getElementById('brushDone');
+
+    let isBrushPanelOpen = false;
+
+    // ==========================================
+    // КАРТЫ ГОРЯЧИХ КЛАВИШ (старая настройка)
+    // ==========================================
     const colorMap = {
       '1': defaultColor,
       '2': '#fc033d',
@@ -8312,6 +8589,71 @@ mark.highlight,
       'g': 0.2
     };
 
+    // ==========================================
+    // СИНХРОНИЗАЦИЯ UI ПАНЕЛИ С ТЕКУЩИМИ НАСТРОЙКАМИ
+    // ==========================================
+    function syncBrushPanel() {
+      // Цвет
+      brushPalette.querySelectorAll('.brush-swatch').forEach(sw => {
+        const c = sw.getAttribute('data-color').toLowerCase();
+        if (c === currentColor.toLowerCase()) {
+          sw.classList.add('selected');
+        } else {
+          sw.classList.remove('selected');
+        }
+      });
+
+      // Толщина
+      brushWidthSlider.value = currentLineWidth;
+      brushWidthValue.textContent = currentLineWidth;
+
+      // Прозрачность
+      const alphaPercent = Math.round(currentAlpha * 100);
+      brushAlphaSlider.value = alphaPercent;
+      brushAlphaValue.textContent = alphaPercent + '%';
+    }
+
+    function openBrushPanel() {
+      if (isBrushPanelOpen) return;
+      isBrushPanelOpen = true;
+      isDrawing = false;
+      lastX = null;
+      lastY = null;
+      syncBrushPanel();
+      brushOverlay.classList.add('active');
+    }
+
+    function closeBrushPanel() {
+      if (!isBrushPanelOpen) return;
+      isBrushPanelOpen = false;
+      brushOverlay.classList.remove('active');
+    }
+
+    // ==========================================
+    // ОБРАБОТЧИКИ UI ПАНЕЛИ
+    // ==========================================
+    brushPalette.addEventListener('click', (e) => {
+      const sw = e.target.closest('.brush-swatch');
+      if (!sw) return;
+      currentColor = sw.getAttribute('data-color');
+      syncBrushPanel();
+    });
+
+    brushWidthSlider.addEventListener('input', () => {
+      currentLineWidth = Number(brushWidthSlider.value);
+      brushWidthValue.textContent = currentLineWidth;
+    });
+
+    brushAlphaSlider.addEventListener('input', () => {
+      currentAlpha = Number(brushAlphaSlider.value) / 100;
+      brushAlphaValue.textContent = brushAlphaSlider.value + '%';
+    });
+
+    brushDone.addEventListener('click', closeBrushPanel);
+
+    // ==========================================
+    // РАЗМЕР КАНВАСА
+    // ==========================================
     function resizeCanvas() {
       canvas.width = mainWrapper.scrollWidth;
       canvas.height = mainWrapper.scrollHeight;
@@ -8328,6 +8670,8 @@ mark.highlight,
 
       if (isDrawingEnabled) {
         resizeCanvas();
+      } else {
+        closeBrushPanel();
       }
     });
 
@@ -8343,42 +8687,38 @@ mark.highlight,
       };
     }
 
-    // Начать новый мазок: создаём offscreen-слой и снимок фона
+    // ==========================================
+    // МАЗОК: слой + снимок фона (равномерная alpha)
+    // ==========================================
     function beginStroke() {
       strokeCanvas = document.createElement('canvas');
       strokeCanvas.width = canvas.width;
       strokeCanvas.height = canvas.height;
       strokeCtx = strokeCanvas.getContext('2d');
 
-      // Снимок текущего основного canvas
       backgroundSnapshot = document.createElement('canvas');
       backgroundSnapshot.width = canvas.width;
       backgroundSnapshot.height = canvas.height;
       backgroundSnapshot.getContext('2d').drawImage(canvas, 0, 0);
     }
 
-    // Завершить мазок
     function endStroke() {
       strokeCanvas = null;
       strokeCtx = null;
       backgroundSnapshot = null;
     }
 
-    // Перерисовать основной canvas: фон + слой мазка с alpha
     function compositeStroke() {
-      // 1. Восстанавливаем фон
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(backgroundSnapshot, 0, 0);
 
-      // 2. Кладём слой мазка с заданной прозрачностью
       ctx.globalAlpha = currentAlpha;
       ctx.drawImage(strokeCanvas, 0, 0);
       ctx.globalAlpha = 1;
     }
 
-    // Добавить сегмент в текущий мазок
     function addStrokeSegment(x0, y0, x1, y1) {
       strokeCtx.globalCompositeOperation = 'source-over';
       strokeCtx.strokeStyle = currentColor;
@@ -8395,7 +8735,6 @@ mark.highlight,
       compositeStroke();
     }
 
-    // Стирание — прямой режим destination-out (там наслоение не проблема)
     function eraseSegment(x0, y0, x1, y1) {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.lineWidth = 50;
@@ -8412,7 +8751,7 @@ mark.highlight,
     }
 
     canvas.addEventListener('mousedown', (e) => {
-      if (!isDrawingEnabled) return;
+      if (!isDrawingEnabled || isBrushPanelOpen) return;
       isDrawing = true;
 
       const coords = getCanvasCoordinates(e);
@@ -8427,7 +8766,7 @@ mark.highlight,
     });
 
     canvas.addEventListener('mousemove', (e) => {
-      if (!isDrawingEnabled || !isDrawing) return;
+      if (!isDrawingEnabled || !isDrawing || isBrushPanelOpen) return;
 
       const coords = getCanvasCoordinates(e);
 
@@ -8460,10 +8799,25 @@ mark.highlight,
       if (isDrawingEnabled) resizeCanvas();
     });
 
+    // ==========================================
+    // ГОРЯЧИЕ КЛАВИШИ
+    // ==========================================
     window.addEventListener('keydown', (e) => {
       if (!isDrawingEnabled) return;
 
       const key = e.key.toLowerCase();
+
+      // X — открыть панель настройки кисти
+      if (key === 'x') {
+        if (!isBrushPanelOpen) {
+          e.preventDefault();
+          openBrushPanel();
+        }
+        return;
+      }
+
+      // Пока панель открыта — остальные горячие клавиши игнорируем
+      if (isBrushPanelOpen) return;
 
       if (key in colorMap) {
         currentColor = colorMap[key];
@@ -8474,9 +8828,39 @@ mark.highlight,
       }
     });
 
+    // ==========================================
+    // БЛОКИРОВКА ПРОКРУТКИ ПРИ ОТКРЫТОЙ ПАНЕЛИ
+    // ==========================================
+    // Блокируем колесо мыши и тач-скролл на время открытия панели.
+    // Также клики по оверлею не должны уходить на канвас.
+    brushOverlay.addEventListener('wheel', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    brushOverlay.addEventListener('mousedown', (e) => {
+      // Клик по затемнённому фону (вне панели) — закрыть
+      if (e.target === brushOverlay) {
+        closeBrushPanel();
+      }
+    });
+
+    // Блокируем прокрутку main-wrapper, пока панель открыта
+    mainWrapper.addEventListener('wheel', (e) => {
+      if (isBrushPanelOpen) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('keydown', (e) => {
+      if (isBrushPanelOpen && e.key === 'Escape') {
+        closeBrushPanel();
+      }
+    });
+
     const originalActivateNote = activateNote;
     activateNote = function(targetId) {
       originalActivateNote(targetId);
+      closeBrushPanel();
       clearCanvas();
       setTimeout(resizeCanvas, 50);
     };
