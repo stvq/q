@@ -6,7 +6,19 @@
 <title>Трекер успеваемости</title>
 <link rel="icon" type="image/png" href="https://i.ibb.co/238vPQrw/sketch-1792444853063.png">
 <style>
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Скрыть полосу прокрутки в модалке инструкции */
+.help-overlay,
+.help-panel {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.help-overlay::-webkit-scrollbar,
+.help-panel::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari/Edge */
+}
 
   :root {
     --bg: #ffffff;
@@ -40,7 +52,7 @@
   }
 
   body.dark {
-    --bg: #121214;
+    --bg: #1e1e22;
     --fg: #e7e7ea;
     --cell-empty: #2a2a2e;
     --bar-track: #1c1c20;
@@ -88,7 +100,6 @@
     overflow-x: hidden;
   }
 
-  /* ---------- Кнопка темы ---------- */
   .theme-btn {
     position: fixed;
     top: 14px;
@@ -106,22 +117,13 @@
     transition: background .2s, color .2s, border-color .2s, transform .1s;
     z-index: 100;
   }
-  .theme-btn:hover { transform: scale(1.08); }
-  .theme-btn:active { transform: scale(.92); }
-  .theme-btn svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-    transition: transform .4s ease;
-  }
+  .theme-btn svg { width: 20px; height: 20px; display: block; transition: transform .4s ease; }
   .theme-btn:hover svg { transform: rotate(20deg); }
-
   .theme-btn .icon-moon { display: block; }
   .theme-btn .icon-sun  { display: none; }
   body.dark .theme-btn .icon-moon { display: none; }
   body.dark .theme-btn .icon-sun  { display: block; }
 
-  /* ---------- Слайдер трекеров ---------- */
   .slider {
     width: min(92vw, 560px);
     overflow: hidden;
@@ -133,8 +135,7 @@
   .slider-track {
     display: flex;
     align-items: flex-start;
-    gap: 28px;
-    width: calc(300% + 0px);
+    width: 300%;
     transition: transform .55s cubic-bezier(.22, .9, .28, 1);
     will-change: transform;
     touch-action: pan-y;
@@ -143,12 +144,12 @@
   .slider-track.dragging { transition: none; }
 
   .panel {
-    width: calc(33.333% - 18.667px);
-    flex: 0 0 calc(33.333% - 18.667px);
+    width: 33.3333%;
+    flex: 0 0 33.3333%;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 2px;
+    padding: 0 2px;
     opacity: .35;
     transform: scale(.88) translateY(6px);
     filter: saturate(.6);
@@ -165,7 +166,6 @@
     filter: saturate(1);
   }
 
-  /* ---------- Сетка ---------- */
   .grid-wrap { display: flex; justify-content: center; width: 100%; }
 
   .grid {
@@ -183,14 +183,10 @@
     transition: background .15s ease, transform .1s ease, outline .15s ease;
     cursor: pointer;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .cell:hover { transform: scale(1.25); z-index: 2; }
-  .cell.selected {
-    outline: 2px solid var(--fg);
-    outline-offset: 1px;
-    z-index: 3;
-  }
+  .cell.selected { outline: 2px solid var(--fg); outline-offset: 1px; z-index: 3; }
 
   .lvl-1  { background: var(--lvl-1);  }
   .lvl-2  { background: var(--lvl-2);  }
@@ -208,13 +204,7 @@
   .subj-social  { background: var(--subj-social);  }
   .subj-math    { background: var(--subj-math);    }
 
-  /* ---------- Статистика ---------- */
-  .stats {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .stats { width: 100%; display: flex; flex-direction: column; gap: 10px; }
 
   .stats-title {
     font-size: 13px;
@@ -227,259 +217,131 @@
     align-items: center;
   }
 
-  .stats-title .dots {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
+  .stats-title .dots { display: flex; gap: 6px; align-items: center; }
   .stats-title .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
+    width: 7px; height: 7px; border-radius: 50%;
     background: var(--cell-empty);
     transition: background .3s ease, transform .3s ease, width .3s ease;
   }
   .stats-title .dot.active {
-    background: var(--fg);
-    transform: scale(1.25);
-    width: 16px;
-    border-radius: 4px;
+    background: var(--fg); transform: scale(1.25);
+    width: 16px; border-radius: 4px;
   }
 
   .bar {
-    display: flex;
-    width: 100%;
-    height: 26px;
-    border-radius: 6px;
-    overflow: hidden;
+    display: flex; width: 100%; height: 26px;
+    border-radius: 6px; overflow: hidden;
     background: var(--bar-track);
     box-shadow: inset 0 0 0 1px var(--bar-track-border);
   }
 
-  .bar-seg {
-    height: 100%;
-    transition: width .35s ease;
-    min-width: 0;
-  }
+  .bar-seg { height: 100%; transition: width .35s ease; min-width: 0; }
 
   .bar-empty {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--muted-2);
-    font-size: 12px;
+    width: 100%; display: flex; align-items: center; justify-content: center;
+    color: var(--muted-2); font-size: 12px;
   }
 
-  /* ---------- Легенда предметов ---------- */
   .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 14px;
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
+    display: flex; flex-wrap: wrap; gap: 6px 14px;
+    font-size: 12px; color: var(--muted); margin-top: 2px;
   }
   .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-swatch {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-    display: inline-block;
-  }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 
-  /* ---------- Панель сводки ---------- */
-  .summary {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .summary-row {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-  }
+  .summary { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .summary-row { display: flex; gap: 10px; width: 100%; }
 
   .summary-card {
     background: var(--summary-bg);
     border: 1px solid var(--summary-border);
     border-radius: 16px;
     padding: 12px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    flex: 1 1 0;
-    min-width: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; flex: 1 1 0; min-width: 0;
     transition: background .25s ease, border-color .25s ease;
   }
 
   .summary-title {
-    font-size: 11.5px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
-    text-align: center;
+    font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; text-align: center;
   }
 
-  .donut-wrap {
-    position: relative;
-    width: 84px;
-    height: 84px;
-    flex: 0 0 auto;
-  }
-  .donut {
-    width: 84px;
-    height: 84px;
-    display: block;
-  }
+  .donut-wrap { position: relative; width: 84px; height: 84px; flex: 0 0 auto; }
+  .donut { width: 84px; height: 84px; display: block; }
 
   .weak-card {
     background: var(--summary-bg);
     border: 1px solid var(--summary-border);
     border-radius: 16px;
     padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     transition: background .25s ease, border-color .25s ease;
   }
   .weak-title {
-    font-size: 12px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
-    min-width: 76px;
+    font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; min-width: 76px;
   }
-  .weak-body {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
+  .weak-body { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; }
   .weak-swatch {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--cell-empty);
-    flex: 0 0 auto;
-    transition: background .3s ease;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--cell-empty); flex: 0 0 auto; transition: background .3s ease;
   }
   .weak-name {
-    font-weight: 600;
-    font-size: 13.5px;
-    color: var(--fg);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: 600; font-size: 13.5px; color: var(--fg);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .weak-count {
-    font-size: 12px;
-    color: var(--muted);
-    margin-left: auto;
-    white-space: nowrap;
-  }
+  .weak-count { font-size: 12px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
-  /* ---------- Мини-статистика ---------- */
-  .mini-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    width: 100%;
-  }
+  .mini-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
 
   .mini-card {
     background: var(--summary-bg);
     border: 1px solid var(--summary-border);
     border-radius: 16px;
     padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    display: flex; flex-direction: column; gap: 4px;
     transition: background .25s ease, border-color .25s ease;
     min-width: 0;
   }
   .mini-label {
-    font-size: 11px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
   }
   .mini-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--fg);
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 20px; font-weight: 700; color: var(--fg); line-height: 1.1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .mini-sub {
-    font-size: 11.5px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 11.5px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* ---------- Разбивка по предметам ---------- */
   .subj-breakdown {
     background: var(--summary-bg);
     border: 1px solid var(--summary-border);
     border-radius: 16px;
     padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: flex; flex-direction: column; gap: 6px;
     transition: background .25s ease, border-color .25s ease;
   }
   .subj-breakdown-title {
-    font-size: 11px;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
-    margin-bottom: 2px;
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 2px;
   }
-  .subj-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    line-height: 1.3;
-  }
-  .subj-row-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex: 0 0 auto;
-  }
+  .subj-row { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.3; }
+  .subj-row-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
   .subj-row-name {
-    flex: 1 1 auto;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--fg);
-    font-weight: 500;
+    flex: 1 1 auto; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--fg); font-weight: 500;
   }
   .subj-row-avg {
-    flex: 0 0 auto;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    font-size: 12px;
-    text-align: right;
-    white-space: nowrap;
+    flex: 0 0 auto; color: var(--muted);
+    font-variant-numeric: tabular-nums; font-size: 12px;
+    text-align: right; white-space: nowrap;
   }
 
-  /* ---------- Блок с комментарием ---------- */
   .day-info {
     width: min(92vw, 560px);
     min-height: 0;
@@ -495,49 +357,30 @@
     user-select: none;
     -webkit-user-select: none;
   }
-
-  .day-info.open {
-    max-height: 400px;
-    opacity: 1;
-    padding: 14px 16px;
-  }
+  .day-info.open { max-height: 400px; opacity: 1; padding: 14px 16px; }
 
   .day-info-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 12px; margin-bottom: 8px; flex-wrap: wrap;
   }
-
   .day-info-date { font-weight: 600; font-size: 14.5px; }
   .day-info-subject { font-size: 12.5px; color: var(--muted); }
   .day-info-score { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
 
   .day-info-text {
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--fg);
-    white-space: pre-wrap;
-    word-break: break-word;
+    font-size: 13.5px; line-height: 1.5; color: var(--fg);
+    white-space: pre-wrap; word-break: break-word;
   }
   .day-info-text.empty { color: var(--muted-2); font-style: italic; }
 
-  /* ---------- Модальное окно с инструкцией ---------- */
   .help-overlay {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(0, 0, 0, .45);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 24px 12px;
-    overflow-y: auto;
-    opacity: 0;
-    pointer-events: none;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 24px 12px; overflow-y: auto;
+    opacity: 0; pointer-events: none;
     transition: opacity .25s ease;
     z-index: 1000;
   }
@@ -545,8 +388,7 @@
 
   .help-panel {
     position: relative;
-    background: var(--bg);
-    color: var(--fg);
+    background: var(--bg); color: var(--fg);
     border: 1px solid var(--card-border);
     border-radius: 14px;
     padding: 22px 22px 18px;
@@ -560,36 +402,21 @@
   .help-overlay.open .help-panel { transform: translateY(0); }
 
   .help-close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
+    position: absolute; top: 10px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--fg);
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--card-bg); color: var(--fg);
+    font-size: 20px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
     transition: transform .1s, background .2s;
   }
-  .help-close:hover { transform: scale(1.08); }
-  .help-close:active { transform: scale(.92); }
+
 
   .help-title { font-size: 18px; font-weight: 700; margin: 0 40px 14px 0; }
-
   .help-section { margin-bottom: 18px; }
   .help-section h3 {
-    font-size: 13px;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 600;
-    margin: 0 0 8px;
+    font-size: 13px; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 0 0 8px;
   }
 
   .help-pre {
@@ -598,40 +425,25 @@
     border-radius: 8px;
     padding: 12px 14px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    word-break: break-word;
-    color: var(--fg);
-    margin: 0;
+    font-size: 12.5px; line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word;
+    color: var(--fg); margin: 0;
   }
   .help-pre-bad { border-color: #c98; background: rgba(200, 120, 100, .08); }
 
   .help-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.5; }
   .help-table th, .help-table td {
     border: 1px solid var(--card-border);
-    padding: 7px 10px;
-    text-align: left;
-    vertical-align: top;
+    padding: 7px 10px; text-align: left; vertical-align: top;
   }
   .help-table th {
-    background: var(--card-bg);
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .04em;
+    background: var(--card-bg); font-weight: 600; font-size: 12px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .04em;
   }
-  .help-table td:first-child {
-    width: 64px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 14px;
-  }
+  .help-table td:first-child { width: 64px; text-align: center; font-weight: 700; font-size: 14px; }
 
   .help-hint { font-size: 12px; color: var(--muted-2); margin-top: 6px; text-align: center; }
 
-  /* ---------- Мобильная адаптация ---------- */
   @media (max-width: 520px) {
     .grid { gap: 2.5px; }
     .cell { border-radius: 1.5px; }
@@ -645,12 +457,6 @@
     .help-table th, .help-table td { padding: 6px 8px; font-size: 12px; }
     .help-table td:first-child { width: 46px; font-size: 13px; }
     .help-pre { font-size: 12px; padding: 10px 12px; }
-
-    .slider-track { gap: 20px; }
-    .panel {
-      width: calc(33.333% - 13.333px);
-      flex: 0 0 calc(33.333% - 13.333px);
-    }
 
     .summary-card { padding: 10px 8px; border-radius: 14px; }
     .summary-title { font-size: 11px; }
@@ -679,11 +485,9 @@
     </svg>
   </button>
 
-  <!-- ===== Слайдер: оценки + предметы + сводка ===== -->
   <div class="slider" id="slider">
     <div class="slider-track" id="sliderTrack">
 
-      <!-- Панель 1: оценки -->
       <div class="panel active" data-panel="0">
         <div class="grid-wrap">
           <div class="grid" id="gridScores"></div>
@@ -701,7 +505,6 @@
         </div>
       </div>
 
-      <!-- Панель 2: предметы -->
       <div class="panel" data-panel="1">
         <div class="grid-wrap">
           <div class="grid" id="gridSubjects"></div>
@@ -720,7 +523,6 @@
         </div>
       </div>
 
-      <!-- Панель 3: сводка -->
       <div class="panel" data-panel="2">
         <div class="stats">
           <div class="stats-title">
@@ -738,13 +540,13 @@
             <div class="summary-card">
               <div class="summary-title">оценки</div>
               <div class="donut-wrap">
-                <canvas class="donut" id="donutScores" width="120" height="120"></canvas>
+                <canvas class="donut" id="donutScores"></canvas>
               </div>
             </div>
             <div class="summary-card">
               <div class="summary-title">предметы</div>
               <div class="donut-wrap">
-                <canvas class="donut" id="donutSubjects" width="120" height="120"></canvas>
+                <canvas class="donut" id="donutSubjects"></canvas>
               </div>
             </div>
           </div>
@@ -773,7 +575,6 @@
 
           <div class="subj-breakdown" id="subjBreakdown">
             <div class="subj-breakdown-title">средний балл по предметам</div>
-            <!-- строки добавляются JS -->
           </div>
 
         </div>
@@ -791,7 +592,6 @@
     <div class="day-info-text" id="dayInfoText"></div>
   </div>
 
-  <!-- ===== Инструкция (модальное окно) ===== -->
   <div class="help-overlay" id="helpOverlay" aria-hidden="true">
     <div class="help-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <button class="help-close" id="helpClose" aria-label="Закрыть">×</button>
@@ -825,7 +625,7 @@
         <h3>Предметы</h3>
         <p style="font-size:12.5px;line-height:1.6;color:var(--fg);margin:0 0 8px;">
           В поле <code>subject</code> у каждой записи можно указать предмет:
-          <b>русский</b>, <b>история</b>, <b>обществознание</b>, <b>математика</b>.
+          <b>русский</b>, <b>история</b>, <b>общество</b>, <b>математика</b>.
           Оставь пустым, если в этот день не занимался ни одним из них.
         </p>
         <p style="font-size:12.5px;line-height:1.6;color:var(--muted);margin:0;">
@@ -863,21 +663,19 @@
 
 <script>
 /* =========================================================
-   ДАННЫЕ
-   ---------------------------------------------------------
-   subject: 'русский' | 'история' | 'обществознание' | 'математика' | ''
+   ПРЕДМЕТЫ
    ========================================================= */
 const SUBJECTS = {
   russian: { key: 'russian', name: 'русский',        css: 'subj-russian', varName: '--subj-russian' },
   history: { key: 'history', name: 'история',        css: 'subj-history', varName: '--subj-history' },
-  social:  { key: 'social',  name: 'обществознание', css: 'subj-social',  varName: '--subj-social'  },
+  social:  { key: 'social',  name: 'общество', css: 'subj-social',  varName: '--subj-social'  },
   math:    { key: 'math',    name: 'математика',     css: 'subj-math',    varName: '--subj-math'    }
 };
 
 const SUBJECT_ALIASES = {
   'русский': 'russian',
   'история': 'history',
-  'обществознание': 'social',
+  'общество': 'social',
   'математика': 'math'
 };
 
@@ -887,20 +685,23 @@ function normalizeSubject(raw) {
   return k || '';
 }
 
+/* =========================================================
+   ДАННЫЕ: 225 дней (15×15), 20.10.2026 – 01.06.2027
+   ========================================================= */
 const entries = [
-  { date: '2026-10-20', score: 1,  subject: 'русский',        note: '' },
-  { date: '2026-10-21', score: 2,  subject: 'русский',        note: '' },
-  { date: '2026-10-22', score: 3,  subject: 'русский',        note: '' },
-  { date: '2026-10-23', score: 4,  subject: 'математика',     note: '' },
-  { date: '2026-10-24', score: 5,  subject: 'математика',     note: '' },
-  { date: '2026-10-25', score: 6,  subject: 'математика',     note: '' },
-  { date: '2026-10-26', score: 7,  subject: 'обществознание', note: '' },
-  { date: '2026-10-27', score: 8,  subject: 'обществознание', note: '' },
-  { date: '2026-10-28', score: 9,  subject: 'обществознание', note: '' },
-  { date: '2026-10-29', score: 10, subject: 'история',        note: '' },
-  { date: '2026-10-30', score: 0,  subject: 'история',        note: '' },
-  { date: '2026-10-31', score: 0,  subject: 'история',        note: '' },
-  { date: '2026-11-01', score: 0,  subject: 'история',        note: '' },
+  { date: '2026-10-20', score: 4,  subject: 'русский',        note: 'сделал 15 заданий №1 по русскому, допустил 3 ошибки. в ходе работы над ошибками повторил предлоги. перерыв 10 минут. выполнил ещё 5 заданий №1 без ошибок, 5 заданий №2, допустив пару ошибок по невнимательности. повторил ударения 98/100 слов правильно.' },
+  { date: '2026-10-21', score: 0,  subject: '',        note: '' },
+  { date: '2026-10-22', score: 0,  subject: '',          note: '' },
+  { date: '2026-10-23', score: 0,  subject: '',        note: '' },
+  { date: '2026-10-24', score: 0,  subject: '',        note: '' },
+  { date: '2026-10-25', score: 0,  subject: '',       note: '' },
+  { date: '2026-10-26', score: 0,  subject: '',            note: '' },
+  { date: '2026-10-27', score: 0,  subject: '',             note: '' },
+  { date: '2026-10-28', score: 0,  subject: '',         note: '' },
+  { date: '2026-10-29', score: 0, subject:  '',        note: '' },
+  { date: '2026-10-30', score: 0,  subject: '',        note: '' },
+  { date: '2026-10-31', score: 0,  subject: '',        note: '' },
+  { date: '2026-11-01', score: 0,  subject: '',        note: '' },
   { date: '2026-11-02', score: 0,  subject: '',               note: '' },
   { date: '2026-11-03', score: 0,  subject: '',               note: '' },
   { date: '2026-11-04', score: 0,  subject: '',               note: '' },
@@ -1129,6 +930,14 @@ function getCssVar(name) {
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
+function plural(n, one, few, many) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
 /* =========================================================
    ТЕМА
    ========================================================= */
@@ -1154,7 +963,7 @@ themeBtn.addEventListener('click', () => {
 });
 
 /* =========================================================
-   ТАПЫ ПО БЛОКУ КОММЕНТАРИЯ
+   ТАПЫ ПО КАРТОЧКЕ ДНЯ (5 раз → инструкция)
    ========================================================= */
 const TAPS_NEEDED = 5;
 let infoTapCount = 0;
@@ -1166,13 +975,14 @@ function registerInfoTap() {
     openHelp();
   }
 }
-function resetInfoTapCount() { infoTapCount = 0; }
 
 /* =========================================================
    СЕТКИ
    ========================================================= */
 const gridScores = $('gridScores');
 const gridSubjects = $('gridSubjects');
+
+let selectedIndex = null;
 
 function buildCell(entry, i) {
   const cell = document.createElement('div');
@@ -1198,9 +1008,7 @@ function renderGrids() {
     gridSubjects.appendChild(c2);
   });
 
-  if (selectedIndex !== null) {
-    highlightSelected(selectedIndex);
-  }
+  if (selectedIndex !== null) highlightSelected(selectedIndex);
 }
 
 /* =========================================================
@@ -1279,7 +1087,7 @@ function renderAllStats() {
 }
 
 /* =========================================================
-   ПАНЕЛЬ СВОДКИ
+   СВОДКА
    ========================================================= */
 const donutScoresEl = $('donutScores');
 const donutSubjectsEl = $('donutSubjects');
@@ -1293,14 +1101,18 @@ const miniSkipSub = $('miniSkipSub');
 const subjBreakdown = $('subjBreakdown');
 
 function drawDonut(canvas, segments) {
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
   const cssSize = canvas.clientWidth || 84;
-  const size = cssSize * dpr;
-  if (canvas.width !== size) {
+  if (!cssSize) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const size = Math.round(cssSize * dpr);
+
+  if (canvas.width !== size || canvas.height !== size) {
     canvas.width = size;
     canvas.height = size;
   }
+
+  const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, cssSize, cssSize);
 
@@ -1332,11 +1144,10 @@ function drawDonut(canvas, segments) {
 }
 
 function renderSummary() {
-  /* ===== Оценки ===== */
+  /* === Оценки === */
   const scoreCounts = {};
   for (let i = 1; i <= 10; i++) scoreCounts[i] = 0;
-  let sumScores = 0;
-  let cntScores = 0;
+  let sumScores = 0, cntScores = 0;
   entries.forEach(e => {
     if (e.score >= 1 && e.score <= 10) {
       scoreCounts[e.score]++;
@@ -1348,14 +1159,11 @@ function renderSummary() {
   const scoreSegments = [];
   for (let lvl = 1; lvl <= 10; lvl++) {
     if (!scoreCounts[lvl]) continue;
-    scoreSegments.push({
-      value: scoreCounts[lvl],
-      color: getCssVar('--lvl-' + lvl)
-    });
+    scoreSegments.push({ value: scoreCounts[lvl], color: getCssVar('--lvl-' + lvl) });
   }
   drawDonut(donutScoresEl, scoreSegments);
 
-  /* ===== Предметы ===== */
+  /* === Предметы === */
   const subjCounts = { russian: 0, history: 0, social: 0, math: 0 };
   const subjScoreSum = { russian: 0, history: 0, social: 0, math: 0 };
   const subjScoreCnt = { russian: 0, history: 0, social: 0, math: 0 };
@@ -1373,19 +1181,16 @@ function renderSummary() {
   const subjSegments = [];
   Object.values(SUBJECTS).forEach(s => {
     if (!subjCounts[s.key]) return;
-    subjSegments.push({
-      value: subjCounts[s.key],
-      color: getCssVar(s.varName)
-    });
+    subjSegments.push({ value: subjCounts[s.key], color: getCssVar(s.varName) });
   });
   drawDonut(donutSubjectsEl, subjSegments);
 
-  /* ===== Слабый предмет ===== */
+  /* === Слабый предмет === */
   const rated = Object.values(SUBJECTS)
     .map(s => {
       const cnt = subjScoreCnt[s.key];
       const avg = cnt > 0 ? subjScoreSum[s.key] / cnt : null;
-      return { s, avg, cnt, days: subjCounts[s.key] };
+      return { s, avg, days: subjCounts[s.key] };
     })
     .filter(x => x.avg !== null && x.days > 0);
 
@@ -1405,17 +1210,17 @@ function renderSummary() {
     weakCount.textContent = 'ср. ' + weakest.avg.toFixed(1);
   }
 
-  /* ===== Средний балл ===== */
-  const avg = cntScores > 0 ? sumScores / cntScores : null;
-  if (avg === null) {
+  /* === Средний балл === */
+  if (cntScores === 0) {
     miniAvg.textContent = '—';
     miniAvgSub.textContent = 'нет оценок';
   } else {
+    const avg = sumScores / cntScores;
     miniAvg.textContent = avg.toFixed(1);
     miniAvgSub.textContent = `по ${cntScores} ${plural(cntScores, 'оценке','оценкам','оценкам')}`;
   }
 
-  /* ===== Пропуски: % красных оценок (1–3) ===== */
+  /* === Пропуски === */
   const redCount = (scoreCounts[1] || 0) + (scoreCounts[2] || 0) + (scoreCounts[3] || 0);
   if (cntScores === 0) {
     miniSkip.textContent = '—';
@@ -1426,7 +1231,7 @@ function renderSummary() {
     miniSkipSub.textContent = `${redCount} ${plural(redCount, 'красная','красные','красных')} из ${cntScores}`;
   }
 
-  /* ===== Разбивка по предметам (без полос) ===== */
+  /* === Разбивка === */
   Array.from(subjBreakdown.querySelectorAll('.subj-row')).forEach(el => el.remove());
 
   const rows = Object.values(SUBJECTS)
@@ -1462,19 +1267,9 @@ function renderSummary() {
     avgEl.className = 'subj-row-avg';
     avgEl.textContent = row.avg !== null ? 'ср. ' + row.avg.toFixed(1) : '—';
 
-    el.appendChild(sw);
-    el.appendChild(name);
-    el.appendChild(avgEl);
+    el.append(sw, name, avgEl);
     subjBreakdown.appendChild(el);
   });
-}
-
-function plural(n, one, few, many) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
-  return many;
 }
 
 /* =========================================================
@@ -1486,15 +1281,13 @@ const dayInfoSubject = $('dayInfoSubject');
 const dayInfoScore = $('dayInfoScore');
 const dayInfoText = $('dayInfoText');
 
-let selectedIndex = null;
-
 function highlightSelected(index) {
   document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll(`.cell[data-index="${index}"]`).forEach(c => c.classList.add('selected'));
 }
 
 function selectDay(index) {
-  resetInfoTapCount();
+  infoTapCount = 0;
   selectedIndex = index;
   highlightSelected(index);
 
@@ -1526,195 +1319,190 @@ dayInfo.addEventListener('click', (e) => {
 
 /* =========================================================
    СЛАЙДЕР
+   ---------------------------------------------------------
+   Клики по ячейкам НЕ перехватываются: ячейка имеет свой
+   click-обработчик. Слайдер двигает панели только когда
+   был реальный горизонтальный свайп. После свайпа один
+   следующий click подавляется, чтобы не сработал случайно.
    ========================================================= */
 const slider = $('slider');
 const sliderTrack = $('sliderTrack');
-const panels = sliderTrack.querySelectorAll('.panel');
+const panels = Array.from(sliderTrack.querySelectorAll('.panel'));
 const TOTAL_PANELS = panels.length;
-const PANEL_SHARE = 100 / TOTAL_PANELS;
 
 let currentPanel = 0;
-let startX = 0;
-let startY = 0;
-let dragging = false;
-let isHorizontalSwipe = null;
-let baseTranslate = 0;
-let dragProgress = 0;
+let panelWidth = 0;
+
+let pointerDown = false;
+let startX = 0, startY = 0;
+let isDragging = false;
+let isHorizontal = false;
+let lastDx = 0;
+
+const DRAG_THRESHOLD = 10;
 const SWIPE_THRESHOLD = 40;
 
-function updateDots() {
-  document.querySelectorAll('.stats-title').forEach((title) => {
-    const dotEls = title.querySelectorAll('.dot');
-    dotEls.forEach((d, j) => {
-      d.classList.toggle('active', j === currentPanel);
-    });
-  });
-  panels.forEach((p, i) => {
-    p.classList.toggle('active', i === currentPanel);
-  });
+let suppressNextClick = false;
+
+function getPanelWidth() {
+  return panels[0] ? panels[0].offsetWidth : slider.clientWidth;
+}
+
+function applyTranslate(px, animate = true) {
+  if (!animate) sliderTrack.classList.add('dragging');
+  sliderTrack.style.transform = `translateX(${px}px)`;
+  if (!animate) {
+    void sliderTrack.offsetWidth;
+    sliderTrack.classList.remove('dragging');
+  }
 }
 
 function goToPanel(index, animate = true) {
   currentPanel = Math.max(0, Math.min(TOTAL_PANELS - 1, index));
-  const offset = -currentPanel * PANEL_SHARE;
-  if (!animate) sliderTrack.classList.add('dragging');
-  sliderTrack.style.transform = `translateX(${offset}%)`;
+  panelWidth = getPanelWidth();
+  const basePx = -currentPanel * panelWidth;
+  applyTranslate(basePx, animate);
+
   panels.forEach((p) => {
     p.style.transform = '';
     p.style.opacity = '';
     p.style.filter = '';
   });
-  if (!animate) {
-    void sliderTrack.offsetWidth;
-    sliderTrack.classList.remove('dragging');
-  }
   updateDots();
+
+  if (currentPanel === 2) {
+    requestAnimationFrame(renderSummary);
+  }
 }
 
-function getTranslatePercent() {
-  const style = window.getComputedStyle(sliderTrack);
-  const matrix = new DOMMatrixReadOnly(style.transform);
-  const width = sliderTrack.offsetWidth;
-  return width ? (matrix.m41 / width) * 100 : 0;
+function updateDots() {
+  document.querySelectorAll('.stats-title').forEach((title) => {
+    title.querySelectorAll('.dot').forEach((d, j) => {
+      d.classList.toggle('active', j === currentPanel);
+    });
+  });
+  panels.forEach((p, i) => p.classList.toggle('active', i === currentPanel));
 }
 
-function onPointerDown(e) {
-  if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
-  dragging = true;
-  isHorizontalSwipe = null;
+slider.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+  pointerDown = true;
   startX = e.clientX;
   startY = e.clientY;
-  baseTranslate = getTranslatePercent();
-  dragProgress = 0;
-  sliderTrack.classList.add('dragging');
-  slider.setPointerCapture && slider.setPointerCapture(e.pointerId);
-}
+  isDragging = false;
+  isHorizontal = false;
+  lastDx = 0;
+  panelWidth = getPanelWidth();
+});
 
-function onPointerMove(e) {
-  if (!dragging) return;
+window.addEventListener('pointermove', (e) => {
+  if (!pointerDown) return;
+
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  if (isHorizontalSwipe === null) {
-    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-      isHorizontalSwipe = Math.abs(dx) > Math.abs(dy);
-      if (!isHorizontalSwipe) {
-        dragging = false;
-        sliderTrack.classList.remove('dragging');
-        goToPanel(currentPanel, true);
-        return;
-      }
+  if (!isDragging) {
+    if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+
+    isDragging = true;
+    isHorizontal = Math.abs(dx) > Math.abs(dy);
+
+    if (isHorizontal) {
+      sliderTrack.classList.add('dragging');
     } else {
+      // вертикальный скролл — не мешаем
+      pointerDown = false;
+      isDragging = false;
+      sliderTrack.classList.remove('dragging');
+      applyTranslate(-currentPanel * panelWidth, true);
       return;
     }
   }
 
-  if (!isHorizontalSwipe) return;
-  e.preventDefault();
+  if (!isHorizontal) return;
+  lastDx = dx;
 
-  const percentDelta = (dx / sliderTrack.offsetWidth) * 100;
-  let next = baseTranslate + percentDelta;
-
-  const min = -(TOTAL_PANELS - 1) * PANEL_SHARE;
+  const basePx = -currentPanel * panelWidth;
+  const next = basePx + dx;
+  const min = -(TOTAL_PANELS - 1) * panelWidth;
   const max = 0;
-  if (next > max) next = max + (next - max) * 0.25;
-  if (next < min) next = min + (next - min) * 0.25;
+  let clamped = next;
+  if (next > max) clamped = max + (next - max) * 0.25;
+  if (next < min) clamped = min + (next - min) * 0.25;
 
-  sliderTrack.style.transform = `translateX(${next}%)`;
+  sliderTrack.style.transform = `translateX(${clamped}px)`;
 
-  const center = -currentPanel * PANEL_SHARE;
-  const dist = Math.abs(next - center) / PANEL_SHARE;
-  dragProgress = Math.min(1, dist);
+  const center = basePx;
+  const dragProgress = Math.min(1, Math.abs(clamped - center) / panelWidth);
+  const dir = dx < 0 ? 1 : -1;
+  const neighbor = currentPanel + dir;
 
   panels.forEach((p, i) => {
     if (i === currentPanel) {
-      const s = 1 - 0.12 * dragProgress;
-      const o = 1 - 0.65 * dragProgress;
-      const sat = 1 - 0.4 * dragProgress;
-      p.style.transform = `scale(${s}) translateY(${dragProgress * 6}px)`;
-      p.style.opacity = String(o);
-      p.style.filter = `saturate(${sat})`;
-    } else if (i === currentPanel + (percentDelta < 0 ? 1 : -1)) {
-      const s = 0.88 + 0.12 * dragProgress;
-      const o = 0.35 + 0.65 * dragProgress;
-      const sat = 0.6 + 0.4 * dragProgress;
-      p.style.transform = `scale(${s}) translateY(${(1 - dragProgress) * 6}px)`;
-      p.style.opacity = String(o);
-      p.style.filter = `saturate(${sat})`;
+      p.style.transform = `scale(${1 - 0.12 * dragProgress}) translateY(${dragProgress * 6}px)`;
+      p.style.opacity = String(1 - 0.65 * dragProgress);
+      p.style.filter = `saturate(${1 - 0.4 * dragProgress})`;
+    } else if (i === neighbor) {
+      p.style.transform = `scale(${0.88 + 0.12 * dragProgress}) translateY(${(1 - dragProgress) * 6}px)`;
+      p.style.opacity = String(0.35 + 0.65 * dragProgress);
+      p.style.filter = `saturate(${0.6 + 0.4 * dragProgress})`;
     }
   });
-}
-
-function onPointerUp(e) {
-  if (!dragging) return;
-  dragging = false;
-  sliderTrack.classList.remove('dragging');
-
-  if (isHorizontalSwipe) {
-    const dx = e.clientX - startX;
-    if (dx < -SWIPE_THRESHOLD && currentPanel < TOTAL_PANELS - 1) {
-      goToPanel(currentPanel + 1, true);
-    } else if (dx > SWIPE_THRESHOLD && currentPanel > 0) {
-      goToPanel(currentPanel - 1, true);
-    } else {
-      goToPanel(currentPanel, true);
-    }
-  }
-  isHorizontalSwipe = null;
-}
-
-slider.addEventListener('pointerdown', onPointerDown);
-slider.addEventListener('pointermove', onPointerMove);
-slider.addEventListener('pointerup', onPointerUp);
-slider.addEventListener('pointercancel', onPointerUp);
-
-slider.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 1) {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }
 }, { passive: true });
 
+function endPointer() {
+  if (!pointerDown && !isDragging) return;
+
+  const wasDragging = isDragging;
+  const wasHorizontal = isHorizontal;
+  const dx = lastDx;
+
+  pointerDown = false;
+  isDragging = false;
+  isHorizontal = false;
+
+  if (wasDragging && wasHorizontal) {
+    sliderTrack.classList.remove('dragging');
+
+    if (dx < -SWIPE_THRESHOLD && currentPanel < TOTAL_PANELS - 1) {
+      goToPanel(currentPanel + 1);
+    } else if (dx > SWIPE_THRESHOLD && currentPanel > 0) {
+      goToPanel(currentPanel - 1);
+    } else {
+      goToPanel(currentPanel);
+    }
+
+    suppressNextClick = true;
+    setTimeout(() => { suppressNextClick = false; }, 350);
+  } else {
+    sliderTrack.classList.remove('dragging');
+  }
+}
+
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('pointercancel', endPointer);
+
+/* Подавляем один click после реального свайпа (capture-фаза) */
+document.addEventListener('click', (e) => {
+  if (suppressNextClick) {
+    suppressNextClick = false;
+    e.stopPropagation();
+    e.preventDefault();
+  }
+}, true);
+
+/* =========================================================
+   КЛАВИАТУРА
+   ========================================================= */
 window.addEventListener('keydown', (e) => {
   const tag = document.activeElement?.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-  if (e.key === 'ArrowLeft') { goToPanel(currentPanel - 1, true); return; }
-  if (e.key === 'ArrowRight') { goToPanel(currentPanel + 1, true); return; }
-});
-
-/* =========================================================
-   МОДАЛЬНОЕ ОКНО ИНСТРУКЦИИ
-   ========================================================= */
-const helpOverlay = $('helpOverlay');
-const helpClose = $('helpClose');
-
-function openHelp() {
-  helpOverlay.classList.add('open');
-  helpOverlay.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeHelp() {
-  helpOverlay.classList.remove('open');
-  helpOverlay.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-helpClose.addEventListener('click', closeHelp);
-helpOverlay.addEventListener('click', (e) => {
-  if (e.target === helpOverlay) closeHelp();
-});
-
-/* =========================================================
-   ГОРЯЧИЕ КЛАВИШИ (ПК)
-   ========================================================= */
-window.addEventListener('keydown', (e) => {
-  const tag = document.activeElement?.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft')  { goToPanel(currentPanel - 1); return; }
+  if (e.key === 'ArrowRight') { goToPanel(currentPanel + 1); return; }
 
   const k = e.key.toLowerCase();
-
   if (k === 't' || k === 'е') {
     setTheme(!document.body.classList.contains('dark'));
     return;
@@ -1729,15 +1517,60 @@ window.addEventListener('keydown', (e) => {
 });
 
 /* =========================================================
+   МОДАЛКА
+   ========================================================= */
+const helpOverlay = $('helpOverlay');
+const helpClose = $('helpClose');
+
+function openHelp() {
+  helpOverlay.classList.add('open');
+  helpOverlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeHelp() {
+  helpOverlay.classList.remove('open');
+  helpOverlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+helpClose.addEventListener('click', closeHelp);
+helpOverlay.addEventListener('click', (e) => {
+  if (e.target === helpOverlay) closeHelp();
+});
+
+/* =========================================================
+   RESIZE
+   ========================================================= */
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    panelWidth = getPanelWidth();
+    applyTranslate(-currentPanel * panelWidth, false);
+    renderSummary();
+  }, 100);
+});
+
+/* =========================================================
    ЗАПУСК
    ========================================================= */
 renderGrids();
 renderAllStats();
-renderSummary();
 updateDots();
+goToPanel(0, false);
 
-window.addEventListener('load', () => { renderSummary(); });
-window.addEventListener('resize', () => { renderSummary(); });
+window.addEventListener('load', () => {
+  panelWidth = getPanelWidth();
+  applyTranslate(-currentPanel * panelWidth, false);
+  renderSummary();
+});
+
+if ('ResizeObserver' in window) {
+  const ro = new ResizeObserver(() => {
+    if (currentPanel === 2) renderSummary();
+  });
+  ro.observe(donutScoresEl);
+  ro.observe(donutSubjectsEl);
+}
 </script>
 </body>
 </html>
