@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Трекер успеваемости</title>
+<link rel="icon" type="image/png" href="https://i.ibb.co/238vPQrw/sketch-1792444853063.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --fg: #222222;
+    --cell-empty: #e2e2e2;
+    --bar-track: #f0f0f0;
+    --bar-track-border: #e6e6e6;
+    --muted: #8a8a8a;
+    --muted-2: #999999;
+    --card-bg: #fafafa;
+    --card-border: #eaeaea;
+
+    --lvl-1:  #6e1120;
+    --lvl-2:  #a83548;
+    --lvl-3:  #d98a9c;
+    --lvl-4:  #d9e8c8;
+    --lvl-5:  #c2ddab;
+    --lvl-6:  #a3d07f;
+    --lvl-7:  #6fb542;
+    --lvl-8:  #4a8c2a;
+    --lvl-9:  #2f6a1a;
+    --lvl-10: #1d4a10;
+
+    --subj-russian:  #e88ba8;
+    --subj-history:  #8fce6b;
+    --subj-social:   #b58ce0;
+    --subj-math:     #f2b45e;
+
+    --summary-bg: #f4f4f6;
+    --summary-border: #e8e8ec;
+  }
+
+  body.dark {
+    --bg: #121214;
+    --fg: #e7e7ea;
+    --cell-empty: #2a2a2e;
+    --bar-track: #1c1c20;
+    --bar-track-border: #2a2a2e;
+    --muted: #9a9aa2;
+    --muted-2: #7a7a82;
+    --card-bg: #1a1a1e;
+    --card-border: #2a2a2e;
+
+    --lvl-1:  #5b1a3a;
+    --lvl-2:  #8f2f5c;
+    --lvl-3:  #c27aa0;
+    --lvl-4:  #c8e8e0;
+    --lvl-5:  #a6dcd2;
+    --lvl-6:  #7fcfc0;
+    --lvl-7:  #44b3a2;
+    --lvl-8:  #2a8c7e;
+    --lvl-9:  #186a5e;
+    --lvl-10: #0d4a40;
+
+    --subj-russian:  #ff6ad2;
+    --subj-history:  #6affcb;
+    --subj-social:   #556dff;
+    --subj-math:     #ffe76a;
+
+    --summary-bg: #202024;
+    --summary-border: #2e2e34;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    transition: background .25s ease, color .25s ease;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px 12px;
+    gap: 18px;
+    overflow-x: hidden;
+  }
+
+  /* ---------- Кнопка темы ---------- */
+  .theme-btn {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--fg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, color .2s, border-color .2s, transform .1s;
+    z-index: 100;
+  }
+  .theme-btn:hover { transform: scale(1.08); }
+  .theme-btn:active { transform: scale(.92); }
+  .theme-btn svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    transition: transform .4s ease;
+  }
+  .theme-btn:hover svg { transform: rotate(20deg); }
+
+  .theme-btn .icon-moon { display: block; }
+  .theme-btn .icon-sun  { display: none; }
+  body.dark .theme-btn .icon-moon { display: none; }
+  body.dark .theme-btn .icon-sun  { display: block; }
+
+  /* ---------- Слайдер трекеров ---------- */
+  .slider {
+    width: min(92vw, 560px);
+    overflow: hidden;
+    position: relative;
+    padding: 10px 6px;
+    margin: -10px -6px;
+  }
+
+  .slider-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    width: calc(300% + 0px);
+    transition: transform .55s cubic-bezier(.22, .9, .28, 1);
+    will-change: transform;
+    touch-action: pan-y;
+  }
+
+  .slider-track.dragging { transition: none; }
+
+  .panel {
+    width: calc(33.333% - 18.667px);
+    flex: 0 0 calc(33.333% - 18.667px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 2px;
+    opacity: .35;
+    transform: scale(.88) translateY(6px);
+    filter: saturate(.6);
+    transition:
+      transform .55s cubic-bezier(.22, .9, .28, 1),
+      opacity .45s ease,
+      filter .45s ease;
+    transform-origin: center top;
+  }
+
+  .panel.active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: saturate(1);
+  }
+
+  /* ---------- Сетка ---------- */
+  .grid-wrap { display: flex; justify-content: center; width: 100%; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 4px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .cell {
+    background: var(--cell-empty);
+    border-radius: 2px;
+    aspect-ratio: 1 / 1;
+    transition: background .15s ease, transform .1s ease, outline .15s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .cell:hover { transform: scale(1.25); z-index: 2; }
+  .cell.selected {
+    outline: 2px solid var(--fg);
+    outline-offset: 1px;
+    z-index: 3;
+  }
+
+  .lvl-1  { background: var(--lvl-1);  }
+  .lvl-2  { background: var(--lvl-2);  }
+  .lvl-3  { background: var(--lvl-3);  }
+  .lvl-4  { background: var(--lvl-4);  }
+  .lvl-5  { background: var(--lvl-5);  }
+  .lvl-6  { background: var(--lvl-6);  }
+  .lvl-7  { background: var(--lvl-7);  }
+  .lvl-8  { background: var(--lvl-8);  }
+  .lvl-9  { background: var(--lvl-9);  }
+  .lvl-10 { background: var(--lvl-10); }
+
+  .subj-russian { background: var(--subj-russian); }
+  .subj-history { background: var(--subj-history); }
+  .subj-social  { background: var(--subj-social);  }
+  .subj-math    { background: var(--subj-math);    }
+
+  /* ---------- Статистика ---------- */
+  .stats {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stats-title {
+    font-size: 13px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stats-title .dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .stats-title .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cell-empty);
+    transition: background .3s ease, transform .3s ease, width .3s ease;
+  }
+  .stats-title .dot.active {
+    background: var(--fg);
+    transform: scale(1.25);
+    width: 16px;
+    border-radius: 4px;
+  }
+
+  .bar {
+    display: flex;
+    width: 100%;
+    height: 26px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bar-track);
+    box-shadow: inset 0 0 0 1px var(--bar-track-border);
+  }
+
+  .bar-seg {
+    height: 100%;
+    transition: width .35s ease;
+    min-width: 0;
+  }
+
+  .bar-empty {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-2);
+    font-size: 12px;
+  }
+
+  /* ---------- Легенда предметов ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* ---------- Панель сводки ---------- */
+  .summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .summary-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .summary-card {
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-radius: 16px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1 1 0;
+    min-width: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+
+  .summary-title {
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .donut-wrap {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    flex: 0 0 auto;
+  }
+  .donut {
+    width: 84px;
+    height: 84px;
+    display: block;
+  }
+
+  .weak-card {
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .weak-title {
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    min-width: 76px;
+  }
+  .weak-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .weak-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cell-empty);
+    flex: 0 0 auto;
+    transition: background .3s ease;
+  }
+  .weak-name {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .weak-count {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* ---------- Мини-статистика ---------- */
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+
+  .mini-card {
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background .25s ease, border-color .25s ease;
+    min-width: 0;
+  }
+  .mini-label {
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .mini-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--fg);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mini-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- Разбивка по предметам ---------- */
+  .subj-breakdown {
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .subj-breakdown-title {
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .subj-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  .subj-row-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+  }
+  .subj-row-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .subj-row-avg {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ---------- Блок с комментарием ---------- */
+  .day-info {
+    width: min(92vw, 560px);
+    min-height: 0;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 0 16px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .3s ease, opacity .25s ease, padding .25s ease;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .day-info.open {
+    max-height: 400px;
+    opacity: 1;
+    padding: 14px 16px;
+  }
+
+  .day-info-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .day-info-date { font-weight: 600; font-size: 14.5px; }
+  .day-info-subject { font-size: 12.5px; color: var(--muted); }
+  .day-info-score { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+
+  .day-info-text {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--fg);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .day-info-text.empty { color: var(--muted-2); font-style: italic; }
+
+  /* ---------- Модальное окно с инструкцией ---------- */
+  .help-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 12px;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    z-index: 1000;
+  }
+  .help-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .help-panel {
+    position: relative;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    width: min(640px, 100%);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    transform: translateY(8px);
+    transition: transform .25s ease;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .help-overlay.open .help-panel { transform: translateY(0); }
+
+  .help-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--fg);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .1s, background .2s;
+  }
+  .help-close:hover { transform: scale(1.08); }
+  .help-close:active { transform: scale(.92); }
+
+  .help-title { font-size: 18px; font-weight: 700; margin: 0 40px 14px 0; }
+
+  .help-section { margin-bottom: 18px; }
+  .help-section h3 {
+    font-size: 13px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  .help-pre {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--fg);
+    margin: 0;
+  }
+  .help-pre-bad { border-color: #c98; background: rgba(200, 120, 100, .08); }
+
+  .help-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.5; }
+  .help-table th, .help-table td {
+    border: 1px solid var(--card-border);
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .help-table th {
+    background: var(--card-bg);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .help-table td:first-child {
+    width: 64px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .help-hint { font-size: 12px; color: var(--muted-2); margin-top: 6px; text-align: center; }
+
+  /* ---------- Мобильная адаптация ---------- */
+  @media (max-width: 520px) {
+    .grid { gap: 2.5px; }
+    .cell { border-radius: 1.5px; }
+    .cell:hover { transform: none; }
+    .bar { height: 20px; }
+    .theme-btn { width: 36px; height: 36px; top: 10px; right: 10px; }
+    .theme-btn svg { width: 18px; height: 18px; }
+
+    .help-panel { padding: 18px 14px 14px; border-radius: 12px; }
+    .help-title { font-size: 16px; }
+    .help-table th, .help-table td { padding: 6px 8px; font-size: 12px; }
+    .help-table td:first-child { width: 46px; font-size: 13px; }
+    .help-pre { font-size: 12px; padding: 10px 12px; }
+
+    .slider-track { gap: 20px; }
+    .panel {
+      width: calc(33.333% - 13.333px);
+      flex: 0 0 calc(33.333% - 13.333px);
+    }
+
+    .summary-card { padding: 10px 8px; border-radius: 14px; }
+    .summary-title { font-size: 11px; }
+    .donut-wrap, .donut { width: 68px; height: 68px; }
+
+    .weak-card { padding: 10px 12px; gap: 10px; border-radius: 14px; }
+    .weak-title { min-width: 62px; font-size: 11px; }
+    .weak-name { font-size: 12.5px; }
+
+    .mini-card { padding: 10px 12px; border-radius: 14px; }
+    .mini-value { font-size: 18px; }
+
+    .subj-breakdown { padding: 10px 12px; border-radius: 14px; }
+  }
+</style>
+</head>
+<body>
+
+  <button class="theme-btn" id="themeBtn" title="Переключить тему (T)" aria-label="Переключить тему">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+    </svg>
+  </button>
+
+  <!-- ===== Слайдер: оценки + предметы + сводка ===== -->
+  <div class="slider" id="slider">
+    <div class="slider-track" id="sliderTrack">
+
+      <!-- Панель 1: оценки -->
+      <div class="panel active" data-panel="0">
+        <div class="grid-wrap">
+          <div class="grid" id="gridScores"></div>
+        </div>
+        <div class="stats">
+          <div class="stats-title">
+            <span>трекер успеваемости</span>
+            <span class="dots">
+              <span class="dot active"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+          <div class="bar" id="barScores"></div>
+        </div>
+      </div>
+
+      <!-- Панель 2: предметы -->
+      <div class="panel" data-panel="1">
+        <div class="grid-wrap">
+          <div class="grid" id="gridSubjects"></div>
+        </div>
+        <div class="stats">
+          <div class="stats-title">
+            <span>трекер предметов</span>
+            <span class="dots">
+              <span class="dot"></span>
+              <span class="dot active"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+          <div class="bar" id="barSubjects"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+
+      <!-- Панель 3: сводка -->
+      <div class="panel" data-panel="2">
+        <div class="stats">
+          <div class="stats-title">
+            <span>сводка</span>
+            <span class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot active"></span>
+            </span>
+          </div>
+        </div>
+        <div class="summary">
+
+          <div class="summary-row">
+            <div class="summary-card">
+              <div class="summary-title">оценки</div>
+              <div class="donut-wrap">
+                <canvas class="donut" id="donutScores" width="120" height="120"></canvas>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-title">предметы</div>
+              <div class="donut-wrap">
+                <canvas class="donut" id="donutSubjects" width="120" height="120"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="weak-card" id="weakCard">
+            <div class="weak-title">слабый предмет</div>
+            <div class="weak-body">
+              <span class="weak-swatch" id="weakSwatch"></span>
+              <span class="weak-name" id="weakName">—</span>
+              <span class="weak-count" id="weakCount"></span>
+            </div>
+          </div>
+
+          <div class="mini-grid">
+            <div class="mini-card">
+              <div class="mini-label">средний балл</div>
+              <div class="mini-value" id="miniAvg">—</div>
+              <div class="mini-sub" id="miniAvgSub">за всё время</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-label">пропуски</div>
+              <div class="mini-value" id="miniSkip">—</div>
+              <div class="mini-sub" id="miniSkipSub">красных оценок</div>
+            </div>
+          </div>
+
+          <div class="subj-breakdown" id="subjBreakdown">
+            <div class="subj-breakdown-title">средний балл по предметам</div>
+            <!-- строки добавляются JS -->
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="day-info" id="dayInfo">
+    <div class="day-info-head">
+      <div class="day-info-date" id="dayInfoDate"></div>
+      <div class="day-info-subject" id="dayInfoSubject"></div>
+      <div class="day-info-score" id="dayInfoScore"></div>
+    </div>
+    <div class="day-info-text" id="dayInfoText"></div>
+  </div>
+
+  <!-- ===== Инструкция (модальное окно) ===== -->
+  <div class="help-overlay" id="helpOverlay" aria-hidden="true">
+    <div class="help-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="help-close" id="helpClose" aria-label="Закрыть">×</button>
+
+      <h2 class="help-title" id="helpTitle">Как вести трекер</h2>
+
+      <section class="help-section">
+        <h3>Структура комментария</h3>
+        <pre class="help-pre">[Предмет]: [действия с числами].
+Проверка: [как убедился, что верно].
+Время: [Xч Yм].
+Блокер: [что застряло / что отложил].</pre>
+      </section>
+
+      <section class="help-section">
+        <h3>Пример корректного комментария</h3>
+        <pre class="help-pre">История: прочитал главу 3 учебника (стр. 88–104),
+выписал 6 дат и 4 причины в конспект.
+Проверка: закрыл книгу, пересказал вслух по памяти —
+назвал 5 дат из 6 и 3 причины из 4.
+Время: 55 мин.
+Блокер: путаю 1648 и 1653 — надо карточки сделать.</pre>
+      </section>
+
+      <section class="help-section">
+        <h3>Пример неудовлетворительного комментария</h3>
+        <pre class="help-pre help-pre-bad">Хорошо позанимался, немного устал. Чувствую прогресс.</pre>
+      </section>
+
+      <section class="help-section">
+        <h3>Предметы</h3>
+        <p style="font-size:12.5px;line-height:1.6;color:var(--fg);margin:0 0 8px;">
+          В поле <code>subject</code> у каждой записи можно указать предмет:
+          <b>русский</b>, <b>история</b>, <b>обществознание</b>, <b>математика</b>.
+          Оставь пустым, если в этот день не занимался ни одним из них.
+        </p>
+        <p style="font-size:12.5px;line-height:1.6;color:var(--muted);margin:0;">
+          Свайп влево/вправо (или стрелки ← → на ПК) переключает трекер оценок,
+          трекер предметов и сводку. Слабый предмет — тот, у которого самая
+          низкая средняя оценка. Пропуски — доля красных оценок (1–3) от всех
+          выставленных оценок.
+        </p>
+      </section>
+
+      <section class="help-section">
+        <h3>Критерии оценки</h3>
+        <table class="help-table">
+          <thead>
+            <tr><th>Оценка</th><th>Что это по факту</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ничего не делал по учёбе. Даже не открывал. Честный ноль.</td></tr>
+            <tr><td>2</td><td>Открыл, полистал, закрыл. Или 10–15 мин и бросил. Нет ни одной завершённой единицы (задачи/страницы/темы).</td></tr>
+            <tr><td>3</td><td>15–30 мин реального фокуса. Сделал 1–2 мелкие единицы, но без проверки результата.</td></tr>
+            <tr><td>4</td><td>30–60 мин. Сделал несколько единиц, проверил хотя бы часть. Были отвлечения, но день не потерян.</td></tr>
+            <tr><td>5</td><td>~1 час чистого фокуса. Есть завершённый кусок (тема/блок задач) и проверка. Средний день, без рывка.</td></tr>
+            <tr><td>6</td><td>1–1,5 часа фокуса. Завершённый кусок + проверка + понял, что делал (можешь объяснить).</td></tr>
+            <tr><td>7</td><td>1,5–2,5 часа фокуса. Несколько завершённых единиц, проверка, разобрал новое или закрыл сложное. Это нормальный хороший день.</td></tr>
+            <tr><td>8</td><td>2,5–3,5 часа фокуса. Всё из 7 + справился с тем, что раньше не давалось, или сделал больше плана.</td></tr>
+            <tr><td>9</td><td>3,5–5 часов фокуса. Глубоко, с проверкой, без провалов. Редкий день.</td></tr>
+            <tr><td>10</td><td>5+ часов фокуса ИЛИ день, где ты закрыл что-то крупное (сдал, защитил, разобрал большой блок) и можешь объяснить это другому. Максимум 1–2 раза в месяц. Если ставишь 10 чаще — шкала сломана.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <p class="help-hint">Закрыть: кнопка ×, клавиша Esc или клик по фону.</p>
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   ДАННЫЕ
+   ---------------------------------------------------------
+   subject: 'русский' | 'история' | 'обществознание' | 'математика' | ''
+   ========================================================= */
+const SUBJECTS = {
+  russian: { key: 'russian', name: 'русский',        css: 'subj-russian', varName: '--subj-russian' },
+  history: { key: 'history', name: 'история',        css: 'subj-history', varName: '--subj-history' },
+  social:  { key: 'social',  name: 'обществознание', css: 'subj-social',  varName: '--subj-social'  },
+  math:    { key: 'math',    name: 'математика',     css: 'subj-math',    varName: '--subj-math'    }
+};
+
+const SUBJECT_ALIASES = {
+  'русский': 'russian',
+  'история': 'history',
+  'обществознание': 'social',
+  'математика': 'math'
+};
+
+function normalizeSubject(raw) {
+  if (!raw) return '';
+  const k = SUBJECT_ALIASES[String(raw).trim().toLowerCase()];
+  return k || '';
+}
+
+const entries = [
+  { date: '2026-10-20', score: 1,  subject: 'русский',        note: '' },
+  { date: '2026-10-21', score: 2,  subject: 'русский',        note: '' },
+  { date: '2026-10-22', score: 3,  subject: 'русский',        note: '' },
+  { date: '2026-10-23', score: 4,  subject: 'математика',     note: '' },
+  { date: '2026-10-24', score: 5,  subject: 'математика',     note: '' },
+  { date: '2026-10-25', score: 6,  subject: 'математика',     note: '' },
+  { date: '2026-10-26', score: 7,  subject: 'обществознание', note: '' },
+  { date: '2026-10-27', score: 8,  subject: 'обществознание', note: '' },
+  { date: '2026-10-28', score: 9,  subject: 'обществознание', note: '' },
+  { date: '2026-10-29', score: 10, subject: 'история',        note: '' },
+  { date: '2026-10-30', score: 0,  subject: 'история',        note: '' },
+  { date: '2026-10-31', score: 0,  subject: 'история',        note: '' },
+  { date: '2026-11-01', score: 0,  subject: 'история',        note: '' },
+  { date: '2026-11-02', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-03', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-04', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-05', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-06', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-07', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-08', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-09', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-10', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-11', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-12', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-13', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-14', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-15', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-16', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-17', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-18', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-19', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-20', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-21', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-22', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-23', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-24', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-25', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-26', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-27', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-28', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-29', score: 0,  subject: '',               note: '' },
+  { date: '2026-11-30', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-01', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-02', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-03', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-04', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-05', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-06', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-07', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-08', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-09', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-10', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-11', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-12', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-13', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-14', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-15', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-16', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-17', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-18', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-19', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-20', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-21', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-22', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-23', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-24', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-25', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-26', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-27', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-28', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-29', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-30', score: 0,  subject: '',               note: '' },
+  { date: '2026-12-31', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-01', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-02', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-03', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-04', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-05', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-06', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-07', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-08', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-09', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-10', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-11', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-12', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-13', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-14', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-15', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-16', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-17', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-18', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-19', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-20', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-21', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-22', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-23', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-24', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-25', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-26', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-27', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-28', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-29', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-30', score: 0,  subject: '',               note: '' },
+  { date: '2027-01-31', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-01', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-02', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-03', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-04', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-05', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-06', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-07', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-08', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-09', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-10', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-11', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-12', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-13', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-14', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-15', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-16', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-17', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-18', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-19', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-20', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-21', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-22', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-23', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-24', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-25', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-26', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-27', score: 0,  subject: '',               note: '' },
+  { date: '2027-02-28', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-01', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-02', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-03', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-04', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-05', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-06', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-07', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-08', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-09', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-10', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-11', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-12', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-13', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-14', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-15', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-16', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-17', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-18', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-19', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-20', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-21', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-22', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-23', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-24', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-25', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-26', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-27', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-28', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-29', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-30', score: 0,  subject: '',               note: '' },
+  { date: '2027-03-31', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-01', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-02', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-03', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-04', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-05', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-06', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-07', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-08', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-09', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-10', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-11', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-12', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-13', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-14', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-15', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-16', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-17', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-18', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-19', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-20', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-21', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-22', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-23', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-24', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-25', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-26', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-27', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-28', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-29', score: 0,  subject: '',               note: '' },
+  { date: '2027-04-30', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-01', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-02', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-03', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-04', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-05', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-06', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-07', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-08', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-09', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-10', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-11', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-12', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-13', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-14', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-15', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-16', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-17', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-18', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-19', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-20', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-21', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-22', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-23', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-24', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-25', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-26', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-27', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-28', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-29', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-30', score: 0,  subject: '',               note: '' },
+  { date: '2027-05-31', score: 0,  subject: '',               note: '' },
+  { date: '2027-06-01', score: 0,  subject: '',               note: '' }
+];
+
+/* =========================================================
+   УТИЛИТЫ
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+
+function formatDate(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+function getCssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+/* =========================================================
+   ТЕМА
+   ========================================================= */
+const themeBtn = $('themeBtn');
+
+function setTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  requestAnimationFrame(() => {
+    renderAllStats();
+    renderSummary();
+  });
+}
+
+(function initTheme() {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+})();
+
+themeBtn.addEventListener('click', () => {
+  setTheme(!document.body.classList.contains('dark'));
+});
+
+/* =========================================================
+   ТАПЫ ПО БЛОКУ КОММЕНТАРИЯ
+   ========================================================= */
+const TAPS_NEEDED = 5;
+let infoTapCount = 0;
+
+function registerInfoTap() {
+  infoTapCount++;
+  if (infoTapCount >= TAPS_NEEDED) {
+    infoTapCount = 0;
+    openHelp();
+  }
+}
+function resetInfoTapCount() { infoTapCount = 0; }
+
+/* =========================================================
+   СЕТКИ
+   ========================================================= */
+const gridScores = $('gridScores');
+const gridSubjects = $('gridSubjects');
+
+function buildCell(entry, i) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.dataset.index = i;
+  cell.title = formatDate(entry.date);
+  cell.addEventListener('click', () => selectDay(i));
+  return cell;
+}
+
+function renderGrids() {
+  gridScores.innerHTML = '';
+  gridSubjects.innerHTML = '';
+
+  entries.forEach((entry, i) => {
+    const c1 = buildCell(entry, i);
+    if (entry.score >= 1 && entry.score <= 10) c1.classList.add('lvl-' + entry.score);
+    gridScores.appendChild(c1);
+
+    const c2 = buildCell(entry, i);
+    const subjKey = normalizeSubject(entry.subject);
+    if (subjKey) c2.classList.add(SUBJECTS[subjKey].css);
+    gridSubjects.appendChild(c2);
+  });
+
+  if (selectedIndex !== null) {
+    highlightSelected(selectedIndex);
+  }
+}
+
+/* =========================================================
+   СТАТИСТИКА
+   ========================================================= */
+const barScores = $('barScores');
+const barSubjects = $('barSubjects');
+
+function renderScoreBar() {
+  const counts = {};
+  for (let i = 1; i <= 10; i++) counts[i] = 0;
+  entries.forEach(e => { if (e.score >= 1 && e.score <= 10) counts[e.score]++; });
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+  barScores.innerHTML = '';
+  if (total === 0) {
+    barScores.innerHTML = '<div class="bar-empty">пока нет оценок</div>';
+    return;
+  }
+  for (let lvl = 1; lvl <= 10; lvl++) {
+    if (counts[lvl] === 0) continue;
+    const seg = document.createElement('div');
+    seg.className = 'bar-seg';
+    seg.style.width = (counts[lvl] / total * 100) + '%';
+    seg.style.background = getCssVar('--lvl-' + lvl);
+    seg.title = `Оценка ${lvl}: ${counts[lvl]} дн.`;
+    barScores.appendChild(seg);
+  }
+}
+
+function renderSubjectBar() {
+  const counts = { russian: 0, history: 0, social: 0, math: 0 };
+  let total = 0;
+  entries.forEach(e => {
+    const k = normalizeSubject(e.subject);
+    if (k) { counts[k]++; total++; }
+  });
+
+  barSubjects.innerHTML = '';
+  if (total === 0) {
+    barSubjects.innerHTML = '<div class="bar-empty">пока нет предметов</div>';
+    return;
+  }
+  Object.values(SUBJECTS).forEach(s => {
+    if (counts[s.key] === 0) return;
+    const seg = document.createElement('div');
+    seg.className = 'bar-seg';
+    seg.style.width = (counts[s.key] / total * 100) + '%';
+    seg.style.background = getCssVar(s.varName);
+    seg.title = `${s.name}: ${counts[s.key]} дн.`;
+    barSubjects.appendChild(seg);
+  });
+}
+
+function renderLegend() {
+  const legend = $('legend');
+  legend.innerHTML = '';
+  Object.values(SUBJECTS).forEach(s => {
+    const item = document.createElement('span');
+    item.className = 'legend-item';
+    const sw = document.createElement('span');
+    sw.className = 'legend-swatch';
+    sw.style.background = getCssVar(s.varName);
+    const label = document.createElement('span');
+    label.textContent = s.name;
+    item.appendChild(sw);
+    item.appendChild(label);
+    legend.appendChild(item);
+  });
+}
+
+function renderAllStats() {
+  renderScoreBar();
+  renderSubjectBar();
+  renderLegend();
+}
+
+/* =========================================================
+   ПАНЕЛЬ СВОДКИ
+   ========================================================= */
+const donutScoresEl = $('donutScores');
+const donutSubjectsEl = $('donutSubjects');
+const weakSwatch = $('weakSwatch');
+const weakName = $('weakName');
+const weakCount = $('weakCount');
+const miniAvg = $('miniAvg');
+const miniAvgSub = $('miniAvgSub');
+const miniSkip = $('miniSkip');
+const miniSkipSub = $('miniSkipSub');
+const subjBreakdown = $('subjBreakdown');
+
+function drawDonut(canvas, segments) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const cssSize = canvas.clientWidth || 84;
+  const size = cssSize * dpr;
+  if (canvas.width !== size) {
+    canvas.width = size;
+    canvas.height = size;
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssSize, cssSize);
+
+  const cx = cssSize / 2;
+  const cy = cssSize / 2;
+  const lineWidth = Math.max(6, cssSize * 0.16);
+  const radius = cssSize / 2 - lineWidth / 2 - 1;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = getCssVar('--cell-empty');
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+
+  const total = segments.reduce((a, s) => a + s.value, 0);
+  if (!total) return;
+
+  let angle = -Math.PI / 2;
+  segments.forEach(seg => {
+    const a = (seg.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, angle, angle + a);
+    ctx.strokeStyle = seg.color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'butt';
+    ctx.stroke();
+    angle += a;
+  });
+}
+
+function renderSummary() {
+  /* ===== Оценки ===== */
+  const scoreCounts = {};
+  for (let i = 1; i <= 10; i++) scoreCounts[i] = 0;
+  let sumScores = 0;
+  let cntScores = 0;
+  entries.forEach(e => {
+    if (e.score >= 1 && e.score <= 10) {
+      scoreCounts[e.score]++;
+      sumScores += e.score;
+      cntScores++;
+    }
+  });
+
+  const scoreSegments = [];
+  for (let lvl = 1; lvl <= 10; lvl++) {
+    if (!scoreCounts[lvl]) continue;
+    scoreSegments.push({
+      value: scoreCounts[lvl],
+      color: getCssVar('--lvl-' + lvl)
+    });
+  }
+  drawDonut(donutScoresEl, scoreSegments);
+
+  /* ===== Предметы ===== */
+  const subjCounts = { russian: 0, history: 0, social: 0, math: 0 };
+  const subjScoreSum = { russian: 0, history: 0, social: 0, math: 0 };
+  const subjScoreCnt = { russian: 0, history: 0, social: 0, math: 0 };
+
+  entries.forEach(e => {
+    const k = normalizeSubject(e.subject);
+    if (!k) return;
+    subjCounts[k]++;
+    if (e.score >= 1 && e.score <= 10) {
+      subjScoreSum[k] += e.score;
+      subjScoreCnt[k]++;
+    }
+  });
+
+  const subjSegments = [];
+  Object.values(SUBJECTS).forEach(s => {
+    if (!subjCounts[s.key]) return;
+    subjSegments.push({
+      value: subjCounts[s.key],
+      color: getCssVar(s.varName)
+    });
+  });
+  drawDonut(donutSubjectsEl, subjSegments);
+
+  /* ===== Слабый предмет ===== */
+  const rated = Object.values(SUBJECTS)
+    .map(s => {
+      const cnt = subjScoreCnt[s.key];
+      const avg = cnt > 0 ? subjScoreSum[s.key] / cnt : null;
+      return { s, avg, cnt, days: subjCounts[s.key] };
+    })
+    .filter(x => x.avg !== null && x.days > 0);
+
+  if (rated.length === 0) {
+    weakSwatch.style.background = getCssVar('--cell-empty');
+    weakName.textContent = 'пока нет данных';
+    weakName.style.color = 'var(--muted-2)';
+    weakName.style.fontStyle = 'italic';
+    weakCount.textContent = '';
+  } else {
+    rated.sort((a, b) => a.avg - b.avg);
+    const weakest = rated[0];
+    weakSwatch.style.background = getCssVar(weakest.s.varName);
+    weakName.textContent = weakest.s.name;
+    weakName.style.color = 'var(--fg)';
+    weakName.style.fontStyle = 'normal';
+    weakCount.textContent = 'ср. ' + weakest.avg.toFixed(1);
+  }
+
+  /* ===== Средний балл ===== */
+  const avg = cntScores > 0 ? sumScores / cntScores : null;
+  if (avg === null) {
+    miniAvg.textContent = '—';
+    miniAvgSub.textContent = 'нет оценок';
+  } else {
+    miniAvg.textContent = avg.toFixed(1);
+    miniAvgSub.textContent = `по ${cntScores} ${plural(cntScores, 'оценке','оценкам','оценкам')}`;
+  }
+
+  /* ===== Пропуски: % красных оценок (1–3) ===== */
+  const redCount = (scoreCounts[1] || 0) + (scoreCounts[2] || 0) + (scoreCounts[3] || 0);
+  if (cntScores === 0) {
+    miniSkip.textContent = '—';
+    miniSkipSub.textContent = 'нет оценок';
+  } else {
+    const pct = Math.round(redCount / cntScores * 100);
+    miniSkip.textContent = pct + '%';
+    miniSkipSub.textContent = `${redCount} ${plural(redCount, 'красная','красные','красных')} из ${cntScores}`;
+  }
+
+  /* ===== Разбивка по предметам (без полос) ===== */
+  Array.from(subjBreakdown.querySelectorAll('.subj-row')).forEach(el => el.remove());
+
+  const rows = Object.values(SUBJECTS)
+    .map(s => {
+      const cnt = subjScoreCnt[s.key];
+      const avg = cnt > 0 ? subjScoreSum[s.key] / cnt : null;
+      return { s, avg, days: subjCounts[s.key] };
+    })
+    .filter(x => x.days > 0);
+
+  if (rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'mini-sub';
+    empty.style.fontSize = '12px';
+    empty.textContent = 'пока нет предметов';
+    subjBreakdown.appendChild(empty);
+    return;
+  }
+
+  rows.forEach(row => {
+    const el = document.createElement('div');
+    el.className = 'subj-row';
+
+    const sw = document.createElement('span');
+    sw.className = 'subj-row-swatch';
+    sw.style.background = getCssVar(row.s.varName);
+
+    const name = document.createElement('span');
+    name.className = 'subj-row-name';
+    name.textContent = row.s.name;
+
+    const avgEl = document.createElement('span');
+    avgEl.className = 'subj-row-avg';
+    avgEl.textContent = row.avg !== null ? 'ср. ' + row.avg.toFixed(1) : '—';
+
+    el.appendChild(sw);
+    el.appendChild(name);
+    el.appendChild(avgEl);
+    subjBreakdown.appendChild(el);
+  });
+}
+
+function plural(n, one, few, many) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
+/* =========================================================
+   КАРТОЧКА ДНЯ
+   ========================================================= */
+const dayInfo = $('dayInfo');
+const dayInfoDate = $('dayInfoDate');
+const dayInfoSubject = $('dayInfoSubject');
+const dayInfoScore = $('dayInfoScore');
+const dayInfoText = $('dayInfoText');
+
+let selectedIndex = null;
+
+function highlightSelected(index) {
+  document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll(`.cell[data-index="${index}"]`).forEach(c => c.classList.add('selected'));
+}
+
+function selectDay(index) {
+  resetInfoTapCount();
+  selectedIndex = index;
+  highlightSelected(index);
+
+  const entry = entries[index];
+  dayInfoDate.textContent = formatDate(entry.date);
+
+  const subjKey = normalizeSubject(entry.subject);
+  dayInfoSubject.textContent = subjKey ? 'предмет: ' + SUBJECTS[subjKey].name : 'предмет: —';
+
+  dayInfoScore.textContent = entry.score >= 1 && entry.score <= 10
+    ? 'оценка: ' + entry.score
+    : 'оценка: —';
+
+  if (entry.note && entry.note.trim()) {
+    dayInfoText.textContent = entry.note;
+    dayInfoText.classList.remove('empty');
+  } else {
+    dayInfoText.textContent = 'комментария нет';
+    dayInfoText.classList.add('empty');
+  }
+
+  dayInfo.classList.add('open');
+}
+
+dayInfo.addEventListener('click', (e) => {
+  if (e.target.closest('a, button, input, textarea')) return;
+  registerInfoTap();
+});
+
+/* =========================================================
+   СЛАЙДЕР
+   ========================================================= */
+const slider = $('slider');
+const sliderTrack = $('sliderTrack');
+const panels = sliderTrack.querySelectorAll('.panel');
+const TOTAL_PANELS = panels.length;
+const PANEL_SHARE = 100 / TOTAL_PANELS;
+
+let currentPanel = 0;
+let startX = 0;
+let startY = 0;
+let dragging = false;
+let isHorizontalSwipe = null;
+let baseTranslate = 0;
+let dragProgress = 0;
+const SWIPE_THRESHOLD = 40;
+
+function updateDots() {
+  document.querySelectorAll('.stats-title').forEach((title) => {
+    const dotEls = title.querySelectorAll('.dot');
+    dotEls.forEach((d, j) => {
+      d.classList.toggle('active', j === currentPanel);
+    });
+  });
+  panels.forEach((p, i) => {
+    p.classList.toggle('active', i === currentPanel);
+  });
+}
+
+function goToPanel(index, animate = true) {
+  currentPanel = Math.max(0, Math.min(TOTAL_PANELS - 1, index));
+  const offset = -currentPanel * PANEL_SHARE;
+  if (!animate) sliderTrack.classList.add('dragging');
+  sliderTrack.style.transform = `translateX(${offset}%)`;
+  panels.forEach((p) => {
+    p.style.transform = '';
+    p.style.opacity = '';
+    p.style.filter = '';
+  });
+  if (!animate) {
+    void sliderTrack.offsetWidth;
+    sliderTrack.classList.remove('dragging');
+  }
+  updateDots();
+}
+
+function getTranslatePercent() {
+  const style = window.getComputedStyle(sliderTrack);
+  const matrix = new DOMMatrixReadOnly(style.transform);
+  const width = sliderTrack.offsetWidth;
+  return width ? (matrix.m41 / width) * 100 : 0;
+}
+
+function onPointerDown(e) {
+  if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+  dragging = true;
+  isHorizontalSwipe = null;
+  startX = e.clientX;
+  startY = e.clientY;
+  baseTranslate = getTranslatePercent();
+  dragProgress = 0;
+  sliderTrack.classList.add('dragging');
+  slider.setPointerCapture && slider.setPointerCapture(e.pointerId);
+}
+
+function onPointerMove(e) {
+  if (!dragging) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  if (isHorizontalSwipe === null) {
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+      isHorizontalSwipe = Math.abs(dx) > Math.abs(dy);
+      if (!isHorizontalSwipe) {
+        dragging = false;
+        sliderTrack.classList.remove('dragging');
+        goToPanel(currentPanel, true);
+        return;
+      }
+    } else {
+      return;
+    }
+  }
+
+  if (!isHorizontalSwipe) return;
+  e.preventDefault();
+
+  const percentDelta = (dx / sliderTrack.offsetWidth) * 100;
+  let next = baseTranslate + percentDelta;
+
+  const min = -(TOTAL_PANELS - 1) * PANEL_SHARE;
+  const max = 0;
+  if (next > max) next = max + (next - max) * 0.25;
+  if (next < min) next = min + (next - min) * 0.25;
+
+  sliderTrack.style.transform = `translateX(${next}%)`;
+
+  const center = -currentPanel * PANEL_SHARE;
+  const dist = Math.abs(next - center) / PANEL_SHARE;
+  dragProgress = Math.min(1, dist);
+
+  panels.forEach((p, i) => {
+    if (i === currentPanel) {
+      const s = 1 - 0.12 * dragProgress;
+      const o = 1 - 0.65 * dragProgress;
+      const sat = 1 - 0.4 * dragProgress;
+      p.style.transform = `scale(${s}) translateY(${dragProgress * 6}px)`;
+      p.style.opacity = String(o);
+      p.style.filter = `saturate(${sat})`;
+    } else if (i === currentPanel + (percentDelta < 0 ? 1 : -1)) {
+      const s = 0.88 + 0.12 * dragProgress;
+      const o = 0.35 + 0.65 * dragProgress;
+      const sat = 0.6 + 0.4 * dragProgress;
+      p.style.transform = `scale(${s}) translateY(${(1 - dragProgress) * 6}px)`;
+      p.style.opacity = String(o);
+      p.style.filter = `saturate(${sat})`;
+    }
+  });
+}
+
+function onPointerUp(e) {
+  if (!dragging) return;
+  dragging = false;
+  sliderTrack.classList.remove('dragging');
+
+  if (isHorizontalSwipe) {
+    const dx = e.clientX - startX;
+    if (dx < -SWIPE_THRESHOLD && currentPanel < TOTAL_PANELS - 1) {
+      goToPanel(currentPanel + 1, true);
+    } else if (dx > SWIPE_THRESHOLD && currentPanel > 0) {
+      goToPanel(currentPanel - 1, true);
+    } else {
+      goToPanel(currentPanel, true);
+    }
+  }
+  isHorizontalSwipe = null;
+}
+
+slider.addEventListener('pointerdown', onPointerDown);
+slider.addEventListener('pointermove', onPointerMove);
+slider.addEventListener('pointerup', onPointerUp);
+slider.addEventListener('pointercancel', onPointerUp);
+
+slider.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }
+}, { passive: true });
+
+window.addEventListener('keydown', (e) => {
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (e.key === 'ArrowLeft') { goToPanel(currentPanel - 1, true); return; }
+  if (e.key === 'ArrowRight') { goToPanel(currentPanel + 1, true); return; }
+});
+
+/* =========================================================
+   МОДАЛЬНОЕ ОКНО ИНСТРУКЦИИ
+   ========================================================= */
+const helpOverlay = $('helpOverlay');
+const helpClose = $('helpClose');
+
+function openHelp() {
+  helpOverlay.classList.add('open');
+  helpOverlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHelp() {
+  helpOverlay.classList.remove('open');
+  helpOverlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+helpClose.addEventListener('click', closeHelp);
+helpOverlay.addEventListener('click', (e) => {
+  if (e.target === helpOverlay) closeHelp();
+});
+
+/* =========================================================
+   ГОРЯЧИЕ КЛАВИШИ (ПК)
+   ========================================================= */
+window.addEventListener('keydown', (e) => {
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  const k = e.key.toLowerCase();
+
+  if (k === 't' || k === 'е') {
+    setTheme(!document.body.classList.contains('dark'));
+    return;
+  }
+  if ((k === 'x' || k === 'ч') && !helpOverlay.classList.contains('open')) {
+    openHelp();
+    return;
+  }
+  if (e.key === 'Escape' && helpOverlay.classList.contains('open')) {
+    closeHelp();
+  }
+});
+
+/* =========================================================
+   ЗАПУСК
+   ========================================================= */
+renderGrids();
+renderAllStats();
+renderSummary();
+updateDots();
+
+window.addEventListener('load', () => { renderSummary(); });
+window.addEventListener('resize', () => { renderSummary(); });
+</script>
+</body>
+</html>
