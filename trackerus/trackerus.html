@@ -96,6 +96,43 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
     --summary-border: #2e2e34;
   }
 
+
+
+body.halloween {
+  --bg: #000000;
+  --fg: #e8e0d0;
+  --cell-empty: #141414;
+  --bar-track: #0a0a0a;
+  --bar-track-border: #1f1f1f;
+  --muted: #a89a7a;
+  --muted-2: #6e6350;
+  --card-bg: #0d0d0d;
+  --card-border: #1f1f1f;
+
+  /* 1–10: тыквенная гамма — от тёмно-ржавого к яркой тыкве */
+  --lvl-1:  #2b0f00;
+  --lvl-2:  #4a1a00;
+  --lvl-3:  #6e2800;
+  --lvl-4:  #943800;
+  --lvl-5:  #b84a00;
+  --lvl-6:  #d65f00;
+  --lvl-7:  #ed7a0a;
+  --lvl-8:  #f7931e;
+  --lvl-9:  #ffab3d;
+  --lvl-10: #ffc266;
+
+  /* Предметы: жутковатые, приглушённые */
+  --subj-russian: #8b1a1a;   /* запёкшаяся кровь */
+  --subj-history: #b8860b;   /* тёмное золото */
+  --subj-social:  #4b2e5c;   /* сумеречный фиолет */
+  --subj-math:    #227d32;   /* болотный мох */
+
+  --summary-bg: #0d0d0d;
+  --summary-border: #1f1f1f;
+}
+
+
+
   html, body {
     background: var(--bg);
     color: var(--fg);
@@ -485,6 +522,58 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
 
     .subj-breakdown { padding: 10px 12px; border-radius: 14px; }
   }
+
+
+
+
+.bar-seg {
+  height: 100%;
+  transition: width .35s ease;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 6px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+
+#halloweenLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  display: none;
+}
+
+body.halloween #halloweenLayer { display: block; }
+
+#halloweenLayer .spooky {
+  position: absolute;
+  opacity: .18;
+  animation-name: spookyFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+  user-select: none;
+  filter: grayscale(.15) brightness(1.1);
+}
+
+body.halloween #halloweenLayer .spooky { opacity: .22; }
+
+@keyframes spookyFloat {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(18px, -22px) rotate(8deg); }
+  50%  { transform: translate(-12px, -40px) rotate(-6deg); }
+  75%  { transform: translate(-22px, -18px) rotate(4deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
 </style>
 </head>
 <body>
@@ -533,7 +622,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
             </span>
           </div>
           <div class="bar" id="barSubjects"></div>
-          <div class="legend" id="legend"></div>
         </div>
       </div>
 
@@ -953,6 +1041,35 @@ function plural(n, one, few, many) {
 }
 
 /* =========================================================
+   ХЭЛЛОУИН: слой с эмодзи
+   ========================================================= */
+const SPOOKY_EMOJI = ['🎃', '🧛', '🦇', '🍬', '🍭', '🕸️', '🧟'];
+const SPOOKY_COUNT = 8;
+
+function buildHalloweenLayer() {
+  let layer = document.getElementById('halloweenLayer');
+  if (layer) return layer;
+
+  layer = document.createElement('div');
+  layer.id = 'halloweenLayer';
+
+  for (let i = 0; i < SPOOKY_COUNT; i++) {
+    const el = document.createElement('span');
+    el.className = 'spooky';
+    el.textContent = SPOOKY_EMOJI[Math.floor(Math.random() * SPOOKY_EMOJI.length)];
+    el.style.left = (Math.random() * 100) + 'vw';
+    el.style.top = (Math.random() * 100) + 'vh';
+    el.style.fontSize = (18 + Math.random() * 46) + 'px';
+    el.style.animationDuration = (6 + Math.random() * 8).toFixed(2) + 's';
+    el.style.animationDelay = (-Math.random() * 8).toFixed(2) + 's';
+    layer.appendChild(el);
+  }
+
+  document.body.appendChild(layer);
+  return layer;
+}
+
+/* =========================================================
    ТЕМА
    ========================================================= */
 const themeBtn = $('themeBtn');
@@ -966,14 +1083,32 @@ function setTheme(dark) {
   });
 }
 
+function toggleHalloween() {
+  const on = document.body.classList.toggle('halloween');
+  if (on) buildHalloweenLayer();
+  localStorage.setItem('halloween', on ? '1' : '0');
+  requestAnimationFrame(() => {
+    renderAllStats();
+    renderSummary();
+  });
+}
+
 (function initTheme() {
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
+  }
+  if (localStorage.getItem('halloween') === '1') {
+    document.body.classList.add('halloween');
+    buildHalloweenLayer();
   }
 })();
 
 themeBtn.addEventListener('click', () => {
   setTheme(!document.body.classList.contains('dark'));
+});
+
+themeBtn.addEventListener('dblclick', () => {
+  toggleHalloween();
 });
 
 /* =========================================================
@@ -1073,12 +1208,14 @@ function renderSubjectBar() {
     seg.style.width = (counts[s.key] / total * 100) + '%';
     seg.style.background = getCssVar(s.varName);
     seg.title = `${s.name}: ${counts[s.key]} дн.`;
+    seg.textContent = s.name.slice(0, 3);
     barSubjects.appendChild(seg);
   });
 }
 
 function renderLegend() {
   const legend = $('legend');
+  if (!legend) return;
   legend.innerHTML = '';
   Object.values(SUBJECTS).forEach(s => {
     const item = document.createElement('span');
@@ -1333,11 +1470,6 @@ dayInfo.addEventListener('click', (e) => {
 
 /* =========================================================
    СЛАЙДЕР
-   ---------------------------------------------------------
-   Клики по ячейкам НЕ перехватываются: ячейка имеет свой
-   click-обработчик. Слайдер двигает панели только когда
-   был реальный горизонтальный свайп. После свайпа один
-   следующий click подавляется, чтобы не сработал случайно.
    ========================================================= */
 const slider = $('slider');
 const sliderTrack = $('sliderTrack');
@@ -1425,7 +1557,6 @@ window.addEventListener('pointermove', (e) => {
     if (isHorizontal) {
       sliderTrack.classList.add('dragging');
     } else {
-      // вертикальный скролл — не мешаем
       pointerDown = false;
       isDragging = false;
       sliderTrack.classList.remove('dragging');
@@ -1497,7 +1628,6 @@ function endPointer() {
 window.addEventListener('pointerup', endPointer);
 window.addEventListener('pointercancel', endPointer);
 
-/* Подавляем один click после реального свайпа (capture-фаза) */
 document.addEventListener('click', (e) => {
   if (suppressNextClick) {
     suppressNextClick = false;
@@ -1519,6 +1649,10 @@ window.addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   if (k === 't' || k === 'е') {
     setTheme(!document.body.classList.contains('dark'));
+    return;
+  }
+  if (k === 'h' || k === 'р') {
+    toggleHalloween();
     return;
   }
   if ((k === 'x' || k === 'ч') && !helpOverlay.classList.contains('open')) {
